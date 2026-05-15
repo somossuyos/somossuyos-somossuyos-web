@@ -8,13 +8,30 @@ out/
 # Env (never commit secrets)
 .env
 .env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
 .env*.local
+
+# Vercel / deploy
+.vercel
 
 # Build / tooling
 dist/
 build/
 coverage/
 
+# Package managers (optional local config)
+.npmrc
+
 # OS / editor
 .DS_Store
 *.log
+.idea/
+.vscode/
+
+# TypeScript incremental
+*.tsbuildinfo

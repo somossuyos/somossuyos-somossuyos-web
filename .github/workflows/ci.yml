@@ -1,0 +1,42 @@
+# CI — lint, typecheck y build de Next.js
+# Si tu CMS no es público, define el secreto API_URL y sustituye el valor por defecto abajo.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+
+  build:
+    runs-on: ubuntu-latest
+    needs: quality
+    env:
+      # Sustituye por secrets.API_URL si el CMS no debe ser público en CI
+      API_URL: ${{ secrets.API_URL || 'https://cms.somossuyos.com/api' }}
+      MICROSERVICE_URL: ${{ secrets.MICROSERVICE_URL }}
+      MICROSERVICE_BEARER_TOKEN: ${{ secrets.MICROSERVICE_BEARER_TOKEN }}
+      WOMPI_PUBLIC_KEY: ${{ secrets.WOMPI_PUBLIC_KEY }}
+      WOMPI_REDIRECT_URL: ${{ secrets.WOMPI_REDIRECT_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build

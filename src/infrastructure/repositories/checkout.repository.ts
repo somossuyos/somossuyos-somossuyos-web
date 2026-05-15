@@ -51,21 +51,18 @@ export const checkoutRepository = {
       }
     });
 
-    const response = await fetch(`${process.env.MICROSERVICE_URL}/order`, {
+    const response = await fetch('/api/checkout/order', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJyb2xlIjoiU1VQRVJfQURNSU4ifQ.epLw7nM5qresXmEL498EWMn2zLr2p_xOLiftlgPvwW4'
       },
       body
     });
 
-    if (response.status === 500) {
-      const text = response.text();
-      return text;
+    if (!response.ok) {
+      return await response.text();
     }
-    const json = await response.json();
-    return json;
+    return await response.json();
   },
   async getCheckout(id: string) {
     const response = await fetch(`${process.env.API_URL}/transacciones?fields=Estado&filters[idTransaccion][$eq]=${id}`);
