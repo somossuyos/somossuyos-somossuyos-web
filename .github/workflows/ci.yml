@@ -28,9 +28,9 @@ jobs:
     env:
       # Sustituye por secrets.API_URL si el CMS no debe ser público en CI
       API_URL: ${{ secrets.API_URL || 'https://cms.somossuyos.com/api' }}
-      MICROSERVICE_URL: ${{ secrets.MICROSERVICE_URL }}
-      MICROSERVICE_BEARER_TOKEN: ${{ secrets.MICROSERVICE_BEARER_TOKEN }}
+      NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000' }}
       WOMPI_PUBLIC_KEY: ${{ secrets.WOMPI_PUBLIC_KEY }}
+      WOMPI_INTEGRITY_SECRET: ${{ secrets.WOMPI_INTEGRITY_SECRET }}
       WOMPI_REDIRECT_URL: ${{ secrets.WOMPI_REDIRECT_URL }}
     steps:
       - uses: actions/checkout@v4

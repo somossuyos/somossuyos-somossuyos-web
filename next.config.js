@@ -3,9 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   env: {
     API_URL: process.env.API_URL,
-    MICROSERVICE_URL: process.env.MICROSERVICE_URL,
     WOMPI_PUBLIC_KEY: process.env.WOMPI_PUBLIC_KEY,
     WOMPI_REDIRECT_URL: process.env.WOMPI_REDIRECT_URL,
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     WHATSAPP_NUMBER: process.env.WHATSAPP_NUMBER,
     NOV_ID: process.env.NOV_ID,
   },
