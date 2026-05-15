@@ -1,0 +1,51 @@
+{
+  "name": "web-somos-suyos",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "sitemap": "next-sitemap",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test:pages": "cypress run --spec \"cypress/e2e/page-rendering.cy.ts\"",
+    "test:components": "cypress run --spec \"cypress/e2e/component-rendering.cy.ts\"",
+    "test:integration": "cypress run --spec \"cypress/e2e/integration-basic.cy.ts\"",
+    "test:all": "cypress run"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.2.6",
+    "embla-carousel-react": "^8.6.0",
+    "lucide-react": "^0.513.0",
+    "luxon": "^3.6.1",
+    "matter-js": "^0.19.0",
+    "next": "15.3.8",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-fast-marquee": "^1.6.4",
+    "react-redux": "^9.1.2",
+    "react-responsive": "^10.0.0",
+    "sharp": "^0.33.4"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.6.2",
+    "@types/matter-js": "^0.19.7",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "autoprefixer": "^10",
+    "cypress": "^13.14.2",
+    "eslint": "^8",
+    "eslint-config-next": "13.5.6",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-unused-imports": "^3.1.0",
+    "next-sitemap": "^4.2.3",
+    "postcss": "^8",
+    "tailwindcss": "^3",
+    "typescript": "^5"
+  }
+}
