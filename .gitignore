@@ -1,1 +1,20 @@
+# Dependencies
 node_modules/
+
+# Next.js
+.next/
+out/
+
+# Env (never commit secrets)
+.env
+.env.local
+.env*.local
+
+# Build / tooling
+dist/
+build/
+coverage/
+
+# OS / editor
+.DS_Store
+*.log
