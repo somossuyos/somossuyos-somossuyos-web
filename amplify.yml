@@ -10,7 +10,7 @@ frontend:
         # no las expone al runtime (Lambda) salvo que queden en `.env.production` antes de `next build`.
         # https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
         - rm -f .env.production
-        - env | grep -e '^WOMPI_PUBLIC_KEY=' -e '^WOMPI_INTEGRITY_SECRET=' -e '^WOMPI_EVENTS_SECRET=' -e '^WOMPI_REDIRECT_URL=' -e '^WOMPI_PRIVATE_KEY=' -e '^WOMPI_WEBHOOK_DISABLE_VERIFY=' >> .env.production || true
+        - env | grep -e '^WOMPI_PUBLIC_KEY=' -e '^WOMPI_INTEGRITY_SECRET=' -e '^WOMPI_EVENTS_SECRET=' -e '^WOMPI_REDIRECT_URL=' -e '^WOMPI_PRIVATE_KEY=' -e '^WOMPI_WEBHOOK_DISABLE_VERIFY=' -e '^WOMPI_DIGITAL_PDF_URL=' -e '^WOMPI_DIGITAL_PRODUCT_NAME=' -e '^WOMPI_DEBUG_ENV=' >> .env.production || true
         - env | grep -e '^API_URL=' >> .env.production || true
         - env | grep -e '^RESEND_API_KEY=' -e '^RESEND_FROM_EMAIL=' -e '^INTERNAL_MAIL_SECRET=' >> .env.production || true
         - env | grep -e '^NEXT_PUBLIC_' >> .env.production || true

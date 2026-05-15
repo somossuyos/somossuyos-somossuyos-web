@@ -1,6 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { resolveEventChecksum, verifyWompiEventChecksum } from '@/src/lib/wompi/webhookVerify';
 import { sendOrderConfirmationEmail } from '@/src/lib/email/sendOrderConfirmation';
+import { str } from '@/src/lib/wompi/webhookStrings';
+import {
+  customerFullNameFromWompiTransaction,
+  productLabelFromWompiTransaction,
+} from '@/src/lib/wompi/webhookTransactionMeta';
 
 type WompiLikeBody = {
   event?: string;
@@ -21,8 +26,12 @@ function getTrx(body: WompiLikeBody): Record<string, unknown> | undefined {
   return undefined;
 }
 
-function str(v: unknown): string {
-  return v === null || v === undefined ? '' : String(v);
+function maskEmail(email: string): string {
+  const parts = email.trim().split('@');
+  if (parts.length !== 2 || !parts[0].length) return '(redacted)';
+  const [user, domain] = parts;
+  const vis = user.length <= 2 ? '*' : `${user.slice(0, 2)}…`;
+  return `${vis}@${domain}`;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -38,6 +47,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('[wompi/webhook] invalid JSON');
     return res.status(400).json({ error: 'invalid_json' });
   }
+
+  const trx = getTrx(body) as Record<string, unknown> | undefined;
+  const eventName = typeof body.event === 'string' ? body.event : 'unknown';
+
+  console.info('[wompi/webhook] received', {
+    event: eventName,
+    hasTransaction: Boolean(trx),
+  });
 
   const skipVerify = process.env.WOMPI_WEBHOOK_DISABLE_VERIFY === 'true';
 
@@ -60,9 +77,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.warn('[wompi/webhook] VERIFY DISABLED — solo desarrollo seguro.');
   }
 
-  const trx = getTrx(body) as Record<string, unknown> | undefined;
-  const eventName = typeof body.event === 'string' ? body.event : 'unknown';
-
   const statusRaw = trx ? str(trx.status).toUpperCase() : '';
   const reference = trx ? str(trx.reference) : '';
   const trxId = trx ? str(trx.id) : '';
@@ -73,7 +87,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const amt =
     trx && typeof trx.amount_in_cents !== 'undefined' ? Number(trx.amount_in_cents) : undefined;
 
-  console.info('[wompi/webhook]', {
+  console.info('[wompi/webhook] parsed transaction', {
     event: eventName,
     status: statusRaw || null,
     reference: reference || null,
@@ -81,33 +95,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
 
   if (statusRaw === 'APPROVED') {
+    console.info('[wompi/webhook] payment approved', {
+      reference: reference || null,
+      trxId: trxId || null,
+      hasCustomerEmail: Boolean(customerEmail),
+    });
+
     if (customerEmail) {
+      const fullName = customerFullNameFromWompiTransaction(trx);
+      const productName = productLabelFromWompiTransaction(trx);
+
       const emailResult = await sendOrderConfirmationEmail({
         email: customerEmail,
-        fullName: (() => {
-          const cd = trx?.customer_data;
-          const cdCamel = trx?.customerData;
-          const o =
-            cd && typeof cd === 'object'
-              ? (cd as Record<string, unknown>)
-              : cdCamel && typeof cdCamel === 'object'
-                ? (cdCamel as Record<string, unknown>)
-                : undefined;
-          if (!o) return '';
-          return str(o.full_name || o.fullName);
-        })(),
+        fullName: fullName || undefined,
         reference: reference || trxId || 'unknown',
         transactionId: trxId || 'unknown',
         amountInCents: Number.isFinite(amt as number) ? (amt as number) : undefined,
         status: statusRaw,
         productSummary: reference ? `Referencia de orden: ${reference}` : undefined,
+        fulfillmentTemplate: 'digital_download',
+        ...(productName ? { productName } : {}),
       });
-      console.info('[wompi/webhook] resend:', emailResult);
+
+      if (emailResult.sent) {
+        console.info('[wompi/webhook] digital fulfillment email sent', {
+          reference: reference || null,
+          to: maskEmail(customerEmail),
+        });
+      } else {
+        console.error('[wompi/webhook] resend error', {
+          reference: reference || null,
+          to: maskEmail(customerEmail),
+          error: emailResult.error ?? 'unknown',
+        });
+      }
     } else {
-      console.warn('[wompi/webhook] APPROVED sin customer_email — no correo.');
+      console.warn('[wompi/webhook] APPROVED sin customer_email — no se envía correo.');
     }
 
     /** Punto futuro: persistir en CMS (tipo transacciones) con STRAPI API token — no hay contrato garantizado aquí */
+  } else if (trx) {
+    console.info('[wompi/webhook] no email action (not approved)', {
+      event: eventName,
+      status: statusRaw || null,
+    });
   }
 
   return res.status(200).json({ received: true });

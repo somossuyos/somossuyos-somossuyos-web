@@ -55,6 +55,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       amountInCents: body.amountInCents,
       status: body.status ? String(body.status) : 'APPROVED',
       productSummary: body.productSummary,
+      productName: body.productName,
+      pdfDownloadUrl: body.pdfDownloadUrl,
+      subjectOverride: body.subjectOverride,
+      fulfillmentTemplate: body.fulfillmentTemplate,
     };
 
     if (!payload.email.includes('@')) {
