@@ -8,6 +8,7 @@ import { shopItemTypes } from '../utils/shopItemTypes';
 import { deliveryPrices } from '../utils/deliveryPrices';
 import { countries } from '../utils/countries';
 import { isCartDigitalOnly } from './useShoppingCart';
+import { getWompiPublicKeyBrowser, getWompiRedirectUrlBrowser } from '@/src/lib/wompi/clientEnv';
 
 
 // eslint-disable-next-line max-lines-per-function
@@ -118,15 +119,15 @@ export default function useCheckout() {
         throw new Error();
       }
 
-      const { ammount: amountInCents, transactionReference: reference, encodedIntegritySignature: integrity } = response;
+      const { ammount: amountInCents, transactionReference: reference, encodedIntegritySignature: integrity, redirectUrl } = response;
 
       const checkout = new window.WidgetCheckout({
         currency: 'COP',
         amountInCents,
         reference,
-        publicKey: process.env.WOMPI_PUBLIC_KEY,
+        publicKey: getWompiPublicKeyBrowser(),
         signature: { integrity },
-        redirectUrl: process.env.WOMPI_REDIRECT_URL,
+        redirectUrl: getWompiRedirectUrlBrowser(redirectUrl) || undefined,
         customerData: {
           email: checkoutData.email,
           fullName: `${checkoutData.names} ${checkoutData.lastNames}`,

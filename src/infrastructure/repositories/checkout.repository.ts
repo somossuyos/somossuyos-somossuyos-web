@@ -23,11 +23,16 @@ export const checkoutRepository = {
       return 'Invalid order response';
     }
 
+    const redirectRaw = (json as { redirectUrl?: unknown }).redirectUrl;
+    const redirectUrl =
+      typeof redirectRaw === 'string' || redirectRaw === null ? redirectRaw : undefined;
+
     /** Campos esperados por el widget legacy (nombre `ammount` heredado). */
     return {
       transactionReference: (json as { transactionReference: string }).transactionReference,
       ammount: (json as { ammount: number }).ammount,
       encodedIntegritySignature: (json as { encodedIntegritySignature: string }).encodedIntegritySignature,
+      redirectUrl,
     };
   },
   async getCheckout(id: string) {

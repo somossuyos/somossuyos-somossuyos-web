@@ -2,6 +2,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'node:crypto';
 import { encodeWidgetIntegritySha256 } from '@/src/lib/wompi/integrity';
 import type { CheckoutDTO } from '@/src/infrastructure/DTOs/Checkout/CheckoutDTO';
+import {
+  getWompiIntegritySecretForServer,
+  getWompiPublicKeyForServer,
+  logWompiServerEnvDiagnostics,
+  shouldLogWompiEnvVerbose,
+} from '@/src/lib/wompi/serverEnv';
 
 type CreateOrderOk = {
   ok: true;
@@ -53,14 +59,21 @@ export default async function handler(
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const publicKey = process.env.WOMPI_PUBLIC_KEY?.trim();
-  const integritySecret = process.env.WOMPI_INTEGRITY_SECRET?.trim();
+  const publicKey = getWompiPublicKeyForServer();
+  const integritySecret = getWompiIntegritySecretForServer();
 
   if (!publicKey || !integritySecret) {
+    console.error('[wompi/create-order] faltan variables server-side (valores enmascarados)');
+    logWompiServerEnvDiagnostics('wompi/create-order');
     return res.status(500).json({
       ok: false,
-      error: 'Configure WOMPI_PUBLIC_KEY y WOMPI_INTEGRITY_SECRET en el servidor (Amplify).',
+      error:
+        'Configure WOMPI_PUBLIC_KEY (o NEXT_PUBLIC_WOMPI_PUBLIC_KEY) y WOMPI_INTEGRITY_SECRET para el servidor. En Amplify, asegúrate de tener `amplify.yml` que escriba estas claves en `.env.production` antes del build.',
     });
+  }
+
+  if (shouldLogWompiEnvVerbose()) {
+    logWompiServerEnvDiagnostics('wompi/create-order');
   }
 
   const data = req.body as CheckoutDTO | null | undefined;
