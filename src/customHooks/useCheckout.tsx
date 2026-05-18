@@ -8,7 +8,7 @@ import { shopItemTypes } from '../utils/shopItemTypes';
 import { deliveryPrices } from '../utils/deliveryPrices';
 import { countries } from '../utils/countries';
 import { isCartDigitalOnly } from './useShoppingCart';
-import { getWompiPublicKeyBrowser, getWompiRedirectUrlBrowser } from '@/src/lib/wompi/clientEnv';
+import { getWompiRedirectUrlBrowser, resolveWompiPublicKeyForWidget } from '@/src/lib/wompi/clientEnv';
 
 
 // eslint-disable-next-line max-lines-per-function
@@ -119,13 +119,25 @@ export default function useCheckout() {
         throw new Error();
       }
 
-      const { ammount: amountInCents, transactionReference: reference, encodedIntegritySignature: integrity, redirectUrl } = response;
+      const {
+        ammount: amountInCents,
+        transactionReference: reference,
+        encodedIntegritySignature: integrity,
+        redirectUrl,
+        publicKey: serverPublicKey,
+      } = response;
+
+      const publicKey = resolveWompiPublicKeyForWidget(serverPublicKey);
+      if (!publicKey) {
+        setErrorText('No se pudo iniciar el pago: falta la clave pública de Wompi. Recarga la página o contacta soporte.');
+        throw new Error('missing_wompi_public_key');
+      }
 
       const checkout = new window.WidgetCheckout({
         currency: 'COP',
         amountInCents,
         reference,
-        publicKey: getWompiPublicKeyBrowser(),
+        publicKey,
         signature: { integrity },
         redirectUrl: getWompiRedirectUrlBrowser(redirectUrl) || undefined,
         customerData: {

@@ -11,6 +11,13 @@ export function getWompiPublicKeyBrowser(): string {
   ).trim();
 }
 
+/** Prioriza la clave devuelta por create-order; fallback a env del build. */
+export function resolveWompiPublicKeyForWidget(serverPublicKey?: string | null): string {
+  const fromApi = typeof serverPublicKey === 'string' ? serverPublicKey.trim() : '';
+  if (fromApi) return fromApi;
+  return getWompiPublicKeyBrowser();
+}
+
 export function getWompiRedirectUrlBrowser(serverRedirectUrl?: string | null): string {
   const fromApi = typeof serverRedirectUrl === 'string' ? serverRedirectUrl.trim() : '';
   if (fromApi) return fromApi;

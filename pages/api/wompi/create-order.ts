@@ -15,6 +15,8 @@ type CreateOrderOk = {
   transactionReference: string;
   ammount: number;
   encodedIntegritySignature: string;
+  /** Clave pública para WidgetCheckout (el cliente no debe depender solo de env en build). */
+  publicKey: string;
   checkoutUrl?: string;
   redirectUrl: string | null;
   amountInCents: number;
@@ -135,6 +137,7 @@ export default async function handler(
       transactionReference: reference,
       ammount: amountInCents,
       encodedIntegritySignature,
+      publicKey,
       checkoutUrl: webCheckoutUrl,
       redirectUrl,
       amountInCents,

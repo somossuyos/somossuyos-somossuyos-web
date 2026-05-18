@@ -7,7 +7,7 @@ import { experiencesRepository } from '@/src/infrastructure/repositories/experie
 import { checkoutRepository } from '@/src/infrastructure/repositories/checkout.repository';
 import { CheckoutResponseDTO } from '@/src/infrastructure/DTOs/Checkout/CheckoutResponseDTO';
 import { PaymentResponseDTO } from '@/src/infrastructure/DTOs/Checkout/PaymentResponseDTO';
-import { getWompiPublicKeyBrowser, getWompiRedirectUrlBrowser } from '@/src/lib/wompi/clientEnv';
+import { getWompiRedirectUrlBrowser, resolveWompiPublicKeyForWidget } from '@/src/lib/wompi/clientEnv';
 
 export type InscriptionFormData = {
   names: FormFields;
@@ -87,12 +87,22 @@ export function useExperienceInscriptionForm({ experienceId, price, limit, termi
       },
     };
     const response = await checkoutRepository.checkout(data) as CheckoutResponseDTO;
-    const { ammount: amountInCents, transactionReference: reference, encodedIntegritySignature: integrity, redirectUrl } = response;
+    const {
+      ammount: amountInCents,
+      transactionReference: reference,
+      encodedIntegritySignature: integrity,
+      redirectUrl,
+      publicKey: serverPublicKey,
+    } = response;
+    const publicKey = resolveWompiPublicKeyForWidget(serverPublicKey);
+    if (!publicKey) {
+      throw new Error('missing_wompi_public_key');
+    }
     const checkout = new window.WidgetCheckout({
       currency: 'COP',
       amountInCents,
       reference,
-      publicKey: getWompiPublicKeyBrowser(),
+      publicKey,
       signature: { integrity },
       redirectUrl: getWompiRedirectUrlBrowser(redirectUrl) || undefined,
       customerData: {

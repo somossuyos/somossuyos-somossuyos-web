@@ -27,11 +27,15 @@ export const checkoutRepository = {
     const redirectUrl =
       typeof redirectRaw === 'string' || redirectRaw === null ? redirectRaw : undefined;
 
+    const publicKeyRaw = (json as { publicKey?: unknown }).publicKey;
+    const publicKey = typeof publicKeyRaw === 'string' ? publicKeyRaw.trim() : undefined;
+
     /** Campos esperados por el widget legacy (nombre `ammount` heredado). */
     return {
       transactionReference: (json as { transactionReference: string }).transactionReference,
       ammount: (json as { ammount: number }).ammount,
       encodedIntegritySignature: (json as { encodedIntegritySignature: string }).encodedIntegritySignature,
+      publicKey,
       redirectUrl,
     };
   },
