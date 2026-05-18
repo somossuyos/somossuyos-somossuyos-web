@@ -14,7 +14,9 @@
     "test:pages": "cypress run --spec \"cypress/e2e/page-rendering.cy.ts\"",
     "test:components": "cypress run --spec \"cypress/e2e/component-rendering.cy.ts\"",
     "test:integration": "cypress run --spec \"cypress/e2e/integration-basic.cy.ts\"",
-    "test:all": "cypress run"
+    "test:all": "cypress run",
+    "resend:verify-domain": "npx tsx scripts/resend-verify-domain.mts",
+    "email:test-fulfillment": "npx tsx scripts/send-test-fulfillment-email.mts"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.6",

@@ -107,6 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.info('[wompi/webhook] digital fulfillment email sent', {
           reference: reference || null,
           to: maskEmail(fulfillment.email),
+          resendId: emailResult.emailId ?? null,
         });
       } else {
         console.error('[wompi/webhook] resend error', {

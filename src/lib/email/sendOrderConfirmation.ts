@@ -152,17 +152,38 @@ function buildDefaultHtml(data: OrderConfirmationPayload): string {
     `.trim();
 }
 
+/** Dominio verificado en Resend para envío (subdominio updates). */
+const RESEND_VERIFIED_FROM_EMAIL = 'contacto@updates.somossuyos.com';
+
+function normalizeResendMailbox(email: string): string {
+  const lower = email.toLowerCase();
+  if (lower === 'contacto@somossuyos.com' || lower.endsWith('@somossuyos.com')) {
+    const local = email.includes('@') ? email.split('@')[0] : 'contacto';
+    return `${local}@updates.somossuyos.com`;
+  }
+  return email;
+}
+
 function formatResendFromAddress(): string {
   const raw = process.env.RESEND_FROM_EMAIL?.trim();
-  if (!raw) return 'Somos Suyos <onboarding@resend.dev>';
-  if (raw.includes('<') && raw.includes('>')) return raw;
-  return `Somos Suyos <${raw}>`;
+  if (!raw) return `Somos Suyos <${RESEND_VERIFIED_FROM_EMAIL}>`;
+  if (raw.includes('<') && raw.includes('>')) {
+    const match = raw.match(/<([^>]+)>/);
+    if (match?.[1]) {
+      const name = raw.slice(0, raw.indexOf('<')).trim() || 'Somos Suyos';
+      return `${name} <${normalizeResendMailbox(match[1].trim())}>`;
+    }
+    return raw;
+  }
+  return `Somos Suyos <${normalizeResendMailbox(raw)}>`;
 }
 
 /** Envía confirmación usando Resend. Falla sin lanzar si no hay API key. */
 export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload): Promise<{
   sent: boolean;
   error?: string;
+  /** ID de Resend para rastrear en resend.com/emails */
+  emailId?: string;
 }> {
   const key = process.env.RESEND_API_KEY?.trim();
   const from = formatResendFromAddress();
@@ -239,15 +260,15 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
           ...(text ? { text } : {}),
         }),
       });
-      const json = (await res.json().catch(() => null)) as { message?: string } | null;
+      const json = (await res.json().catch(() => null)) as { id?: string; message?: string } | null;
       if (!res.ok) {
         return { sent: false, error: json?.message ?? `resend_http_${res.status}` };
       }
-      return { sent: true };
+      return { sent: true, emailId: json?.id };
     }
 
     const resend = new Resend(key);
-    const { error } = await resend.emails.send({
+    const { data: sentData, error } = await resend.emails.send({
       from,
       to: data.email,
       subject,
@@ -258,7 +279,7 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
     if (error) {
       return { sent: false, error: error.message };
     }
-    return { sent: true };
+    return { sent: true, emailId: sentData?.id };
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'unknown_error';
     return { sent: false, error: msg };

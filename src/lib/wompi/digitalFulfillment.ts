@@ -13,7 +13,7 @@ export type DigitalFulfillmentInput = {
 /** Envía el correo con enlace al PDF tras pago APPROVED. */
 export async function sendDigitalFulfillmentEmail(
   input: DigitalFulfillmentInput,
-): Promise<{ sent: boolean; error?: string }> {
+): Promise<{ sent: boolean; error?: string; emailId?: string }> {
   const email = input.email.trim();
   if (!email.includes('@')) {
     return { sent: false, error: 'invalid_email' };
