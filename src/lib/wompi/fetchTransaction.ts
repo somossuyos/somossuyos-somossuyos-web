@@ -1,11 +1,16 @@
 /** Respuesta típica GET /v1/transactions/{id} */
+type WompiTransactionData = {
+  id?: string;
+  status?: string;
+  reference?: string;
+  customer_email?: string;
+  amount_in_cents?: number;
+  customer_data?: Record<string, unknown>;
+  customerData?: Record<string, unknown>;
+};
+
 type WompiTransactionResponse = {
-  data?: {
-    id?: string;
-    status?: string;
-    reference?: string;
-    customer_email?: string;
-  };
+  data?: WompiTransactionData;
   error?: { reason?: string; type?: string };
 };
 
@@ -19,9 +24,12 @@ function wompiApiBase(privateKey: string): string {
  * Consulta el estado real de una transacción en Wompi (fuente de verdad post-pago).
  * Requiere WOMPI_PRIVATE_KEY en el servidor.
  */
-export async function fetchWompiTransactionStatus(transactionId: string): Promise<{
+export async function fetchWompiTransaction(transactionId: string): Promise<{
   status: string | null;
   reference?: string;
+  customerEmail?: string;
+  amountInCents?: number;
+  customerData?: Record<string, unknown>;
   error?: string;
 }> {
   const privateKey = process.env.WOMPI_PRIVATE_KEY?.trim();
@@ -52,17 +60,31 @@ export async function fetchWompiTransactionStatus(transactionId: string): Promis
       return { status: null, error: reason };
     }
 
-    const status =
-      typeof json?.data?.status === 'string' ? json.data.status.trim().toUpperCase() : null;
-    const reference =
-      typeof json?.data?.reference === 'string' ? json.data.reference : undefined;
+    const d = json?.data;
+    const status = typeof d?.status === 'string' ? d.status.trim().toUpperCase() : null;
+    const reference = typeof d?.reference === 'string' ? d.reference : undefined;
+    const customerEmail =
+      typeof d?.customer_email === 'string' ? d.customer_email.trim() : undefined;
+    const amountInCents =
+      typeof d?.amount_in_cents === 'number' && Number.isFinite(d.amount_in_cents)
+        ? d.amount_in_cents
+        : undefined;
+    const customerData =
+      (d?.customer_data && typeof d.customer_data === 'object' ? d.customer_data : undefined) ||
+      (d?.customerData && typeof d.customerData === 'object' ? d.customerData : undefined);
 
-    return { status, reference };
+    return { status, reference, customerEmail, amountInCents, customerData };
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'fetch_failed';
     console.error('[wompi/fetchTransaction]', { id, error: msg });
     return { status: null, error: msg };
   }
+}
+
+/** @deprecated Usa fetchWompiTransaction */
+export async function fetchWompiTransactionStatus(transactionId: string) {
+  const r = await fetchWompiTransaction(transactionId);
+  return { status: r.status, reference: r.reference, error: r.error };
 }
 
 /** Normaliza estados Wompi al set que usa la UI de confirmación. */

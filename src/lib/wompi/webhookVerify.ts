@@ -1,11 +1,10 @@
 import crypto from 'node:crypto';
 
 /**
- * Valida el checksum de eventos Wompi (transaction.updated).
- * Ver: docs.wompi.co — eventos — signature.properties / checksum / X-Event-Checksum header.
+ * Valida eventos Wompi (transaction.updated).
+ * @see https://docs.wompi.co/en/docs/colombia/eventos/
  *
- * Probamos concatenación sin secreto primero (formato habitual en algunos payloads);
- * si WOMPI_INTEGRITY_SECRET está definido, probamos también con appends comunes como respaldo.
+ * SHA256( valores de signature.properties + timestamp + WOMPI_EVENTS_SECRET )
  */
 export function resolveEventChecksum(headers: IncomingHttpHeadersLite, body: Record<string, unknown>): string | undefined {
   const fromHeader =
@@ -53,45 +52,49 @@ function timingSafeHexEqual(a: string, b: string): boolean {
   }
 }
 
+function resolveEventTimestamp(body: Record<string, unknown>): string {
+  const t = body.timestamp;
+  if (typeof t === 'number' && Number.isFinite(t)) return String(Math.trunc(t));
+  if (typeof t === 'string' && t.trim()) return t.trim();
+  return '';
+}
+
 export function verifyWompiEventChecksum(
   body: {
     signature?: { properties?: string[]; checksum?: string };
     data?: Record<string, unknown>;
-  },
-  checksumFromTransport: string | undefined
+    timestamp?: number | string;
+  } & Record<string, unknown>,
+  checksumFromTransport: string | undefined,
 ): { ok: boolean; reason?: string } {
   const checksum = checksumFromTransport || body.signature?.checksum;
   const props = body.signature?.properties;
   const data = body.data;
-  const integritySecret =
-    typeof process.env.WOMPI_INTEGRITY_SECRET === 'string' ? process.env.WOMPI_INTEGRITY_SECRET.trim() : '';
-  const extraSecret =
+  const eventsSecret =
     typeof process.env.WOMPI_EVENTS_SECRET === 'string' ? process.env.WOMPI_EVENTS_SECRET.trim() : '';
 
   if (!checksum || !props?.length || !data) {
     return { ok: false, reason: 'missing_signature_payload' };
   }
 
-  const joined = props.map((p) => getNestedValue(data, p)).join('');
-
-  const candidates: string[] = [joined];
-  if (integritySecret) {
-    candidates.push(`${joined}${integritySecret}`);
-    candidates.push(joined + integritySecret);
-  }
-  if (extraSecret) {
-    candidates.push(`${joined}${extraSecret}`);
-    candidates.push(joined + extraSecret);
+  if (!eventsSecret) {
+    return { ok: false, reason: 'WOMPI_EVENTS_SECRET not configured' };
   }
 
-  for (const c of candidates) {
-    const computed = hashHexSha256(c);
-    if (
-      timingSafeHexEqual(computed, checksum) ||
-      computed.toLowerCase() === checksum.toLowerCase().replace(/^0x/, '')
-    ) {
-      return { ok: true };
-    }
+  const timestamp = resolveEventTimestamp(body as Record<string, unknown>);
+  if (!timestamp) {
+    return { ok: false, reason: 'missing_timestamp' };
+  }
+
+  const propertyValues = props.map((p) => getNestedValue(data, p)).join('');
+  const payload = `${propertyValues}${timestamp}${eventsSecret}`;
+  const computed = hashHexSha256(payload);
+
+  if (
+    timingSafeHexEqual(computed, checksum) ||
+    computed.toLowerCase() === checksum.toLowerCase().replace(/^0x/, '')
+  ) {
+    return { ok: true };
   }
 
   return { ok: false, reason: 'checksum_mismatch' };

@@ -152,14 +152,20 @@ function buildDefaultHtml(data: OrderConfirmationPayload): string {
     `.trim();
 }
 
+function formatResendFromAddress(): string {
+  const raw = process.env.RESEND_FROM_EMAIL?.trim();
+  if (!raw) return 'Somos Suyos <onboarding@resend.dev>';
+  if (raw.includes('<') && raw.includes('>')) return raw;
+  return `Somos Suyos <${raw}>`;
+}
+
 /** Envía confirmación usando Resend. Falla sin lanzar si no hay API key. */
 export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload): Promise<{
   sent: boolean;
   error?: string;
 }> {
   const key = process.env.RESEND_API_KEY?.trim();
-  const from =
-    process.env.RESEND_FROM_EMAIL?.trim() || 'Somos Suyos <onboarding@resend.dev>';
+  const from = formatResendFromAddress();
 
   if (!key) {
     return { sent: false, error: 'RESEND_API_KEY not configured' };
@@ -211,7 +217,35 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
       })
     : undefined;
 
+  const idempotencyKey =
+    useDownloadTemplate && data.transactionId
+      ? `fulfillment-${data.transactionId}`
+      : undefined;
+
   try {
+    if (idempotencyKey) {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${key}`,
+          'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey,
+        },
+        body: JSON.stringify({
+          from,
+          to: [data.email],
+          subject,
+          html,
+          ...(text ? { text } : {}),
+        }),
+      });
+      const json = (await res.json().catch(() => null)) as { message?: string } | null;
+      if (!res.ok) {
+        return { sent: false, error: json?.message ?? `resend_http_${res.status}` };
+      }
+      return { sent: true };
+    }
+
     const resend = new Resend(key);
     const { error } = await resend.emails.send({
       from,

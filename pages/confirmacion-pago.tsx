@@ -17,12 +17,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSideP
     };
   }
 
-  const { status, source } = await resolvePaymentStatusForConfirmation(id);
+  const { status, source, emailSent } = await resolvePaymentStatusForConfirmation(id);
 
   console.info('[confirmacion-pago]', {
     id,
     status: status ?? null,
     source,
+    emailSent: emailSent ?? null,
   });
 
   return {
@@ -71,6 +72,9 @@ const Index = ({ status }: PaymentConfirmationProps) => {
               <h2 className='text-[30px] sm:text-[50px] text-green-300'>¡Pago aprobado!</h2>
               <p>
                 Tu pago ha sido procesado con éxito
+              </p>
+              <p className='text-center text-sm opacity-90 max-w-md'>
+                Revisa tu correo: te enviamos el enlace para descargar tu novena digital.
               </p>
             </>
           }
