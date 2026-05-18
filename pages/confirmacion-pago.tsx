@@ -1,10 +1,9 @@
-import { GetCheckoutDTO } from '@/src/infrastructure/DTOs/Checkout/GetCheckoutDTO';
-import { checkoutRepository } from '@/src/infrastructure/repositories/checkout.repository';
+import { resolvePaymentStatusForConfirmation } from '@/src/lib/wompi/resolvePaymentStatus';
 import { clearItems } from '@/src/redux/features/cartSlice';
 import { clearData } from '@/src/redux/features/checkoutSlice';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 
@@ -18,13 +17,17 @@ export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSideP
     };
   }
 
-  const response = await checkoutRepository.getCheckout(id) as GetCheckoutDTO;
+  const { status, source } = await resolvePaymentStatusForConfirmation(id);
 
-  const [checkout] = response.data;
+  console.info('[confirmacion-pago]', {
+    id,
+    status: status ?? null,
+    source,
+  });
 
   return {
     props: {
-      status: checkout?.attributes.Estado ?? null
+      status,
     }
   };
 };
@@ -37,8 +40,10 @@ const Index = ({ status }: PaymentConfirmationProps) => {
 
   const dispatch = useDispatch();
 
-  dispatch(clearData());
-  dispatch(clearItems());
+  useEffect(() => {
+    dispatch(clearData());
+    dispatch(clearItems());
+  }, [dispatch]);
 
   return (
     <>
@@ -89,6 +94,17 @@ const Index = ({ status }: PaymentConfirmationProps) => {
               </p>
               <p>
                 Si el problema persiste, por favor contacta a tu entidad financiera o al medio de pago seleccionado
+              </p>
+            </>
+          }
+          {
+            (status === 'VOIDED' || status === 'ERROR') && <>
+              <h2 className='text-[30px] sm:text-[50px] text-red-300'>Pago no completado</h2>
+              <p>
+                No se pudo completar tu pago. Por favor intenta nuevamente o usa otro medio de pago.
+              </p>
+              <p>
+                Para más información escríbenos a <a href="mailto:contacto@somossuyos.com" className='text-gold'>contacto@somossuyos.com</a>
               </p>
             </>
           }
