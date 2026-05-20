@@ -9,5 +9,6 @@ declare global {
       eventOrId?: string,
       params?: Record<string, unknown>,
     ) => void;
+    clarity?: (...args: unknown[]) => void;
   }
 }
