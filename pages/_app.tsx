@@ -1,5 +1,4 @@
-import MetaPixel from '@/src/Components/Analytics/MetaPixel';
-import MicrosoftClarity from '@/src/Components/Analytics/MicrosoftClarity';
+import AnalyticsSpaTracking from '@/src/Components/Analytics/AnalyticsSpaTracking';
 import Layout from '@/src/Components/Layout/Layout';
 import AppProvider from '@/src/redux/AppProvider';
 import '@/styles/globals.css';
@@ -90,8 +89,7 @@ const productSans = localFont({
 
 export default function App({ Component, pageProps }: AppProps) {
   return <AppProvider>
-    <MetaPixel />
-    <MicrosoftClarity />
+    <AnalyticsSpaTracking />
     <div
       className={`${darkTwenty.variable} ${futura.variable} ${stretchPro.variable} ${productSans.variable}`}
     >
