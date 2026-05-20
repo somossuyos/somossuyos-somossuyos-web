@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import Script from 'next/script';
 import { useRouter } from 'next/router';
-import { META_PIXEL_ID } from '@/src/lib/analytics/metaPixel';
+import { getMetaPixelInlineScript } from '@/src/lib/analytics/metaPixel';
 
 function trackMetaPageView(): void {
   if (typeof window.fbq === 'function') {
@@ -10,8 +10,12 @@ function trackMetaPageView(): void {
 }
 
 /**
- * Meta Pixel: carga fbevents.js una vez y registra PageView en navegación cliente.
- * Montar solo en pages/_app.tsx (afterInteractive, sin SSR del script).
+ * Meta Pixel (ID 1612215813202403).
+ * - Carga fbevents.js con el snippet oficial vía next/script (afterInteractive).
+ * - PageView extra en navegación SPA (Next.js Pages Router).
+ * - Noscript: ver pages/_document.tsx
+ *
+ * Nota: next/script no puede usarse en _document; por eso va en _app (equivalente al <head> en runtime).
  */
 export default function MetaPixel() {
   const router = useRouter();
@@ -28,18 +32,7 @@ export default function MetaPixel() {
       id="meta-pixel"
       strategy="afterInteractive"
       dangerouslySetInnerHTML={{
-        __html: `
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(s)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '${META_PIXEL_ID}');
-fbq('track', 'PageView');
-        `.trim(),
+        __html: getMetaPixelInlineScript(),
       }}
     />
   );

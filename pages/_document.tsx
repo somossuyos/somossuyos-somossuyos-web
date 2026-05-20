@@ -1,4 +1,4 @@
-import { META_PIXEL_NOSCRIPT_IMAGE_SRC } from '@/src/lib/analytics/metaPixel';
+import MetaPixelNoscript from '@/src/Components/Analytics/MetaPixelNoscript';
 import { Html, Head, Main, NextScript } from 'next/document';
 import Script from 'next/script';
 
@@ -63,15 +63,7 @@ export default function Document() {
             style={{ display: 'none', visibility: 'hidden' }}
           ></iframe>
         </noscript>
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: 'none' }}
-            alt=""
-            src={META_PIXEL_NOSCRIPT_IMAGE_SRC}
-          />
-        </noscript>
+        <MetaPixelNoscript />
       </body>
     </Html>
   );
