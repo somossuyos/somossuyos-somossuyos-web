@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   buildRenaserRecordingCartItem,
-  getRenaserRecordingPaypalUrl,
   getRenaserRecordingPrice,
   RENASER_RECORDING_COVER_PATH,
   RENASER_RECORDING_TITLE,
@@ -23,7 +22,6 @@ const RenaserRecordingSalesPage = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const price = getRenaserRecordingPrice();
-  const paypalUrl = getRenaserRecordingPaypalUrl();
 
   const handleBuyWompi = () => {
     dispatch(addItem(buildRenaserRecordingCartItem()));
@@ -86,24 +84,10 @@ const RenaserRecordingSalesPage = () => {
               >
                 Comprar video vía Wompi
               </button>
-
-              {paypalUrl && (
-                <a
-                  href={paypalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-[20px] border-2 border-pale-skin bg-black px-6 py-2.5 font-stretch-pro text-[14px] sm:text-[15px] text-pale-skin text-center transition-opacity hover:opacity-90"
-                >
-                  Comprar video vía PayPal
-                </a>
-              )}
             </div>
 
             <p className="mt-8 text-sm text-[#989898]">
               Tras un pago aprobado con Wompi recibirás un correo con el enlace de acceso.
-              {paypalUrl
-                ? ' Las compras por PayPal requieren envío manual del enlace si no hay automatización.'
-                : null}
             </p>
 
             <Link
