@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
@@ -41,14 +40,13 @@ const RenaserRecordingSalesPage = () => {
       <div className="bg-white text-black pt-[150px] sm:pt-[200px] xl:pt-[250px] pb-16 px-4 sm:px-8 xl:px-[100px] 2xl:px-[160px]">
         <div className="flex flex-col md:flex-row gap-10 xl:gap-16 max-w-7xl mx-auto">
           <div className="relative self-center md:self-start w-full max-w-[420px] sm:max-w-[500px] md:max-w-[540px] lg:max-w-[620px] xl:max-w-[680px] flex-shrink-0 md:flex-1">
-            <Image
+            {/* img nativo: evita fallos de `next/image` con assets en /public en Amplify */}
+            <img
               src={RENASER_RECORDING_COVER_PATH}
               alt={`Portada de ${RENASER_RECORDING_TITLE}`}
               width={800}
               height={800}
-              unoptimized
               className="rounded-[20px] overflow-hidden object-cover w-full aspect-square border border-pale-skin p-2 md:p-0 md:border-0"
-              priority
             />
           </div>
 
