@@ -26,7 +26,7 @@ const ExperienceThumbnail = ({
   enableDonations,
   book,
   category,
-  link
+  link,
 }: ExperienceThumbnailProps) => {
   return (
     <div className="relative self-center md:self-auto w-[95%] md:w-[200px] xl:w-[260px] flex-nowrap flex-shrink-0 flex-grow-0">

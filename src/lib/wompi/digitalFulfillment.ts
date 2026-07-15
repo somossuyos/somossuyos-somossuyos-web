@@ -1,4 +1,8 @@
 import { sendOrderConfirmationEmail } from '@/src/lib/email/sendOrderConfirmation';
+import {
+  isRenaserRecordingReference,
+  RENASER_RECORDING_ACCESS_URL,
+} from '@/src/lib/wompi/renaserRecording';
 import { customerFullNameFromWompiTransaction, productLabelFromWompiTransaction } from './webhookTransactionMeta';
 
 export type DigitalFulfillmentInput = {
@@ -19,6 +23,8 @@ export async function sendDigitalFulfillmentEmail(
     return { sent: false, error: 'invalid_email' };
   }
 
+  const isRenaser = isRenaserRecordingReference(input.reference);
+
   return sendOrderConfirmationEmail({
     email,
     fullName: input.fullName,
@@ -26,8 +32,12 @@ export async function sendDigitalFulfillmentEmail(
     transactionId: input.transactionId,
     amountInCents: input.amountInCents,
     status: 'APPROVED',
-    fulfillmentTemplate: 'digital_download',
-    ...(input.productName ? { productName: input.productName } : {}),
+    fulfillmentTemplate: isRenaser ? 'renaser_recording' : 'digital_download',
+    ...(isRenaser
+      ? { accessUrl: RENASER_RECORDING_ACCESS_URL }
+      : input.productName
+        ? { productName: input.productName }
+        : {}),
   });
 }
 

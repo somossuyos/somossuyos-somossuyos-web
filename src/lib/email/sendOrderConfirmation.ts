@@ -18,11 +18,14 @@ export type OrderConfirmationPayload = {
   pdfDownloadUrl?: string;
   /** Si se indica, sustituye el asunto por defecto. */
   subjectOverride?: string;
+  /** URL de acceso digital (grabación RenaSER, etc.). */
+  accessUrl?: string;
   /**
    * `digital_download`: agradecimiento, producto y enlace al PDF (post-pago Wompi).
+   * `renaser_recording`: correo específico grabación RenaSER 2026.
    * Omitir o `default`: confirmación genérica.
    */
-  fulfillmentTemplate?: 'default' | 'digital_download';
+  fulfillmentTemplate?: 'default' | 'digital_download' | 'renaser_recording';
 };
 
 function escapeHtml(s: string): string {
@@ -114,6 +117,84 @@ function buildDigitalDownloadHtml(props: {
 </html>`.trim();
 }
 
+function buildRenaserRecordingHtml(props: {
+  greetingName: string;
+  accessUrl: string;
+}): string {
+  const safeName = escapeHtml(props.greetingName);
+  const safeUrl = escapeHtml(props.accessUrl);
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grabación Congreso RenaSER 2026</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:Georgia,'Times New Roman',serif;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f4f4f5;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+          <tr>
+            <td style="padding:28px 32px 8px 32px;text-align:center;border-bottom:1px solid #ececee;">
+              <p style="margin:0;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:#6b7280;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                Somos Suyos
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 32px 8px 32px;font-size:16px;line-height:1.65;color:#374151;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+              <p style="margin:0 0 16px 0;">Hola${safeName ? ` <strong>${safeName}</strong>` : ''},</p>
+              <p style="margin:0 0 16px 0;">
+                Gracias por comprar la grabación del Congreso RenaSER 2026.
+              </p>
+              <p style="margin:0 0 16px 0;">
+                El contenido estará disponible a finales de julio de 2026.
+              </p>
+              <p style="margin:0 0 20px 0;">
+                Guarda este enlace, ya que allí podrás acceder y descargar la grabación cuando sea habilitada:
+              </p>
+              <p style="margin:0 0 24px 0;word-break:break-all;font-size:15px;">
+                <a href="${safeUrl}" style="color:#2563eb;">${safeUrl}</a>
+              </p>
+              <p style="margin:0;font-size:16px;line-height:1.65;color:#374151;">
+                Gracias por ser parte de esta experiencia.<br><br>
+                <strong style="color:#1f2937;">Somos Suyos</strong>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`.trim();
+}
+
+function buildRenaserRecordingText(props: {
+  greetingName: string;
+  accessUrl: string;
+}): string {
+  const greeting = props.greetingName ? `Hola ${props.greetingName},` : 'Hola,';
+  return [
+    greeting,
+    '',
+    'Gracias por comprar la grabación del Congreso RenaSER 2026.',
+    '',
+    'El contenido estará disponible a finales de julio de 2026.',
+    '',
+    'Guarda este enlace, ya que allí podrás acceder y descargar la grabación cuando sea habilitada:',
+    '',
+    props.accessUrl,
+    '',
+    'Gracias por ser parte de esta experiencia.',
+    '',
+    'Somos Suyos',
+  ].join('\n');
+}
+
 function buildDigitalDownloadText(props: {
   greetingName: string;
   productName: string;
@@ -192,7 +273,13 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
     return { sent: false, error: 'RESEND_API_KEY not configured' };
   }
 
+  const useRenaserTemplate = data.fulfillmentTemplate === 'renaser_recording';
   const useDownloadTemplate = data.fulfillmentTemplate === 'digital_download';
+  const useFulfillmentTemplate = useRenaserTemplate || useDownloadTemplate;
+
+  const accessUrl = useRenaserTemplate
+    ? (data.accessUrl && data.accessUrl.trim()) || ''
+    : '';
 
   const pdfUrl = useDownloadTemplate
     ? (data.pdfDownloadUrl && data.pdfDownloadUrl.trim()) ||
@@ -210,9 +297,18 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
 
   const subject =
     data.subjectOverride?.trim() ||
-    (useDownloadTemplate
-      ? 'Tu Novena de Sanación ✨'
-      : `Confirmación de pago — ${data.reference}`);
+    (useRenaserTemplate
+      ? 'Gracias por comprar la grabación del Congreso RenaSER 2026'
+      : useDownloadTemplate
+        ? 'Tu Novena de Sanación ✨'
+        : `Confirmación de pago — ${data.reference}`);
+
+  if (useRenaserTemplate && !accessUrl) {
+    return {
+      sent: false,
+      error: 'renaser_recording template requires accessUrl',
+    };
+  }
 
   if (useDownloadTemplate && !pdfUrl) {
     return {
@@ -221,26 +317,30 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
     };
   }
 
-  const html = useDownloadTemplate
-    ? buildDigitalDownloadHtml({
-        greetingName: greeting,
-        productName,
-        pdfUrl,
-        reference: data.reference,
-      })
-    : buildDefaultHtml(data);
+  const html = useRenaserTemplate
+    ? buildRenaserRecordingHtml({ greetingName: greeting, accessUrl })
+    : useDownloadTemplate
+      ? buildDigitalDownloadHtml({
+          greetingName: greeting,
+          productName,
+          pdfUrl,
+          reference: data.reference,
+        })
+      : buildDefaultHtml(data);
 
-  const text = useDownloadTemplate
-    ? buildDigitalDownloadText({
-        greetingName: greeting,
-        productName,
-        pdfUrl,
-      })
-    : undefined;
+  const text = useRenaserTemplate
+    ? buildRenaserRecordingText({ greetingName: greeting, accessUrl })
+    : useDownloadTemplate
+      ? buildDigitalDownloadText({
+          greetingName: greeting,
+          productName,
+          pdfUrl,
+        })
+      : undefined;
 
   const idempotencyKey =
-    useDownloadTemplate && data.transactionId
-      ? `fulfillment-${data.transactionId}`
+    useFulfillmentTemplate && data.transactionId
+      ? `fulfillment-${useRenaserTemplate ? 'renaser-' : ''}${data.transactionId}`
       : undefined;
 
   try {

@@ -27,7 +27,7 @@ export default function useBuyCourseButton(book: MediaData<BookDTO> |null) {
         addItem({
           id: book.data.id,
           thumbnail: book.data.attributes?.thumbnail?.data.attributes.url || '',
-          title: book.data.id,
+          title: book.data.attributes?.name ?? String(book.data.id),
           type: 'book',
           price: book.data.attributes?.price ?? 0,
           quantity: 1,

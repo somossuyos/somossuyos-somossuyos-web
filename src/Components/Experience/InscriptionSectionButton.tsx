@@ -24,7 +24,7 @@ const InscriptionSectionButton = (props: InscriptionSectionButtonProps) => {
     book,
     category,
     link,
-    title
+    title,
   } = props;
   const { buyCourse, buyBook } = useBuyCourseButton(book);
 

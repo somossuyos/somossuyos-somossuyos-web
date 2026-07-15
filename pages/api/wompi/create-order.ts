@@ -3,6 +3,10 @@ import crypto from 'node:crypto';
 import { encodeWidgetIntegritySha256 } from '@/src/lib/wompi/integrity';
 import type { CheckoutDTO } from '@/src/infrastructure/DTOs/Checkout/CheckoutDTO';
 import {
+  isRenaserRecordingOrder,
+  RENASER_WOMPI_REFERENCE_MARKER,
+} from '@/src/lib/wompi/renaserRecording';
+import {
   getWompiIntegritySecretForServer,
   getWompiPublicKeyForServer,
   logWompiServerEnvDiagnostics,
@@ -42,9 +46,10 @@ function totalToAmountInCents(totalPriceCop: number): number {
   return Math.round(totalPriceCop * 100);
 }
 
-function buildReference(prefix: string): string {
+function buildReference(prefix: string, productMarker?: string): string {
   const rnd = crypto.randomBytes(10).toString('hex').slice(0, 14);
-  return `${prefix}${Date.now().toString(36)}_${rnd}`;
+  const marker = productMarker ? `${productMarker}-` : '';
+  return `${prefix}${marker}${Date.now().toString(36)}_${rnd}`;
 }
 
 function summarizeOrder(data: CheckoutDTO): string {
@@ -94,7 +99,11 @@ export default async function handler(
   }
 
   const prefix = /^pub_prod_/i.test(publicKey) ? 'ss-prod-' : 'ss-test-';
-  const reference = buildReference(prefix);
+  const renaserOrder = isRenaserRecordingOrder(data.items);
+  const reference = buildReference(
+    prefix,
+    renaserOrder ? RENASER_WOMPI_REFERENCE_MARKER : undefined,
+  );
 
   try {
     const encodedIntegritySignature = encodeWidgetIntegritySha256({

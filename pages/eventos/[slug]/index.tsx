@@ -63,7 +63,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSideP
     extras: experienceData.additional ?? '',
     exposers: experienceData.speakers,
     book: experienceData.bookResource ?? null,
-    mosaicImage: experienceData.mosaic?.data?.attributes?.url || ''
+    mosaicImage: experienceData.mosaic?.data?.attributes?.url || '',
   };
 
   const rawRelatedData = await experiencesRepository.getRelatedExperiences(experienceData.slug);

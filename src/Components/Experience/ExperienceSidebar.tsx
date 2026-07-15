@@ -26,7 +26,7 @@ const ExperienceSidebar = ({
   book,
   category,
   link,
-  title
+  title,
 }: ExperienceSidebarProps) => {
   return (
     <div className="relative w-full">
