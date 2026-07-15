@@ -148,13 +148,16 @@ function buildRenaserRecordingHtml(props: {
             <td style="padding:24px 32px 8px 32px;font-size:16px;line-height:1.65;color:#374151;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
               <p style="margin:0 0 16px 0;">Hola${safeName ? ` <strong>${safeName}</strong>` : ''},</p>
               <p style="margin:0 0 16px 0;">
-                Gracias por comprar la grabación del Congreso RenaSER 2026.
+                ¡Gracias por comprar la grabación del Congreso RenaSER 2026! Estamos muy
+                emocionados de compartirla contigo.
               </p>
               <p style="margin:0 0 16px 0;">
-                El contenido estará disponible a finales de julio de 2026.
+                Ahora mismo estamos preparando el video en nuestra plataforma. Estará listo para
+                descargar a finales de julio de 2026.
               </p>
               <p style="margin:0 0 20px 0;">
-                Guarda este enlace, ya que allí podrás acceder y descargar la grabación cuando sea habilitada:
+                Guarda este enlace permanente. Cuando el video esté habilitado, podrás descargarlo
+                desde ahí (no estará disponible para ver en línea, solo para descarga):
               </p>
               <p style="margin:0 0 24px 0;word-break:break-all;font-size:15px;">
                 <a href="${safeUrl}" style="color:#2563eb;">${safeUrl}</a>
@@ -181,11 +184,11 @@ function buildRenaserRecordingText(props: {
   return [
     greeting,
     '',
-    'Gracias por comprar la grabación del Congreso RenaSER 2026.',
+    '¡Gracias por comprar la grabación del Congreso RenaSER 2026! Estamos muy emocionados de compartirla contigo.',
     '',
-    'El contenido estará disponible a finales de julio de 2026.',
+    'Ahora mismo estamos preparando el video en nuestra plataforma. Estará listo para descargar a finales de julio de 2026.',
     '',
-    'Guarda este enlace, ya que allí podrás acceder y descargar la grabación cuando sea habilitada:',
+    'Guarda este enlace permanente. Cuando el video esté habilitado, podrás descargarlo desde ahí (no estará disponible para ver en línea, solo para descarga):',
     '',
     props.accessUrl,
     '',
