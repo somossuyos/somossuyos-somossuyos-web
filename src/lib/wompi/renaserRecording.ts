@@ -3,9 +3,8 @@ import type { CheckoutItem } from '@/src/infrastructure/DTOs/Checkout/CheckoutDT
 /** ID interno del producto (sin Strapi). Default sugerido: 20260719. */
 export const DEFAULT_RENASER_RECORDING_PRODUCT_ID = 20260719;
 
-/** Portada local en `public/images/`. El `?v=` evita caché de `next/image` al reemplazar el archivo. */
-export const RENASER_RECORDING_COVER_VERSION = '2';
-export const RENASER_RECORDING_COVER_PATH = `/images/renaser-2026-video-cover.png?v=${RENASER_RECORDING_COVER_VERSION}`;
+/** Portada local en `public/images/`. */
+export const RENASER_RECORDING_COVER_PATH = '/images/renaser-2026-video-cover.png';
 
 export const RENASER_RECORDING_TITLE = 'Grabación Congreso RenaSER 2026';
 

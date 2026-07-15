@@ -46,6 +46,7 @@ const RenaserRecordingSalesPage = () => {
               alt={`Portada de ${RENASER_RECORDING_TITLE}`}
               width={800}
               height={800}
+              unoptimized
               className="rounded-[20px] overflow-hidden object-cover w-full aspect-square border border-pale-skin p-2 md:p-0 md:border-0"
               priority
             />
@@ -82,12 +83,12 @@ const RenaserRecordingSalesPage = () => {
                 onClick={handleBuyWompi}
                 className="rounded-[20px] border-2 border-pale-skin bg-black px-6 py-2.5 font-stretch-pro text-[14px] sm:text-[15px] text-pale-skin text-center transition-opacity hover:opacity-90"
               >
-                Comprar video vía Wompi
+                Comprar ahora
               </button>
             </div>
 
             <p className="mt-8 text-sm text-[#989898]">
-              Tras un pago aprobado con Wompi recibirás un correo con el enlace de acceso.
+              Tras tu compra recibirás un correo con el enlace de acceso.
             </p>
 
             <Link
