@@ -2,6 +2,7 @@ import { formatPrice } from '@/src/utils/formatPrice';
 import Image from 'next/image';
 import { useCartItem } from '@/src/customHooks/useCartItem';
 import TruncatedText from '@/src/Components/Utils/TruncatedText';
+import { isMemoriasCongresoSinglePurchaseItemId } from '@/src/lib/shop/memoriasCongresoCourse';
 
 type CartItemProps = {
   id: string;
@@ -14,6 +15,7 @@ type CartItemProps = {
 
 const CartItem = ({ image, title, price, quantity, id, type }: CartItemProps) => {
   const { handleUpdateQuantity, handleDeleteItem, isCheckoutPage } = useCartItem(id);
+  const singlePurchase = isMemoriasCongresoSinglePurchaseItemId(id);
 
   return (
     <div className='w-[320px] sm:w-[360px] h-fit max-h-[160px] flex gap-4 p-3 items-center shadow-nav rounded-[16px] relative'>
@@ -42,7 +44,9 @@ const CartItem = ({ image, title, price, quantity, id, type }: CartItemProps) =>
         <p className='text-[#989898] text-[28px] my-1 sm:text-[30px] leading-[38px] font-light mb-1'>{formatPrice(price)} COP</p>
         {
           !isCheckoutPage &&
+          !singlePurchase &&
           type !== 'courses' &&
+          type !== 'course' &&
           type !== 'book' &&
           type !== 'donation' &&
           <div className='px-4   rounded-full flex gap-2 items-center justify-center border border-[#D7D7D7] h-fit w-fit'>

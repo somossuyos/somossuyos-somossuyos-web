@@ -7,6 +7,7 @@ import { useAppDispatch } from '@/src/redux/hooks';
 import { addItem } from '@/src/redux/features/cartSlice';
 import { useRouter } from 'next/router';
 import { ItemPageProps } from '@/pages/tienda/[category]/[product]';
+import { isMemoriasCongresoSinglePurchaseItemId } from '@/src/lib/shop/memoriasCongresoCourse';
 
 type ShopItemComponentProps = ItemPageProps;
 
@@ -20,6 +21,7 @@ const ShopItemComponent = (props: ShopItemComponentProps) => {
 
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const singlePurchase = isMemoriasCongresoSinglePurchaseItemId(id);
 
   const addToQuantity = () => {
     if (quantity >= stock) { return }
@@ -48,7 +50,7 @@ const ShopItemComponent = (props: ShopItemComponentProps) => {
       title,
       type,
       price,
-      quantity,
+      quantity: singlePurchase ? 1 : quantity,
       size: selectedSize,
       color: colorName,
       category: {
@@ -67,7 +69,7 @@ const ShopItemComponent = (props: ShopItemComponentProps) => {
       title,
       type,
       price,
-      quantity,
+      quantity: isMemoriasCongresoSinglePurchaseItemId(id) ? 1 : quantity,
       size: selectedSize,
       color: colorName,
       category: {
@@ -134,6 +136,7 @@ const ShopItemComponent = (props: ShopItemComponentProps) => {
             <p>{sku}</p>
           </div>
           <div className='w-full h-[1px] bg-[#EBEBEB] mt-[18px] mb-[50px]'></div>
+          {!singlePurchase && (
           <div className='flex flex-col sm:flex-row gap-10'>
             <div className='px-[18px] py-2 rounded-full flex gap-6 border border-[#D7D7D7] h-fit w-fit'>
               <button className='text-[#A1A1A1]' onClick={subtractFromQuantity}>-</button>
@@ -141,6 +144,10 @@ const ShopItemComponent = (props: ShopItemComponentProps) => {
               <button className='text-[#A1A1A1]' onClick={addToQuantity}>+</button>
             </div>
           </div>
+          )}
+          {singlePurchase && (
+            <p className='text-[#989898] text-sm mt-2'>Un acceso por compra.</p>
+          )}
           <button
             className='w-full py-2 rounded-full bg-pale-skin mt-[40px] font-bold'
             onClick={handleAddToCart}
