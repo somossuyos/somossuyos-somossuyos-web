@@ -2,6 +2,10 @@ import ShopComponent from '@/src/Components/Shop/ShopComponent';
 import { ShopItem } from '@/src/entities/ShopItem';
 import { ShopItemsDTO } from '@/src/infrastructure/DTOs/Shop/ShopItemsDTO';
 import { shopRepository } from '@/src/infrastructure/repositories/shop.repository';
+import {
+  getMemoriasCongresoCourseSlug,
+  getMemoriasCongresoShopListItem,
+} from '@/src/lib/shop/memoriasCongresoCourse';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 
@@ -57,7 +61,13 @@ export const getStaticProps: GetStaticProps = async () => {
     };
   }) ?? [];
 
-  const items = [...productsItems, ...courses];
+  const memoriasSlug = getMemoriasCongresoCourseSlug();
+  const coursesWithMemorias =
+    courses.some(course => course.slug === memoriasSlug)
+      ? courses
+      : [...courses, getMemoriasCongresoShopListItem()];
+
+  const items = [...productsItems, ...coursesWithMemorias];
 
   const shopItems = items.sort((a, b) => {
     return a.category.name.localeCompare(b.category.name);

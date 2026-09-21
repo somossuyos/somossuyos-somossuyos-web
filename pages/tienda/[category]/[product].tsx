@@ -3,6 +3,10 @@ import ShopItemComponent from '@/src/Components/ShopItem/ShopItemComponent';
 import { ShopItem } from '@/src/entities/ShopItem';
 import { ShopItemDTO } from '@/src/infrastructure/DTOs/Shop/ShopItemDTO';
 import { shopRepository } from '@/src/infrastructure/repositories/shop.repository';
+import {
+  buildMemoriasCongresoProductPageItem,
+  isMemoriasCongresoCourseSlug,
+} from '@/src/lib/shop/memoriasCongresoCourse';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 
@@ -99,11 +103,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSideP
   if (category === 'curso') {
     const data = await shopRepository.getCourse(product);
     const courseData = data.data && data.data[0];
-    if (!courseData) {
-      return { notFound: true };
+    if (courseData) {
+      const item = buildCourseItem(courseData);
+      return { props: { ...item } };
     }
-    const item = buildCourseItem(courseData);
-    return { props: { ...item } };
+    if (isMemoriasCongresoCourseSlug(product)) {
+      return { props: buildMemoriasCongresoProductPageItem() };
+    }
+    return { notFound: true };
   }
 
   // Si no es curso, buscar como producto
