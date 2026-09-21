@@ -23,9 +23,10 @@ export type OrderConfirmationPayload = {
   /**
    * `digital_download`: agradecimiento, producto y enlace al PDF (post-pago Wompi).
    * `renaser_recording`: correo específico grabación RenaSER 2026.
+   * `renaser_virtual_congress`: acceso virtual al congreso en vivo.
    * Omitir o `default`: confirmación genérica.
    */
-  fulfillmentTemplate?: 'default' | 'digital_download' | 'renaser_recording';
+  fulfillmentTemplate?: 'default' | 'digital_download' | 'renaser_recording' | 'renaser_virtual_congress';
 };
 
 function escapeHtml(s: string): string {
@@ -198,6 +199,80 @@ function buildRenaserRecordingText(props: {
   ].join('\n');
 }
 
+function buildRenaserVirtualCongressHtml(props: {
+  greetingName: string;
+  accessUrl: string;
+}): string {
+  const safeName = escapeHtml(props.greetingName);
+  const safeUrl = escapeHtml(props.accessUrl);
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso virtual Congreso RenaSER 2026</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:Georgia,'Times New Roman',serif;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f4f4f5;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+          <tr>
+            <td style="padding:28px 32px 8px 32px;text-align:center;border-bottom:1px solid #ececee;">
+              <p style="margin:0;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:#6b7280;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                Somos Suyos
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 32px 8px 32px;font-size:16px;line-height:1.65;color:#374151;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+              <p style="margin:0 0 16px 0;">Hola${safeName ? ` <strong>${safeName}</strong>` : ''},</p>
+              <p style="margin:0 0 16px 0;">
+                ¡Gracias por tu compra! Ya tienes acceso virtual al Congreso RenaSER 2026, los días
+                <strong>18 y 19 de julio de 2026</strong>.
+              </p>
+              <p style="margin:0 0 20px 0;">
+                Guarda este enlace. Allí ingresarás a la transmisión en vivo cuando la habilitemos:
+              </p>
+              <p style="margin:0 0 24px 0;word-break:break-all;font-size:15px;">
+                <a href="${safeUrl}" style="color:#2563eb;">${safeUrl}</a>
+              </p>
+              <p style="margin:0;font-size:16px;line-height:1.65;color:#374151;">
+                Nos alegra tenerte con nosotros en esta experiencia.<br><br>
+                <strong style="color:#1f2937;">Somos Suyos</strong>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`.trim();
+}
+
+function buildRenaserVirtualCongressText(props: {
+  greetingName: string;
+  accessUrl: string;
+}): string {
+  const greeting = props.greetingName ? `Hola ${props.greetingName},` : 'Hola,';
+  return [
+    greeting,
+    '',
+    '¡Gracias por tu compra! Ya tienes acceso virtual al Congreso RenaSER 2026, los días 18 y 19 de julio de 2026.',
+    '',
+    'Guarda este enlace. Allí ingresarás a la transmisión en vivo cuando la habilitemos:',
+    '',
+    props.accessUrl,
+    '',
+    'Nos alegra tenerte con nosotros en esta experiencia.',
+    '',
+    'Somos Suyos',
+  ].join('\n');
+}
+
 function buildDigitalDownloadText(props: {
   greetingName: string;
   productName: string;
@@ -276,13 +351,16 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
     return { sent: false, error: 'RESEND_API_KEY not configured' };
   }
 
-  const useRenaserTemplate = data.fulfillmentTemplate === 'renaser_recording';
+  const useRenaserRecordingTemplate = data.fulfillmentTemplate === 'renaser_recording';
+  const useRenaserVirtualTemplate = data.fulfillmentTemplate === 'renaser_virtual_congress';
   const useDownloadTemplate = data.fulfillmentTemplate === 'digital_download';
-  const useFulfillmentTemplate = useRenaserTemplate || useDownloadTemplate;
+  const useFulfillmentTemplate =
+    useRenaserRecordingTemplate || useRenaserVirtualTemplate || useDownloadTemplate;
 
-  const accessUrl = useRenaserTemplate
-    ? (data.accessUrl && data.accessUrl.trim()) || ''
-    : '';
+  const accessUrl =
+    useRenaserRecordingTemplate || useRenaserVirtualTemplate
+      ? (data.accessUrl && data.accessUrl.trim()) || ''
+      : '';
 
   const pdfUrl = useDownloadTemplate
     ? (data.pdfDownloadUrl && data.pdfDownloadUrl.trim()) ||
@@ -300,16 +378,18 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
 
   const subject =
     data.subjectOverride?.trim() ||
-    (useRenaserTemplate
-      ? 'Gracias por comprar la grabación del Congreso RenaSER 2026'
-      : useDownloadTemplate
-        ? 'Tu Novena de Sanación ✨'
-        : `Confirmación de pago — ${data.reference}`);
+    (useRenaserVirtualTemplate
+      ? 'Tu acceso virtual al Congreso RenaSER 2026'
+      : useRenaserRecordingTemplate
+        ? 'Gracias por comprar la grabación del Congreso RenaSER 2026'
+        : useDownloadTemplate
+          ? 'Tu Novena de Sanación ✨'
+          : `Confirmación de pago — ${data.reference}`);
 
-  if (useRenaserTemplate && !accessUrl) {
+  if ((useRenaserRecordingTemplate || useRenaserVirtualTemplate) && !accessUrl) {
     return {
       sent: false,
-      error: 'renaser_recording template requires accessUrl',
+      error: 'renaser access template requires accessUrl',
     };
   }
 
@@ -320,30 +400,34 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
     };
   }
 
-  const html = useRenaserTemplate
-    ? buildRenaserRecordingHtml({ greetingName: greeting, accessUrl })
-    : useDownloadTemplate
-      ? buildDigitalDownloadHtml({
-          greetingName: greeting,
-          productName,
-          pdfUrl,
-          reference: data.reference,
-        })
-      : buildDefaultHtml(data);
+  const html = useRenaserVirtualTemplate
+    ? buildRenaserVirtualCongressHtml({ greetingName: greeting, accessUrl })
+    : useRenaserRecordingTemplate
+      ? buildRenaserRecordingHtml({ greetingName: greeting, accessUrl })
+      : useDownloadTemplate
+        ? buildDigitalDownloadHtml({
+            greetingName: greeting,
+            productName,
+            pdfUrl,
+            reference: data.reference,
+          })
+        : buildDefaultHtml(data);
 
-  const text = useRenaserTemplate
-    ? buildRenaserRecordingText({ greetingName: greeting, accessUrl })
-    : useDownloadTemplate
-      ? buildDigitalDownloadText({
-          greetingName: greeting,
-          productName,
-          pdfUrl,
-        })
-      : undefined;
+  const text = useRenaserVirtualTemplate
+    ? buildRenaserVirtualCongressText({ greetingName: greeting, accessUrl })
+    : useRenaserRecordingTemplate
+      ? buildRenaserRecordingText({ greetingName: greeting, accessUrl })
+      : useDownloadTemplate
+        ? buildDigitalDownloadText({
+            greetingName: greeting,
+            productName,
+            pdfUrl,
+          })
+        : undefined;
 
   const idempotencyKey =
     useFulfillmentTemplate && data.transactionId
-      ? `fulfillment-${useRenaserTemplate ? 'renaser-' : ''}${data.transactionId}`
+      ? `fulfillment-${useRenaserVirtualTemplate ? 'renaser-virtual-' : useRenaserRecordingTemplate ? 'renaser-recording-' : ''}${data.transactionId}`
       : undefined;
 
   try {

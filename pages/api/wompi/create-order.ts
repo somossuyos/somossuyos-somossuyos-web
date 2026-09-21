@@ -7,6 +7,10 @@ import {
   RENASER_WOMPI_REFERENCE_MARKER,
 } from '@/src/lib/wompi/renaserRecording';
 import {
+  isRenaserVirtualOrder,
+  RENASER_VIRTUAL_WOMPI_REFERENCE_MARKER,
+} from '@/src/lib/wompi/renaserVirtualCongress';
+import {
   getWompiIntegritySecretForServer,
   getWompiPublicKeyForServer,
   logWompiServerEnvDiagnostics,
@@ -57,6 +61,12 @@ function summarizeOrder(data: CheckoutDTO): string {
   return `Ítems: ${nItems}, total COP: ${data.totalPrice}`;
 }
 
+function resolveWompiProductMarker(items: CheckoutDTO['items']): string | undefined {
+  if (isRenaserVirtualOrder(items)) return RENASER_VIRTUAL_WOMPI_REFERENCE_MARKER;
+  if (isRenaserRecordingOrder(items)) return RENASER_WOMPI_REFERENCE_MARKER;
+  return undefined;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<CreateOrderOk | CreateOrderErr>,
@@ -99,11 +109,7 @@ export default async function handler(
   }
 
   const prefix = /^pub_prod_/i.test(publicKey) ? 'ss-prod-' : 'ss-test-';
-  const renaserOrder = isRenaserRecordingOrder(data.items);
-  const reference = buildReference(
-    prefix,
-    renaserOrder ? RENASER_WOMPI_REFERENCE_MARKER : undefined,
-  );
+  const reference = buildReference(prefix, resolveWompiProductMarker(data.items));
 
   try {
     const encodedIntegritySignature = encodeWidgetIntegritySha256({

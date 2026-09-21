@@ -3,6 +3,10 @@ import {
   isRenaserRecordingReference,
   RENASER_RECORDING_ACCESS_URL,
 } from '@/src/lib/wompi/renaserRecording';
+import {
+  isRenaserVirtualReference,
+  RENASER_VIRTUAL_ACCESS_URL,
+} from '@/src/lib/wompi/renaserVirtualCongress';
 import { customerFullNameFromWompiTransaction, productLabelFromWompiTransaction } from './webhookTransactionMeta';
 
 export type DigitalFulfillmentInput = {
@@ -23,7 +27,8 @@ export async function sendDigitalFulfillmentEmail(
     return { sent: false, error: 'invalid_email' };
   }
 
-  const isRenaser = isRenaserRecordingReference(input.reference);
+  const isVirtual = isRenaserVirtualReference(input.reference);
+  const isRecording = !isVirtual && isRenaserRecordingReference(input.reference);
 
   return sendOrderConfirmationEmail({
     email,
@@ -32,12 +37,18 @@ export async function sendDigitalFulfillmentEmail(
     transactionId: input.transactionId,
     amountInCents: input.amountInCents,
     status: 'APPROVED',
-    fulfillmentTemplate: isRenaser ? 'renaser_recording' : 'digital_download',
-    ...(isRenaser
-      ? { accessUrl: RENASER_RECORDING_ACCESS_URL }
-      : input.productName
-        ? { productName: input.productName }
-        : {}),
+    fulfillmentTemplate: isVirtual
+      ? 'renaser_virtual_congress'
+      : isRecording
+        ? 'renaser_recording'
+        : 'digital_download',
+    ...(isVirtual
+      ? { accessUrl: RENASER_VIRTUAL_ACCESS_URL }
+      : isRecording
+        ? { accessUrl: RENASER_RECORDING_ACCESS_URL }
+        : input.productName
+          ? { productName: input.productName }
+          : {}),
   });
 }
 

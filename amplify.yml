@@ -14,6 +14,7 @@ frontend:
         - env | grep -e '^API_URL=' >> .env.production || true
         - env | grep -e '^RESEND_API_KEY=' -e '^RESEND_FROM_EMAIL=' -e '^INTERNAL_MAIL_SECRET=' >> .env.production || true
         - env | grep -e '^RENASER_RECORDING_' >> .env.production || true
+        - env | grep -e '^RENASER_VIRTUAL_' >> .env.production || true
         - env | grep -e '^NEXT_PUBLIC_' >> .env.production || true
         - npm run build
   artifacts:
