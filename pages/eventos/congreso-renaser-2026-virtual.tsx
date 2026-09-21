@@ -12,10 +12,10 @@ import { useAppDispatch } from '@/src/redux/hooks';
 import { formatPrice } from '@/src/utils/formatPrice';
 
 const DESCRIPTION_INTRO =
-  'Accede al Congreso RenaSER 2026 de forma virtual los días 18 y 19 de julio de 2026.';
+  'Si no pudiste ir al Congreso RenaSER 2026 de forma presencial, puedes tener acceso virtual los días 18 y 19 de julio de 2026.';
 
 const DESCRIPTION_AVAILABILITY =
-  'Después de tu compra recibirás un correo con el enlace para ingresar a la transmisión en vivo.';
+  'Cada compra incluye un acceso (una persona). Después de pagar recibirás un correo con el enlace para ingresar a la transmisión en vivo.';
 
 const RenaserVirtualCongressSalesPage = () => {
   const dispatch = useAppDispatch();
@@ -85,7 +85,7 @@ const RenaserVirtualCongressSalesPage = () => {
             </div>
 
             <p className="mt-8 text-sm text-[#989898]">
-              Tras tu compra recibirás un correo con el enlace de acceso a la transmisión.
+              Un acceso por compra. Tras tu pago recibirás un correo con el enlace de la transmisión.
             </p>
 
             <Link

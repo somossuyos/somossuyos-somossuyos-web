@@ -15,7 +15,7 @@ const DESCRIPTION_INTRO =
   'Revive el Congreso RenaSER 2026, realizado los 18 y 19 de julio de 2026.';
 
 const DESCRIPTION_AVAILABILITY =
-  'Después de tu compra recibirás un correo con el enlace permanente de acceso.';
+  'Cada compra incluye un acceso (una persona). Después de tu compra recibirás un correo con el enlace permanente de acceso.';
 
 const RenaserRecordingSalesPage = () => {
   const dispatch = useAppDispatch();
@@ -86,7 +86,7 @@ const RenaserRecordingSalesPage = () => {
             </div>
 
             <p className="mt-8 text-sm text-[#989898]">
-              Tras tu compra recibirás un correo con el enlace de acceso.
+              Un acceso por compra. Tras tu compra recibirás un correo con el enlace de acceso.
             </p>
 
             <Link

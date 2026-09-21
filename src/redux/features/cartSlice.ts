@@ -1,5 +1,9 @@
 import { ShopItem } from '@/src/entities/ShopItem';
 import { createSlice } from '@reduxjs/toolkit';
+import {
+  isRenaserSinglePurchaseItemId,
+  RENASER_SINGLE_PURCHASE_MAX_QUANTITY,
+} from '@/src/lib/wompi/renaserSinglePurchase';
 
 type CartState = {
   items: ShopItem[];
@@ -21,11 +25,20 @@ const cartSlice = createSlice({
     },
     addItem(state, action) {
       const item = action.payload;
+      const quantity = isRenaserSinglePurchaseItemId(item.id)
+        ? RENASER_SINGLE_PURCHASE_MAX_QUANTITY
+        : item.quantity;
+
+      if (isRenaserSinglePurchaseItemId(item.id)) {
+        state.items = [{ ...item, quantity: RENASER_SINGLE_PURCHASE_MAX_QUANTITY }];
+        return;
+      }
+
       const existingItem = state.items.find(i => i.id === item.id);
       if (existingItem) {
-        existingItem.quantity = item.quantity;
+        existingItem.quantity = quantity;
       } else {
-        state.items.push(item);
+        state.items.push({ ...item, quantity });
       }
     },
     removeItem(state, action) {
@@ -35,7 +48,9 @@ const cartSlice = createSlice({
       const { id, quantity } = action.payload;
       const item = state.items.find(i => i.id === id);
       if (item) {
-        item.quantity = quantity;
+        item.quantity = isRenaserSinglePurchaseItemId(id)
+          ? RENASER_SINGLE_PURCHASE_MAX_QUANTITY
+          : quantity;
       }
     }
   }

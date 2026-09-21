@@ -37,6 +37,10 @@ const Renaser2026VirtualAccessPage = () => {
                   Guarda este enlace: aquí podrás ingresar a la transmisión en vivo cuando la
                   habilitemos.
                 </p>
+                <p className="font-futura text-[16px] sm:text-[18px] leading-relaxed text-[#666] mb-4">
+                  Si no pudiste asistir al congreso de forma presencial, este enlace es tu acceso
+                  virtual a la transmisión en vivo.
+                </p>
                 <p className="font-futura text-[16px] sm:text-[18px] leading-relaxed text-[#666]">
                   Te enviamos este mismo enlace por correo. Revisa tu bandeja de entrada y spam
                   cerca de la fecha del evento.
