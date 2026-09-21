@@ -8,7 +8,6 @@ import {
   logWompiServerEnvDiagnostics,
   shouldLogWompiEnvVerbose,
 } from '@/src/lib/wompi/serverEnv';
-import { getMemoriasCongresoSinglePurchaseCheckoutError } from '@/src/lib/shop/memoriasCongresoCourse';
 
 type CreateOrderOk = {
   ok: true;
@@ -92,11 +91,6 @@ export default async function handler(
   const amountInCents = totalToAmountInCents(data.totalPrice);
   if (amountInCents <= 0) {
     return res.status(400).json({ ok: false, error: 'Invalid amount' });
-  }
-
-  const memoriasCheckoutError = getMemoriasCongresoSinglePurchaseCheckoutError(data.items);
-  if (memoriasCheckoutError) {
-    return res.status(400).json({ ok: false, error: memoriasCheckoutError });
   }
 
   const prefix = /^pub_prod_/i.test(publicKey) ? 'ss-prod-' : 'ss-test-';
