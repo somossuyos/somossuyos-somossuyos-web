@@ -3,20 +3,11 @@ import crypto from 'node:crypto';
 import { encodeWidgetIntegritySha256 } from '@/src/lib/wompi/integrity';
 import type { CheckoutDTO } from '@/src/infrastructure/DTOs/Checkout/CheckoutDTO';
 import {
-  isRenaserRecordingOrder,
-  RENASER_WOMPI_REFERENCE_MARKER,
-} from '@/src/lib/wompi/renaserRecording';
-import {
-  isRenaserVirtualOrder,
-  RENASER_VIRTUAL_WOMPI_REFERENCE_MARKER,
-} from '@/src/lib/wompi/renaserVirtualCongress';
-import {
   getWompiIntegritySecretForServer,
   getWompiPublicKeyForServer,
   logWompiServerEnvDiagnostics,
   shouldLogWompiEnvVerbose,
 } from '@/src/lib/wompi/serverEnv';
-import { getRenaserSinglePurchaseCheckoutError } from '@/src/lib/wompi/renaserSinglePurchase';
 
 type CreateOrderOk = {
   ok: true;
@@ -51,21 +42,14 @@ function totalToAmountInCents(totalPriceCop: number): number {
   return Math.round(totalPriceCop * 100);
 }
 
-function buildReference(prefix: string, productMarker?: string): string {
+function buildReference(prefix: string): string {
   const rnd = crypto.randomBytes(10).toString('hex').slice(0, 14);
-  const marker = productMarker ? `${productMarker}-` : '';
-  return `${prefix}${marker}${Date.now().toString(36)}_${rnd}`;
+  return `${prefix}${Date.now().toString(36)}_${rnd}`;
 }
 
 function summarizeOrder(data: CheckoutDTO): string {
   const nItems = data.items?.length ?? 0;
   return `Ítems: ${nItems}, total COP: ${data.totalPrice}`;
-}
-
-function resolveWompiProductMarker(items: CheckoutDTO['items']): string | undefined {
-  if (isRenaserVirtualOrder(items)) return RENASER_VIRTUAL_WOMPI_REFERENCE_MARKER;
-  if (isRenaserRecordingOrder(items)) return RENASER_WOMPI_REFERENCE_MARKER;
-  return undefined;
 }
 
 export default async function handler(
@@ -109,13 +93,8 @@ export default async function handler(
     return res.status(400).json({ ok: false, error: 'Invalid amount' });
   }
 
-  const renaserCheckoutError = getRenaserSinglePurchaseCheckoutError(data.items);
-  if (renaserCheckoutError) {
-    return res.status(400).json({ ok: false, error: renaserCheckoutError });
-  }
-
   const prefix = /^pub_prod_/i.test(publicKey) ? 'ss-prod-' : 'ss-test-';
-  const reference = buildReference(prefix, resolveWompiProductMarker(data.items));
+  const reference = buildReference(prefix);
 
   try {
     const encodedIntegritySignature = encodeWidgetIntegritySha256({
