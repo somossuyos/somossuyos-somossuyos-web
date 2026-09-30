@@ -25,23 +25,9 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
         </div>
 
         <div className="min-w-0 flex-1 lg:max-w-[540px] lg:pt-2">
-          <p className="font-futura mb-8 text-[11px] font-medium uppercase tracking-[0.22em] text-[#86868b] sm:mb-10">
-            Curso digital
-          </p>
-
-          <h1 className="font-stretch-pro mb-8 text-[32px] font-normal leading-[1.15] tracking-[-0.02em] text-[#1d1d1f] sm:mb-10 sm:text-[40px] lg:text-[44px]">
+          <h1 className="font-stretch-pro mb-10 text-[32px] font-normal leading-[1.15] tracking-[-0.02em] text-gold sm:mb-12 sm:text-[40px] lg:text-[44px]">
             {title}
           </h1>
-
-          <div className="mb-10 space-y-3 font-futura sm:mb-12">
-            <p className="text-[13px] font-medium uppercase tracking-[0.12em] text-[#86868b]">
-              Congreso Internacional RENASER 2026
-            </p>
-            <p className="text-[17px] leading-snug text-[#1d1d1f] sm:text-[18px]">
-              Sexualidad, afectividad y teología del cuerpo
-            </p>
-            <p className="text-[15px] text-[#86868b]">Bogotá – Colombia · 18-19 de julio de 2026</p>
-          </div>
 
           <p className="font-futura mb-12 text-[34px] font-light tracking-tight text-[#1d1d1f] sm:mb-14 sm:text-[38px]">
             {formatPrice(price)}
