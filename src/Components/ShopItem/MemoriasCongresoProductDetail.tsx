@@ -15,38 +15,41 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
   const price = getMemoriasCongresoPrice();
 
   return (
-    <div className="bg-white text-black py-[100px] sm:py-[150px] px-4 sm:px-[75px] xl:px-[200px] 2xl:px-[300px]">
-      <p className="text-[#8B8B8B] pb-[30px] hidden sm:block font-futura text-sm tracking-wide">
-        Tienda · Curso · {title}
-      </p>
-      <div className="flex flex-col lg:flex-row justify-center gap-[40px] xl:gap-x-[90px] max-w-6xl mx-auto">
-        <ShopItemCarousel images={images.length ? images : [MEMORIAS_CONGRESO_COVER_PATH]} title={title} />
-        <div className="pt-5 lg:flex-1 lg:max-w-xl">
-          <p className="font-futura text-xs sm:text-sm uppercase tracking-[0.2em] text-[#989898] mb-3">
+    <div className="bg-white text-black py-[100px] sm:py-[140px] px-4 sm:px-8 lg:px-16 xl:px-24">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-12 lg:flex-row lg:gap-16 xl:gap-24">
+        <div className="mx-auto w-full max-w-[420px] shrink-0 lg:max-w-[480px] lg:pt-4">
+          <ShopItemCarousel
+            images={images.length ? images : [MEMORIAS_CONGRESO_COVER_PATH]}
+            title={title}
+          />
+        </div>
+
+        <div className="min-w-0 flex-1 lg:max-w-[540px] lg:pt-2">
+          <p className="font-futura mb-8 text-[11px] font-medium uppercase tracking-[0.22em] text-[#86868b] sm:mb-10">
             Curso digital
           </p>
 
-          <div className="rounded-[24px] border border-[#EBEBEB] bg-[#faf8f5] px-5 py-6 sm:px-7 sm:py-8 mb-6">
-            <p className="font-futura text-[11px] sm:text-xs uppercase tracking-[0.25em] text-gold mb-2">
-              Congreso Internacional RENASER 2026
-            </p>
-            <p className="font-stretch-pro text-[15px] sm:text-[17px] leading-snug text-black/90 mb-3">
-              Sexualidad, afectividad y teología del cuerpo
-            </p>
-            <p className="font-futura text-[13px] sm:text-[14px] text-[#666]">
-              Bogotá – Colombia · 18-19 de julio de 2026
-            </p>
-          </div>
-
-          <h1 className="font-stretch-pro text-[28px] sm:text-[34px] xl:text-[38px] leading-[1.1] text-gold mb-4">
+          <h1 className="font-stretch-pro mb-8 text-[32px] font-normal leading-[1.15] tracking-[-0.02em] text-[#1d1d1f] sm:mb-10 sm:text-[40px] lg:text-[44px]">
             {title}
           </h1>
 
-          <p className="font-futura text-[#989898] text-[32px] sm:text-[36px] font-light mb-8">
+          <div className="mb-10 space-y-3 font-futura sm:mb-12">
+            <p className="text-[13px] font-medium uppercase tracking-[0.12em] text-[#86868b]">
+              Congreso Internacional RENASER 2026
+            </p>
+            <p className="text-[17px] leading-snug text-[#1d1d1f] sm:text-[18px]">
+              Sexualidad, afectividad y teología del cuerpo
+            </p>
+            <p className="text-[15px] text-[#86868b]">Bogotá – Colombia · 18-19 de julio de 2026</p>
+          </div>
+
+          <p className="font-futura mb-12 text-[34px] font-light tracking-tight text-[#1d1d1f] sm:mb-14 sm:text-[38px]">
             {formatPrice(price)}
           </p>
 
-          <div className="font-futura text-[16px] sm:text-[17px] leading-relaxed text-[#444] space-y-5 mb-10">
+          <div className="mb-14 h-px w-full bg-[#e8e8ed] sm:mb-16" />
+
+          <div className="font-futura space-y-8 text-[17px] leading-[1.75] text-[#424245] sm:space-y-10 sm:text-[18px] sm:leading-[1.8]">
             <p>
               Disfruta o revive la maravillosa experiencia de la tercera versión del Congreso Internacional
               RENASER 2026, durante el cual jóvenes, adultos, solteros, casados, consagrados, catequistas,
@@ -56,23 +59,27 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
             </p>
             <p>
               En estas memorias te ofrecemos las conferencias de{' '}
-              <strong>Rafael Lafuente</strong> (España) — Experto en educación afectivo-sexual, UCAM; de{' '}
-              <strong>David Ramírez</strong> (España) — Doctor en Medicina, especialista en neurociencia,
-              psicología de la sexualidad y tratamiento de adicciones; <strong>Gustavo Mejía</strong> (EE.UU.) —
-              Terapeuta en Internal Family Systems, terapia cristiana y neurociencia;{' '}
-              <strong>María Paula Aldana</strong> (Colombia) — Fundadora de Somos Suyos, conferencista y escritora
-              experta en teología del cuerpo y educación sexual integral; y de{' '}
-              <strong>Monseñor Astolfo Moreno</strong> (Colombia) — Sacerdote Vicario Episcopal en la Arquidiócesis
-              de Bogotá.
+              <span className="font-medium text-[#1d1d1f]">Rafael Lafuente</span> (España) — Experto en
+              educación afectivo-sexual, UCAM; de{' '}
+              <span className="font-medium text-[#1d1d1f]">David Ramírez</span> (España) — Doctor en Medicina,
+              especialista en neurociencia, psicología de la sexualidad y tratamiento de adicciones;{' '}
+              <span className="font-medium text-[#1d1d1f]">Gustavo Mejía</span> (EE.UU.) — Terapeuta en Internal
+              Family Systems, terapia cristiana y neurociencia;{' '}
+              <span className="font-medium text-[#1d1d1f]">María Paula Aldana</span> (Colombia) — Fundadora de
+              Somos Suyos, conferencista y escritora experta en teología del cuerpo y educación sexual integral;
+              y de <span className="font-medium text-[#1d1d1f]">Monseñor Astolfo Moreno</span> (Colombia) —
+              Sacerdote Vicario Episcopal en la Arquidiócesis de Bogotá.
             </p>
           </div>
 
-          <span className="inline-flex w-full sm:w-auto items-center justify-center rounded-full border-2 border-pale-skin bg-black px-8 py-3.5 font-stretch-pro text-[15px] sm:text-[16px] uppercase tracking-wide text-pale-skin">
-            Próximamente
-          </span>
-          <p className="font-futura text-[13px] text-[#989898] mt-4">
-            Muy pronto podrás adquirir un acceso digital desde esta página.
-          </p>
+          <div className="pt-4 sm:pt-6">
+            <span className="inline-flex items-center justify-center rounded-full bg-[#f5f5f7] px-7 py-3 font-futura text-[14px] font-medium tracking-wide text-[#1d1d1f]">
+              Próximamente
+            </span>
+            <p className="mt-5 max-w-md font-futura text-[14px] leading-relaxed text-[#86868b]">
+              Muy pronto podrás adquirir un acceso digital desde esta página.
+            </p>
+          </div>
         </div>
       </div>
     </div>
