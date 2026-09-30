@@ -6,16 +6,18 @@ export const DEFAULT_MEMORIAS_CONGRESO_SLUG = 'memorias-en-video-del-congreso';
 
 export const DEFAULT_MEMORIAS_CONGRESO_COURSE_ID = 20260720;
 
-export const DEFAULT_MEMORIAS_CONGRESO_TITLE = 'Memoria congreso RenaSer 2026';
+export const DEFAULT_MEMORIAS_CONGRESO_TITLE = 'Memoria en video del Congreso RenaSER 2026';
 
-export const DEFAULT_MEMORIAS_CONGRESO_PRICE = 200000;
+export const DEFAULT_MEMORIAS_CONGRESO_PRICE = 250000;
 
 export const MEMORIAS_CONGRESO_COVER_PATH = '/images/renaser-2026-video-cover.png';
 
 export const MEMORIAS_SINGLE_PURCHASE_MAX_QUANTITY = 1;
 
-const DESCRIPTION =
-  'Acceso digital al congreso en video. Si no pudiste asistir de forma presencial, puedes adquirir las memorias en video. Un acceso por compra.';
+/** Venta deshabilitada en UI hasta activar compra (env `false` para habilitar botones). */
+export function isMemoriasCongresoComingSoon(): boolean {
+  return process.env.NEXT_PUBLIC_MEMORIAS_COMING_SOON !== 'false';
+}
 
 export function getMemoriasCongresoCourseSlug(): string {
   return process.env.MEMORIAS_CONGRESO_COURSE_SLUG?.trim() || DEFAULT_MEMORIAS_CONGRESO_SLUG;
@@ -58,6 +60,9 @@ export function isMemoriasCongresoCheckoutItem(item: CheckoutItem): boolean {
 export function getMemoriasCongresoSinglePurchaseCheckoutError(
   items: CheckoutItem[] | undefined,
 ): string | null {
+  if (isMemoriasCongresoComingSoon()) {
+    return 'Las memorias del congreso aún no están disponibles para compra.';
+  }
   if (!items?.length) return null;
   const memoriasItems = items.filter(isMemoriasCongresoCheckoutItem);
   if (memoriasItems.length === 0) return null;
@@ -91,7 +96,7 @@ export function getMemoriasCongresoShopListItem(): ShopItem {
     isNew: true,
     type: 'course',
     genre: '',
-    description: DESCRIPTION,
+    description: '',
     sku: '',
     quantity: 1,
     images: [MEMORIAS_CONGRESO_COVER_PATH],
@@ -110,7 +115,7 @@ export function buildMemoriasCongresoProductPageItem() {
   return {
     ...listItem,
     id: getMemoriasCongresoCourseId(),
-    description: DESCRIPTION,
+    description: '',
     images: [MEMORIAS_CONGRESO_COVER_PATH],
   };
 }

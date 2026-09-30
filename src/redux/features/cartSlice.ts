@@ -1,6 +1,7 @@
 import { ShopItem } from '@/src/entities/ShopItem';
 import { createSlice } from '@reduxjs/toolkit';
 import {
+  isMemoriasCongresoComingSoon,
   isMemoriasCongresoSinglePurchaseItemId,
   MEMORIAS_SINGLE_PURCHASE_MAX_QUANTITY,
 } from '@/src/lib/shop/memoriasCongresoCourse';
@@ -25,6 +26,9 @@ const cartSlice = createSlice({
     },
     addItem(state, action) {
       const item = action.payload;
+      if (isMemoriasCongresoComingSoon() && isMemoriasCongresoSinglePurchaseItemId(item.id)) {
+        return;
+      }
       const quantity = isMemoriasCongresoSinglePurchaseItemId(item.id)
         ? MEMORIAS_SINGLE_PURCHASE_MAX_QUANTITY
         : item.quantity;

@@ -1,5 +1,6 @@
 
 import ShopItemComponent from '@/src/Components/ShopItem/ShopItemComponent';
+import MemoriasCongresoProductDetail from '@/src/Components/ShopItem/MemoriasCongresoProductDetail';
 import { ShopItem } from '@/src/entities/ShopItem';
 import { ShopItemDTO } from '@/src/infrastructure/DTOs/Shop/ShopItemDTO';
 import { shopRepository } from '@/src/infrastructure/repositories/shop.repository';
@@ -134,14 +135,21 @@ export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSideP
 export type ItemPageProps = ShopItem;
 
 const item = (props: ItemPageProps) => {
+  const { title, slug, images } = props;
+  const isMemorias = isMemoriasCongresoCourseSlug(slug);
 
-  const { title } = props;
-  return <>
-    <Head>
-      <title>{title}</title>
-    </Head>
-    <ShopItemComponent {...props} />
-  </>;
+  return (
+    <>
+      <Head>
+        <title>{title}</title>
+      </Head>
+      {isMemorias ? (
+        <MemoriasCongresoProductDetail images={images ?? []} />
+      ) : (
+        <ShopItemComponent {...props} />
+      )}
+    </>
+  );
 };
 
 export default item;
