@@ -65,8 +65,10 @@ signature = HMAC-SHA256(
 
 | HTTP | Significado |
 |------|-------------|
-| `200` | Acceso provisionado (`provisioned`) |
-| `200` | Ya provisionado (`already_provisioned` — cuerpo puede indicarlo) |
+| `200` | Acceso provisionado (`provisioned`; puede incluir `cognitoCreated: true`) |
+| `200` | Ya provisionado (`already_provisioned`; `cognitoCreated: false`) |
+
+Correo al comprador: lo envía el **aula** (invitación Cognito si `cognitoCreated`, o notificación de acceso habilitado si usuario existente). La web **no** duplica `renaser_purchase_confirmed`.
 | `400` | Payload inválido |
 | `401` | Firma / timestamp / nonce inválidos |
 | `409` | Conflicto de estado (opcional) |

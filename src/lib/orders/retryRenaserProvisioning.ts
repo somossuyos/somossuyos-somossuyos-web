@@ -6,7 +6,6 @@ import {
 } from './checkoutOrdersRepository';
 import { RENSER_CANONICAL_PRODUCT_ID } from './renaserCheckout';
 import { provisionSkillCertAccess } from '@/src/lib/skillcert/provision';
-import { sendRenaserPurchaseConfirmationEmail } from '@/src/lib/email/sendRenaserConfirmation';
 
 export type RetryProvisioningResult =
   | { ok: true; outcome: 'provisioned' | 'already_provisioned' | 'skipped' }
@@ -45,13 +44,6 @@ export async function retryRenaserProvisioning(reference: string): Promise<Retry
 
   if (provResult.ok) {
     await markProvisioningCompleted(ref);
-    await sendRenaserPurchaseConfirmationEmail({
-      email: order.email,
-      firstName: order.firstName,
-      lastName: order.lastName,
-      reference: ref,
-      transactionId: trxId,
-    });
     return {
       ok: true,
       outcome: provResult.status === 'already_provisioned' ? 'already_provisioned' : 'provisioned',

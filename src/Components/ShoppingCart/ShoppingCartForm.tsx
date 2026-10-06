@@ -6,6 +6,7 @@ import { useShoppingCartForm } from '@/src/customHooks/useShoppingCartForm';
 import useShoppingCart, {
   isCartDigitalOnly,
 } from '@/src/customHooks/useShoppingCart';
+import { isMemoriasCongresoSinglePurchaseItemId } from '@/src/lib/shop/memoriasCongresoCourse';
 
 type CheckoutFormProps = {
   form: CheckoutData;
@@ -15,9 +16,14 @@ type CheckoutFormProps = {
 
 type ShoppingCartPersonalFieldsProps = {
   form: CheckoutData;
+  showRenaserEmailHint: boolean;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 };
-const ShoppingCartPersonalFields = ({ form, handleChange }: ShoppingCartPersonalFieldsProps) => (
+const ShoppingCartPersonalFields = ({
+  form,
+  showRenaserEmailHint,
+  handleChange,
+}: ShoppingCartPersonalFieldsProps) => (
   <>
     <ShoppingCartInput
       name="names"
@@ -35,14 +41,24 @@ const ShoppingCartPersonalFields = ({ form, handleChange }: ShoppingCartPersonal
       isValid={form.lastNames.value.length === 0 || form.lastNames.isValid}
       onChange={handleChange}
     />
-    <ShoppingCartInput
-      name="email"
-      label="Correo electrónico"
-      value={form.email.value}
-      placeholder="Correo electrónico"
-      isValid={form.email.value.length === 0 || form.email.isValid}
-      onChange={handleChange}
-    />
+    <div>
+      <ShoppingCartInput
+        name="email"
+        label="Correo electrónico"
+        value={form.email.value}
+        placeholder={
+          showRenaserEmailHint ? 'Correo donde recibirás tu acceso' : 'Correo electrónico'
+        }
+        isValid={form.email.value.length === 0 || form.email.isValid}
+        onChange={handleChange}
+      />
+      {showRenaserEmailHint ? (
+        <p className="mt-2 text-sm text-gray-700 leading-snug">
+          Importante: Ingresa el correo electrónico donde deseas recibir tus datos de acceso al
+          Aula Virtual RenaSER.
+        </p>
+      ) : null}
+    </div>
     <ShoppingCartInput
       name="phone"
       label="Número de teléfono"
@@ -148,12 +164,19 @@ const ShoppingCartForm = ({ form, setForm }: CheckoutFormProps) => {
     currentCities,
   } = useShoppingCartForm(form, setForm);
   const isDigital = isCartDigitalOnly(items);
+  const showRenaserEmailHint = items.some((item) =>
+    isMemoriasCongresoSinglePurchaseItemId(item.id),
+  );
   return (
     <form className="w-full sm:w-[80%] lg:w-[500px] xl:w-[700px]">
       <h2 className="font-bold m-2">Detalles de comprador</h2>
       <div className="w-full h-2 bg-pale-skin mt-4 mb-10"></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 p-2 gap-x-4 gap-y-6">
-        <ShoppingCartPersonalFields form={form} handleChange={handleChange} />
+        <ShoppingCartPersonalFields
+          form={form}
+          showRenaserEmailHint={showRenaserEmailHint}
+          handleChange={handleChange}
+        />
         {!isDigital && (
           <ShoppingCartDeliverySection
             form={form}

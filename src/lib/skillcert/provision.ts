@@ -18,7 +18,12 @@ export type SkillCertProvisionPayload = {
 };
 
 export type SkillCertProvisionResult =
-  | { ok: true; status: 'provisioned' | 'already_provisioned' }
+  | {
+      ok: true;
+      status: 'provisioned' | 'already_provisioned';
+      /** True when aula created Cognito user and sent invitation email. */
+      cognitoCreated?: boolean;
+    }
   | { ok: false; status: number; error: string };
 
 function getSkillCertApiBase(): string {
@@ -96,11 +101,22 @@ export async function provisionSkillCertAccess(
     }
 
     if (res.status === 200) {
+      let cognitoCreated: boolean | undefined;
+      try {
+        const parsed = JSON.parse(text) as { cognitoCreated?: unknown; status?: unknown };
+        if (parsed.cognitoCreated === true) {
+          cognitoCreated = true;
+        } else if (parsed.cognitoCreated === false) {
+          cognitoCreated = false;
+        }
+      } catch {
+        /* non-json legacy */
+      }
       const lower = text.toLowerCase();
       if (lower.includes('already')) {
-        return { ok: true, status: 'already_provisioned' };
+        return { ok: true, status: 'already_provisioned', cognitoCreated };
       }
-      return { ok: true, status: 'provisioned' };
+      return { ok: true, status: 'provisioned', cognitoCreated };
     }
 
     return { ok: false, status: res.status, error: message || `http_${res.status}` };

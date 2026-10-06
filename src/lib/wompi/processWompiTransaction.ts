@@ -7,7 +7,6 @@ import {
   digitalFulfillmentFromWompiTransaction,
   sendDigitalFulfillmentEmail,
 } from './digitalFulfillment';
-import { sendRenaserPurchaseConfirmationEmail } from '@/src/lib/email/sendRenaserConfirmation';
 import {
   shouldSendNovenaDigitalFulfillment,
   validateRenaserApprovedPayment,
@@ -92,14 +91,12 @@ export async function processWompiTransactionUpdate(
       await deps.markProvisioningCompleted(order.reference);
       result.provisioned = true;
 
-      const emailResult = await sendRenaserPurchaseConfirmationEmail({
-        email: order.email,
-        firstName: order.firstName,
-        lastName: order.lastName,
-        reference: order.reference,
-        transactionId: trxId,
-      });
-      result.renaSerEmailSent = emailResult.sent;
+      /** Buyer email is owned by SkillCert aula (Cognito invite or access-enabled). */
+      if (provResult.cognitoCreated === false) {
+        result.renaSerEmailSent = false;
+      } else {
+        result.renaSerEmailSent = undefined;
+      }
     } else {
       await deps.markProvisioningFailed(order.reference, provResult.error);
       console.error('[wompi/process] SkillCert provision failed', {
