@@ -2,13 +2,17 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'node:crypto';
 import { encodeWidgetIntegritySha256 } from '@/src/lib/wompi/integrity';
 import type { CheckoutDTO } from '@/src/infrastructure/DTOs/Checkout/CheckoutDTO';
-import {
-  getWompiIntegritySecretForServer,
-  getWompiPublicKeyForServer,
-  logWompiServerEnvDiagnostics,
-  shouldLogWompiEnvVerbose,
-} from '@/src/lib/wompi/serverEnv';
+import { logWompiServerEnvDiagnostics, shouldLogWompiEnvVerbose } from '@/src/lib/wompi/serverEnv';
+import { resolveWompiCredentialsForCheckout } from '@/src/lib/wompi/wompiCredentials';
 import { getMemoriasCongresoSinglePurchaseCheckoutError } from '@/src/lib/shop/memoriasCongresoCourse';
+import { putPendingCheckoutOrder } from '@/src/lib/orders/checkoutOrdersRepository';
+import { buildRenaserOrderReference } from '@/src/lib/orders/reference';
+import {
+  buildRenaserPendingOrderFields,
+  getRenaserAmountInCents,
+  isRenaserCheckout,
+  validateRenaserClientTotalPrice,
+} from '@/src/lib/orders/renaserCheckout';
 
 type CreateOrderOk = {
   ok: true;
@@ -43,7 +47,7 @@ function totalToAmountInCents(totalPriceCop: number): number {
   return Math.round(totalPriceCop * 100);
 }
 
-function buildReference(prefix: string): string {
+function buildLegacyReference(prefix: string): string {
   const rnd = crypto.randomBytes(10).toString('hex').slice(0, 14);
   return `${prefix}${Date.now().toString(36)}_${rnd}`;
 }
@@ -62,23 +66,6 @@ export default async function handler(
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const publicKey = getWompiPublicKeyForServer();
-  const integritySecret = getWompiIntegritySecretForServer();
-
-  if (!publicKey || !integritySecret) {
-    console.error('[wompi/create-order] faltan variables server-side (valores enmascarados)');
-    logWompiServerEnvDiagnostics('wompi/create-order');
-    return res.status(500).json({
-      ok: false,
-      error:
-        'Configure WOMPI_PUBLIC_KEY (o NEXT_PUBLIC_WOMPI_PUBLIC_KEY) y WOMPI_INTEGRITY_SECRET para el servidor. En Amplify, asegúrate de tener `amplify.yml` que escriba estas claves en `.env.production` antes del build.',
-    });
-  }
-
-  if (shouldLogWompiEnvVerbose()) {
-    logWompiServerEnvDiagnostics('wompi/create-order');
-  }
-
   const data = req.body as CheckoutDTO | null | undefined;
   if (
     !data ||
@@ -89,20 +76,61 @@ export default async function handler(
     return res.status(400).json({ ok: false, error: 'Invalid checkout payload' });
   }
 
-  const amountInCents = totalToAmountInCents(data.totalPrice);
-  if (amountInCents <= 0) {
-    return res.status(400).json({ ok: false, error: 'Invalid amount' });
-  }
-
   const memoriasCheckoutError = getMemoriasCongresoSinglePurchaseCheckoutError(data.items);
   if (memoriasCheckoutError) {
     return res.status(400).json({ ok: false, error: memoriasCheckoutError });
   }
 
+  const renaSer = isRenaserCheckout(data.items);
+  const wompiCreds = resolveWompiCredentialsForCheckout(renaSer);
+  const publicKey = wompiCreds.publicKey;
+  const integritySecret = wompiCreds.integritySecret;
+
+  if (!publicKey || !integritySecret) {
+    console.error('[wompi/create-order] faltan variables Wompi', {
+      channel: wompiCreds.channel,
+      renaSer,
+    });
+    logWompiServerEnvDiagnostics('wompi/create-order');
+    return res.status(500).json({
+      ok: false,
+      error:
+        renaSer
+          ? 'Configure RENASER_WOMPI_PUBLIC_KEY y RENASER_WOMPI_INTEGRITY_SECRET para Memorias RenaSER.'
+          : 'Configure WOMPI_PUBLIC_KEY (o NEXT_PUBLIC_WOMPI_PUBLIC_KEY) y WOMPI_INTEGRITY_SECRET para el servidor.',
+    });
+  }
+
+  if (shouldLogWompiEnvVerbose()) {
+    logWompiServerEnvDiagnostics('wompi/create-order');
+  }
+  let amountInCents: number;
+
+  if (renaSer) {
+    if (!validateRenaserClientTotalPrice(data.totalPrice)) {
+      return res.status(400).json({ ok: false, error: 'Invalid RenaSER total price' });
+    }
+    amountInCents = getRenaserAmountInCents();
+  } else {
+    amountInCents = totalToAmountInCents(data.totalPrice);
+  }
+
+  if (amountInCents <= 0) {
+    return res.status(400).json({ ok: false, error: 'Invalid amount' });
+  }
+
   const prefix = /^pub_prod_/i.test(publicKey) ? 'ss-prod-' : 'ss-test-';
-  const reference = buildReference(prefix);
+  const reference = renaSer ? buildRenaserOrderReference() : buildLegacyReference(prefix);
 
   try {
+    if (renaSer) {
+      const pending = buildRenaserPendingOrderFields(data.form);
+      await putPendingCheckoutOrder({
+        reference,
+        ...pending,
+      });
+    }
+
     const encodedIntegritySignature = encodeWidgetIntegritySha256({
       reference,
       amountInCents,
@@ -133,10 +161,10 @@ export default async function handler(
       reference,
       amountInCents,
       email: data.form.email.trim(),
+      renaSer,
+      wompiChannel: wompiCreds.channel,
       summary: summarizeOrder(data),
     });
-
-    /* WOMPI_PRIVATE_KEY reservado para futuras llamadas REST a la API merchant. */
 
     const payload: CreateOrderOk = {
       ok: true,
@@ -153,6 +181,10 @@ export default async function handler(
     return res.status(200).json(payload);
   } catch (e) {
     console.error('[wompi/create-order]', e);
+    const msg = e instanceof Error ? e.message : 'Failed to prepare order';
+    if (renaSer && msg.includes('conditional')) {
+      return res.status(409).json({ ok: false, error: 'Duplicate order reference' });
+    }
     return res.status(500).json({ ok: false, error: 'Failed to prepare order' });
   }
 }

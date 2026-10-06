@@ -22,7 +22,7 @@ export type OrderConfirmationPayload = {
    * `digital_download`: agradecimiento, producto y enlace al PDF (post-pago Wompi).
    * Omitir o `default`: confirmación genérica.
    */
-  fulfillmentTemplate?: 'default' | 'digital_download';
+  fulfillmentTemplate?: 'default' | 'digital_download' | 'renaser_purchase_confirmed';
 };
 
 function escapeHtml(s: string): string {
@@ -135,6 +135,66 @@ function buildDigitalDownloadText(props: {
   return lines.join('\n');
 }
 
+function buildRenaserPurchaseConfirmedHtml(props: {
+  greetingName: string;
+  reference: string;
+}): string {
+  const safeName = escapeHtml(props.greetingName);
+  const safeRef = escapeHtml(props.reference);
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compra RenaSER 2026 confirmada</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f4f4f5;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:12px;padding:32px;">
+          <tr>
+            <td>
+              <p style="margin:0 0 8px 0;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:#6b7280;">Somos Suyos</p>
+              <h1 style="margin:0 0 20px 0;font-size:22px;color:#1f2937;">Tu compra de RenaSER 2026 fue confirmada</h1>
+              <p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#374151;">Hola${safeName ? ` <strong>${safeName}</strong>` : ''},</p>
+              <p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#374151;">
+                Gracias por adquirir las memorias en video del Congreso RenaSER 2026.
+              </p>
+              <p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#374151;">
+                Recibirás o has recibido las instrucciones de acceso al Congreso Virtual (campus SkillCert).
+                No incluimos contraseñas en este correo por seguridad.
+              </p>
+              <p style="margin:0 0 8px 0;font-size:14px;color:#6b7280;">Referencia: ${safeRef}</p>
+              <p style="margin:24px 0 0 0;font-size:16px;color:#374151;">Bendiciones,<br><strong>Somos Suyos</strong></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`.trim();
+}
+
+function buildRenaserPurchaseConfirmedText(props: { greetingName: string; reference: string }): string {
+  return [
+    'Tu compra de RenaSER 2026 fue confirmada',
+    '',
+    props.greetingName ? `Hola ${props.greetingName},` : 'Hola,',
+    '',
+    'Gracias por adquirir las memorias en video del Congreso RenaSER 2026.',
+    'Recibirás o has recibido las instrucciones de acceso al Congreso Virtual.',
+    '',
+    `Referencia: ${props.reference}`,
+    '',
+    'Bendiciones,',
+    'Somos Suyos',
+  ].join('\n');
+}
+
 function buildDefaultHtml(data: OrderConfirmationPayload): string {
   const amountLine =
     data.amountInCents != null ? `Monto (centavos): ${data.amountInCents}` : '';
@@ -193,6 +253,7 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
   }
 
   const useDownloadTemplate = data.fulfillmentTemplate === 'digital_download';
+  const useRenaserTemplate = data.fulfillmentTemplate === 'renaser_purchase_confirmed';
 
   const pdfUrl = useDownloadTemplate
     ? (data.pdfDownloadUrl && data.pdfDownloadUrl.trim()) ||
@@ -210,9 +271,11 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
 
   const subject =
     data.subjectOverride?.trim() ||
-    (useDownloadTemplate
-      ? 'Tu Novena de Sanación ✨'
-      : `Confirmación de pago — ${data.reference}`);
+    (useRenaserTemplate
+      ? 'Tu compra de RenaSER 2026 fue confirmada'
+      : useDownloadTemplate
+        ? 'Tu Novena de Sanación ✨'
+        : `Confirmación de pago — ${data.reference}`);
 
   if (useDownloadTemplate && !pdfUrl) {
     return {
@@ -221,27 +284,40 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
     };
   }
 
-  const html = useDownloadTemplate
-    ? buildDigitalDownloadHtml({
+  const html = useRenaserTemplate
+    ? buildRenaserPurchaseConfirmedHtml({
         greetingName: greeting,
-        productName,
-        pdfUrl,
         reference: data.reference,
       })
-    : buildDefaultHtml(data);
+    : useDownloadTemplate
+      ? buildDigitalDownloadHtml({
+          greetingName: greeting,
+          productName,
+          pdfUrl,
+          reference: data.reference,
+        })
+      : buildDefaultHtml(data);
 
-  const text = useDownloadTemplate
-    ? buildDigitalDownloadText({
+  const text = useRenaserTemplate
+    ? buildRenaserPurchaseConfirmedText({
         greetingName: greeting,
-        productName,
-        pdfUrl,
+        reference: data.reference,
       })
-    : undefined;
+    : useDownloadTemplate
+      ? buildDigitalDownloadText({
+          greetingName: greeting,
+          productName,
+          pdfUrl,
+        })
+      : undefined;
 
   const idempotencyKey =
-    useDownloadTemplate && data.transactionId
+    data.transactionId &&
+    (useDownloadTemplate
       ? `fulfillment-${data.transactionId}`
-      : undefined;
+      : useRenaserTemplate
+        ? `renaser-fulfillment-${data.transactionId}`
+        : undefined);
 
   try {
     if (idempotencyKey) {

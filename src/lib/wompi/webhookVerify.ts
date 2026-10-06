@@ -66,12 +66,14 @@ export function verifyWompiEventChecksum(
     timestamp?: number | string;
   } & Record<string, unknown>,
   checksumFromTransport: string | undefined,
+  eventsSecretOverride?: string,
 ): { ok: boolean; reason?: string } {
   const checksum = checksumFromTransport || body.signature?.checksum;
   const props = body.signature?.properties;
   const data = body.data;
   const eventsSecret =
-    typeof process.env.WOMPI_EVENTS_SECRET === 'string' ? process.env.WOMPI_EVENTS_SECRET.trim() : '';
+    (typeof eventsSecretOverride === 'string' ? eventsSecretOverride.trim() : '') ||
+    (typeof process.env.WOMPI_EVENTS_SECRET === 'string' ? process.env.WOMPI_EVENTS_SECRET.trim() : '');
 
   if (!checksum || !props?.length || !data) {
     return { ok: false, reason: 'missing_signature_payload' };

@@ -1,18 +1,47 @@
 import ShopItemCarousel from './ShopItemCarousel';
 import { formatPrice } from '@/src/utils/formatPrice';
 import {
+  getMemoriasCongresoCourseId,
   getMemoriasCongresoPrice,
   getMemoriasCongresoTitle,
   MEMORIAS_CONGRESO_COVER_PATH,
 } from '@/src/lib/shop/memoriasCongresoCourse';
+import { useAppDispatch } from '@/src/redux/hooks';
+import { addItem } from '@/src/redux/features/cartSlice';
+import { useRouter } from 'next/router';
 
 type MemoriasCongresoProductDetailProps = {
   images: string[];
 };
 
+/** Alineado con `isMemoriasCongresoComingSoon()` (default: próximamente). */
+const isComingSoon = process.env.NEXT_PUBLIC_MEMORIAS_COMING_SOON !== 'false';
+
 const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetailProps) => {
   const title = getMemoriasCongresoTitle();
   const price = getMemoriasCongresoPrice();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  const handleBuyAccess = () => {
+    dispatch(
+      addItem({
+        id: getMemoriasCongresoCourseId(),
+        thumbnail: MEMORIAS_CONGRESO_COVER_PATH,
+        title,
+        type: 'course',
+        price,
+        quantity: 1,
+        size: '',
+        color: '',
+        category: {
+          name: 'Curso',
+          shippingCost: 0,
+        },
+      }),
+    );
+    router.push('/carrito');
+  };
 
   return (
     <div className="bg-white text-black py-[100px] sm:py-[140px] px-4 sm:px-8 lg:px-16 xl:px-24">
@@ -59,12 +88,24 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
           </div>
 
           <div className="pt-4 sm:pt-6">
-            <span className="inline-flex items-center justify-center rounded-full bg-[#f5f5f7] px-7 py-3 font-futura text-[14px] font-medium tracking-wide text-[#1d1d1f]">
-              Próximamente
-            </span>
-            <p className="mt-5 max-w-md font-futura text-[14px] leading-relaxed text-[#86868b]">
-              Muy pronto podrás adquirir un acceso digital desde esta página.
-            </p>
+            {isComingSoon ? (
+              <>
+                <span className="inline-flex items-center justify-center rounded-full bg-[#f5f5f7] px-7 py-3 font-futura text-[14px] font-medium tracking-wide text-[#1d1d1f]">
+                  Próximamente
+                </span>
+                <p className="mt-5 max-w-md font-futura text-[14px] leading-relaxed text-[#86868b]">
+                  Muy pronto podrás adquirir un acceso digital desde esta página.
+                </p>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={handleBuyAccess}
+                className="inline-flex items-center justify-center rounded-full bg-pale-skin px-10 py-3 font-futura text-[14px] font-bold tracking-wide text-black transition-opacity hover:opacity-90"
+              >
+                Comprar acceso
+              </button>
+            )}
           </div>
         </div>
       </div>

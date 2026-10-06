@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test src/lib/renaserIntegration.test.ts",
     "sitemap": "next-sitemap",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
@@ -19,6 +20,8 @@
     "email:test-fulfillment": "npx tsx scripts/send-test-fulfillment-email.mts"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1146.0",
+    "@aws-sdk/lib-dynamodb": "^3.1146.0",
     "@reduxjs/toolkit": "^2.2.6",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.513.0",
@@ -50,6 +53,7 @@
     "next-sitemap": "^4.2.3",
     "postcss": "^8",
     "tailwindcss": "^3",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
