@@ -72,7 +72,8 @@ describe('Memorias purchase zone copy', () => {
 
   it('8. attendee tier does not produce a cart item client-side', () => {
     assert.equal(buildMemoriasCartItemForTier('ATTENDEE'), null);
-    assert.equal(getCheckoutPriceCopForTier('ATTENDEE'), MEMORIAS_ATTENDEE_PRICE_COP);
+    assert.equal(getCheckoutPriceCopForTier('ATTENDEE'), null);
+    assert.equal(MEMORIAS_ATTENDEE_PRICE_COP, 150_000);
   });
 
   it('9. rejects discount query-param bypass flags', () => {

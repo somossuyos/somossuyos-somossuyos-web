@@ -1,8 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { formatPrice } from '@/src/utils/formatPrice';
-import { getMemoriasRegularPriceCop } from '@/src/lib/shop/memoriasCongresoPricing';
+import {
+  getMemoriasAttendeePriceCop,
+  getMemoriasRegularPriceCop,
+} from '@/src/lib/shop/memoriasCongresoPricing';
 import {
   MEMORIAS_ATTENDEE_BADGE,
+  MEMORIAS_ATTENDEE_PRICE_LABEL,
   MEMORIAS_ATTENDEE_CTA,
   MEMORIAS_ATTENDEE_DESCRIPTION,
   MEMORIAS_ATTENDEE_EYEBROW,
@@ -28,6 +32,7 @@ const MemoriasPurchaseTierSection = ({
   onGeneralPurchase,
 }: MemoriasPurchaseTierSectionProps) => {
   const regularPrice = getMemoriasRegularPriceCop();
+  const attendeePrice = getMemoriasAttendeePriceCop();
   const attendeeTriggerRef = useRef<HTMLButtonElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -64,8 +69,14 @@ const MemoriasPurchaseTierSection = ({
             <h3 className="font-futura mb-2 pr-24 text-[19px] font-semibold leading-snug text-[#1d1d1f]">
               {MEMORIAS_ATTENDEE_TITLE}
             </h3>
-            <p className="font-futura mb-6 flex-1 text-[15px] leading-relaxed text-[#6e6e73]">
+            <p className="font-futura mb-4 flex-1 text-[15px] leading-relaxed text-[#6e6e73]">
               {MEMORIAS_ATTENDEE_DESCRIPTION}
+            </p>
+            <p className="font-futura mb-5 text-[13px] text-[#86868b]">
+              {MEMORIAS_ATTENDEE_PRICE_LABEL}{' '}
+              <span className="text-[22px] font-light tracking-tight text-[#2d4a7a]">
+                {formatPrice(attendeePrice)}
+              </span>
             </p>
             <button
               ref={attendeeTriggerRef}

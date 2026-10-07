@@ -18,6 +18,8 @@ export const MEMORIAS_GENERAL_DESCRIPTION =
   'Obtén acceso completo a las memorias en video de RenaSER 2026.';
 export const MEMORIAS_GENERAL_CTA = 'Comprar acceso';
 export const MEMORIAS_GENERAL_PRICE_LABEL = 'Precio regular';
+export const MEMORIAS_ATTENDEE_PRICE_LABEL = 'Tarifa especial';
+export const MEMORIAS_HEADER_FROM_LABEL = 'Desde';
 
 export const MEMORIAS_ATTENDEE_MODAL_TITLE = 'Verifica tu asistencia';
 export const MEMORIAS_ATTENDEE_MODAL_INTRO =
