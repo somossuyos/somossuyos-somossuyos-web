@@ -37,7 +37,7 @@ export function buildRenaserPendingOrderFields(form: CheckoutDTO['form']) {
     productSlug: getMemoriasCongresoCourseSlug(),
     firstName: form.names?.trim() ?? '',
     lastName: form.lastNames?.trim() ?? '',
-    email: form.email.trim(),
+    email: form.email.trim().toLowerCase(),
     phone: form.phone?.trim() ?? '',
     amountInCents: getRenaserAmountInCents(),
     currency: 'COP' as const,
