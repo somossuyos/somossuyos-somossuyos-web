@@ -3,12 +3,36 @@ import { formatPrice } from '@/src/utils/formatPrice';
 import {
   getMemoriasCongresoCourseId,
   getMemoriasCongresoPrice,
-  getMemoriasCongresoTitle,
   MEMORIAS_CONGRESO_COVER_PATH,
 } from '@/src/lib/shop/memoriasCongresoCourse';
 import { useAppDispatch } from '@/src/redux/hooks';
 import { addItem } from '@/src/redux/features/cartSlice';
 import { useRouter } from 'next/router';
+
+const AULA_LOGIN_URL = 'https://skillcertacademy.somossuyos.com/login';
+
+const CONFERENCISTAS = [
+  {
+    name: 'Rafael Lafuente',
+    detail: 'España · Educación afectivo-sexual, UCAM',
+  },
+  {
+    name: 'David Ramírez',
+    detail: 'España · Medicina, neurociencia y sexualidad',
+  },
+  {
+    name: 'Gustavo Mejía',
+    detail: 'Estados Unidos · Terapia IFS y neurociencia',
+  },
+  {
+    name: 'María Paula Aldana',
+    detail: 'Colombia · Somos Suyos · teología del cuerpo',
+  },
+  {
+    name: 'Monseñor Astolfo Romero',
+    detail: 'Colombia · Arquidiócesis de Bogotá',
+  },
+] as const;
 
 type MemoriasCongresoProductDetailProps = {
   images: string[];
@@ -18,8 +42,8 @@ type MemoriasCongresoProductDetailProps = {
 const isComingSoon = process.env.NEXT_PUBLIC_MEMORIAS_COMING_SOON !== 'false';
 
 const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetailProps) => {
-  const title = getMemoriasCongresoTitle();
   const price = getMemoriasCongresoPrice();
+  const cartTitle = 'Memoria en video del Congreso RenaSER 2026';
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -28,7 +52,7 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
       addItem({
         id: getMemoriasCongresoCourseId(),
         thumbnail: MEMORIAS_CONGRESO_COVER_PATH,
-        title,
+        title: cartTitle,
         type: 'course',
         price,
         quantity: 1,
@@ -44,53 +68,72 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
   };
 
   return (
-    <div className="bg-white text-black py-[100px] sm:py-[140px] px-4 sm:px-8 lg:px-16 xl:px-24">
+    <div className="bg-[#f5f5f7] py-[100px] text-black sm:py-[120px] px-4 sm:px-8 lg:px-16 xl:px-24">
       <div className="mx-auto flex max-w-[1200px] flex-col gap-12 lg:flex-row lg:gap-16 xl:gap-24">
         <div className="mx-auto w-full max-w-[420px] shrink-0 lg:max-w-[480px] lg:pt-4">
           <ShopItemCarousel
             images={images.length ? images : [MEMORIAS_CONGRESO_COVER_PATH]}
-            title={title}
+            title={cartTitle}
           />
         </div>
 
-        <div className="min-w-0 flex-1 lg:max-w-[540px] lg:pt-2">
-          <h1 className="font-stretch-pro mb-10 text-[32px] font-normal leading-[1.15] tracking-[-0.02em] text-gold sm:mb-12 sm:text-[40px] lg:text-[44px]">
-            {title}
-          </h1>
+        <div className="min-w-0 flex-1 lg:max-w-[560px] lg:pt-2">
+          <header className="mb-10 sm:mb-12">
+            <p className="font-futura mb-3 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#b8956a]">
+              Memoria en video
+            </p>
+            <h1 className="font-stretch-pro mb-4 text-[32px] font-normal leading-[1.12] tracking-[-0.02em] text-black sm:text-[38px] lg:text-[42px]">
+              Congreso Internacional RENASER 2026
+            </h1>
+            <p className="font-futura mb-4 text-[15px] font-semibold uppercase leading-snug tracking-[0.04em] text-[#2d4a7a] sm:text-[16px]">
+              Sexualidad, afectividad y teología del cuerpo
+            </p>
+            <p className="font-futura text-[15px] text-[#6e6e73]">
+              Bogotá, Colombia · 18–19 de julio de 2026
+            </p>
+          </header>
 
-          <p className="font-futura mb-12 text-[34px] font-light tracking-tight text-[#1d1d1f] sm:mb-14 sm:text-[38px]">
-            {formatPrice(price)}
-          </p>
-
-          <div className="mb-14 h-px w-full bg-[#e8e8ed] sm:mb-16" />
-
-          <div className="font-futura space-y-8 text-[17px] leading-[1.75] text-[#424245] sm:space-y-10 sm:text-[18px] sm:leading-[1.8]">
+          <div className="font-futura mb-10 space-y-6 text-[17px] leading-[1.75] text-[#424245] sm:mb-12 sm:text-[18px] sm:leading-[1.8]">
             <p>
-              Disfruta o revive la maravillosa experiencia de la tercera versión del Congreso Internacional
-              RENASER 2026, durante el cual jóvenes, adultos, solteros, casados, consagrados, catequistas,
-              acompañantes espirituales y familias compartieron los conocimientos de conferencistas nacionales
-              e internacionales sobre herramientas concretas para sanar y comprender su historia afectiva y
-              sexual.
+              Revive la tercera edición del congreso: jóvenes, adultos, familias, consagrados y
+              acompañantes encontraron herramientas concretas para sanar y comprender su historia
+              afectiva y sexual, junto a conferencistas de Colombia, España y Estados Unidos.
             </p>
             <p>
-              En estas memorias te ofrecemos las conferencias de{' '}
-              <span className="font-medium text-[#1d1d1f]">Rafael Lafuente</span> (España) — Experto en
-              educación afectivo-sexual, UCAM; de{' '}
-              <span className="font-medium text-[#1d1d1f]">David Ramírez</span> (España) — Doctor en Medicina,
-              especialista en neurociencia, psicología de la sexualidad y tratamiento de adicciones;{' '}
-              <span className="font-medium text-[#1d1d1f]">Gustavo Mejía</span> (EE.UU.) — Terapeuta en Internal
-              Family Systems, terapia cristiana y neurociencia;{' '}
-              <span className="font-medium text-[#1d1d1f]">María Paula Aldana</span> (Colombia) — Fundadora de
-              Somos Suyos, conferencista y escritora experta en teología del cuerpo y educación sexual integral;
-              y de <span className="font-medium text-[#1d1d1f]">Monseñor Astolfo Moreno</span> (Colombia) —
-              Sacerdote Vicario Episcopal en la Arquidiócesis de Bogotá.
+              Esta aula reúne las conferencias íntegras del encuentro presencial, para verlas cuando
+              quieras y a tu ritmo.
             </p>
           </div>
 
-          <div className="pt-4 sm:pt-6">
+          <section className="mb-12 sm:mb-14">
+            <h2 className="font-futura mb-4 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#aeaeb2]">
+              Conferencistas
+            </h2>
+            <ul className="space-y-3">
+              {CONFERENCISTAS.map((speaker) => (
+                <li
+                  key={speaker.name}
+                  className="rounded-2xl border border-[#e5e5ea] bg-white px-5 py-4 shadow-sm shadow-black/[0.03]"
+                >
+                  <p className="font-futura text-[17px] font-semibold leading-snug text-[#1d1d1f]">
+                    {speaker.name}
+                  </p>
+                  <p className="font-futura mt-1 text-[15px] leading-snug text-[#6e6e73]">
+                    {speaker.detail}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <p className="font-futura mb-8 text-[34px] font-light tracking-tight text-[#1d1d1f] sm:text-[38px]">
+            {formatPrice(price)}
+          </p>
+
+          <div className="mb-10 sm:mb-12">
             {isComingSoon ? (
               <>
-                <span className="inline-flex items-center justify-center rounded-full bg-[#f5f5f7] px-7 py-3 font-futura text-[14px] font-medium tracking-wide text-[#1d1d1f]">
+                <span className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 font-futura text-[14px] font-medium tracking-wide text-[#1d1d1f] ring-1 ring-[#e5e5ea]">
                   Próximamente
                 </span>
                 <p className="mt-5 max-w-md font-futura text-[14px] leading-relaxed text-[#86868b]">
@@ -107,6 +150,16 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
               </button>
             )}
           </div>
+
+          <p className="font-futura text-center text-[15px] text-[#6e6e73] lg:text-left">
+            ¿Aún no tienes acceso?{' '}
+            <a
+              href={AULA_LOGIN_URL}
+              className="font-medium text-[#2d4a7a] underline decoration-[#2d4a7a]/30 underline-offset-2 transition-colors hover:text-[#1e3a5f] hover:decoration-[#1e3a5f]/50"
+            >
+              Ingresa al aula virtual
+            </a>
+          </p>
         </div>
       </div>
     </div>
