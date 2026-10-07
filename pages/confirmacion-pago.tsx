@@ -73,9 +73,6 @@ const Index = ({ status }: PaymentConfirmationProps) => {
               <p>
                 Tu pago ha sido procesado con éxito
               </p>
-              <p className='text-center text-sm opacity-90 max-w-md'>
-                Revisa tu correo: te enviamos el enlace para descargar tu novena digital.
-              </p>
             </>
           }
           {
