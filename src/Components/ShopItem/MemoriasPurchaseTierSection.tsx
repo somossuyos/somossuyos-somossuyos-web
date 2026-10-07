@@ -59,14 +59,16 @@ const MemoriasPurchaseTierSection = ({
         </>
       ) : (
         <div className={MEMORIAS_PURCHASE_LAYOUT.tierGridClass}>
-          <article className="relative flex flex-col rounded-2xl border-2 border-[#2d4a7a]/25 bg-white p-5 shadow-sm shadow-[#2d4a7a]/5 sm:p-6">
-            <span className="absolute right-4 top-4 rounded-full bg-[#2d4a7a]/10 px-3 py-1 font-futura text-[11px] font-semibold uppercase tracking-wide text-[#2d4a7a]">
-              {MEMORIAS_ATTENDEE_BADGE}
-            </span>
-            <p className="font-futura mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b8956a]">
-              {MEMORIAS_ATTENDEE_EYEBROW}
-            </p>
-            <h3 className="font-futura mb-2 pr-24 text-[19px] font-semibold leading-snug text-[#1d1d1f]">
+          <article className="flex flex-col rounded-2xl border-2 border-[#2d4a7a]/25 bg-white p-5 shadow-sm shadow-[#2d4a7a]/5 sm:p-6">
+            <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <p className="font-futura text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b8956a]">
+                {MEMORIAS_ATTENDEE_EYEBROW}
+              </p>
+              <span className="inline-flex shrink-0 rounded-full bg-[#2d4a7a]/10 px-1.5 py-px font-futura text-[8px] font-medium uppercase leading-tight tracking-[0.04em] text-[#2d4a7a]">
+                {MEMORIAS_ATTENDEE_BADGE}
+              </span>
+            </div>
+            <h3 className="font-futura mb-2 text-[19px] font-semibold leading-snug text-[#1d1d1f]">
               {MEMORIAS_ATTENDEE_TITLE}
             </h3>
             <p className="font-futura mb-4 flex-1 text-[15px] leading-relaxed text-[#6e6e73]">

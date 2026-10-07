@@ -19,7 +19,6 @@ export const MEMORIAS_GENERAL_DESCRIPTION =
 export const MEMORIAS_GENERAL_CTA = 'Comprar acceso';
 export const MEMORIAS_GENERAL_PRICE_LABEL = 'Precio regular';
 export const MEMORIAS_ATTENDEE_PRICE_LABEL = 'Tarifa especial';
-export const MEMORIAS_HEADER_FROM_LABEL = 'Desde';
 
 export const MEMORIAS_ATTENDEE_MODAL_TITLE = 'Verifica tu asistencia';
 export const MEMORIAS_ATTENDEE_MODAL_INTRO =

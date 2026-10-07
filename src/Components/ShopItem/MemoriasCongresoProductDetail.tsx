@@ -1,8 +1,5 @@
 import ShopItemCarousel from './ShopItemCarousel';
-import { formatPrice } from '@/src/utils/formatPrice';
 import { MEMORIAS_CONGRESO_COVER_PATH } from '@/src/lib/shop/memoriasCongresoCourse';
-import { getMemoriasListingFromPriceCop } from '@/src/lib/shop/memoriasCongresoPricing';
-import { MEMORIAS_HEADER_FROM_LABEL } from '@/src/lib/shop/memoriasPurchaseCopy';
 import {
   buildMemoriasCartItemForTier,
   MEMORIAS_CART_TITLE,
@@ -43,7 +40,6 @@ type MemoriasCongresoProductDetailProps = {
 const isComingSoon = process.env.NEXT_PUBLIC_MEMORIAS_COMING_SOON !== 'false';
 
 const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetailProps) => {
-  const listingFromPrice = getMemoriasListingFromPriceCop();
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -69,15 +65,9 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
             <p className="font-futura mb-3 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#b8956a]">
               Memoria en video
             </p>
-            <h1 className="font-stretch-pro mb-3 text-[32px] font-normal leading-[1.12] tracking-[-0.02em] text-black sm:text-[38px] lg:text-[42px]">
+            <h1 className="font-stretch-pro mb-4 text-[32px] font-normal leading-[1.12] tracking-[-0.02em] text-black sm:text-[38px] lg:text-[42px]">
               Congreso Internacional RENASER 2026
             </h1>
-            <p className="font-futura mb-4 text-[13px] font-medium uppercase tracking-wide text-[#86868b]">
-              {MEMORIAS_HEADER_FROM_LABEL}{' '}
-              <span className="text-[34px] font-light normal-case tracking-tight text-[#1d1d1f] sm:text-[38px]">
-                {formatPrice(listingFromPrice)}
-              </span>
-            </p>
             <p className="font-futura mb-4 text-[15px] font-semibold uppercase leading-snug tracking-[0.04em] text-[#2d4a7a] sm:text-[16px]">
               Sexualidad, afectividad y teología del cuerpo
             </p>
@@ -98,7 +88,12 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
             </p>
           </div>
 
-          <section className="mb-12 sm:mb-14">
+          <MemoriasPurchaseTierSection
+            comingSoon={isComingSoon}
+            onGeneralPurchase={handleGeneralPurchase}
+          />
+
+          <section className="mb-10 sm:mb-12">
             <h2 className="font-futura mb-4 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#aeaeb2]">
               Conferencistas
             </h2>
@@ -118,11 +113,6 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
               ))}
             </ul>
           </section>
-
-          <MemoriasPurchaseTierSection
-            comingSoon={isComingSoon}
-            onGeneralPurchase={handleGeneralPurchase}
-          />
         </div>
       </div>
     </div>
