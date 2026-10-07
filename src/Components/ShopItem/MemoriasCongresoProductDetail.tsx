@@ -1,15 +1,17 @@
 import ShopItemCarousel from './ShopItemCarousel';
 import { formatPrice } from '@/src/utils/formatPrice';
 import {
-  getMemoriasCongresoCourseId,
   getMemoriasCongresoPrice,
   MEMORIAS_CONGRESO_COVER_PATH,
 } from '@/src/lib/shop/memoriasCongresoCourse';
+import {
+  buildMemoriasCartItemForTier,
+  MEMORIAS_CART_TITLE,
+} from '@/src/lib/shop/memoriasGeneralCheckout';
 import { useAppDispatch } from '@/src/redux/hooks';
 import { addItem } from '@/src/redux/features/cartSlice';
 import { useRouter } from 'next/router';
-
-const AULA_LOGIN_URL = 'https://skillcertacademy.somossuyos.com/login';
+import MemoriasPurchaseTierSection from './MemoriasPurchaseTierSection';
 
 const CONFERENCISTAS = [
   {
@@ -43,27 +45,13 @@ const isComingSoon = process.env.NEXT_PUBLIC_MEMORIAS_COMING_SOON !== 'false';
 
 const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetailProps) => {
   const price = getMemoriasCongresoPrice();
-  const cartTitle = 'Memoria en video del Congreso RenaSER 2026';
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const handleBuyAccess = () => {
-    dispatch(
-      addItem({
-        id: getMemoriasCongresoCourseId(),
-        thumbnail: MEMORIAS_CONGRESO_COVER_PATH,
-        title: cartTitle,
-        type: 'course',
-        price,
-        quantity: 1,
-        size: '',
-        color: '',
-        category: {
-          name: 'Curso',
-          shippingCost: 0,
-        },
-      }),
-    );
+  const handleGeneralPurchase = () => {
+    const item = buildMemoriasCartItemForTier('GENERAL');
+    if (!item) return;
+    dispatch(addItem(item));
     router.push('/carrito');
   };
 
@@ -73,7 +61,7 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
         <div className="mx-auto w-full max-w-[420px] shrink-0 lg:max-w-[480px] lg:pt-4">
           <ShopItemCarousel
             images={images.length ? images : [MEMORIAS_CONGRESO_COVER_PATH]}
-            title={cartTitle}
+            title={MEMORIAS_CART_TITLE}
           />
         </div>
 
@@ -126,40 +114,17 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
             </ul>
           </section>
 
-          <p className="font-futura mb-8 text-[34px] font-light tracking-tight text-[#1d1d1f] sm:text-[38px]">
-            {formatPrice(price)}
+          <p className="font-futura mb-6 text-[13px] font-medium uppercase tracking-wide text-[#86868b]">
+            Desde{' '}
+            <span className="text-[34px] font-light normal-case tracking-tight text-[#1d1d1f] sm:text-[38px]">
+              {formatPrice(price)}
+            </span>
           </p>
 
-          <div className="mb-10 sm:mb-12">
-            {isComingSoon ? (
-              <>
-                <span className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 font-futura text-[14px] font-medium tracking-wide text-[#1d1d1f] ring-1 ring-[#e5e5ea]">
-                  Próximamente
-                </span>
-                <p className="mt-5 max-w-md font-futura text-[14px] leading-relaxed text-[#86868b]">
-                  Muy pronto podrás adquirir un acceso digital desde esta página.
-                </p>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={handleBuyAccess}
-                className="inline-flex items-center justify-center rounded-full bg-pale-skin px-10 py-3 font-futura text-[14px] font-bold tracking-wide text-black transition-opacity hover:opacity-90"
-              >
-                Comprar acceso
-              </button>
-            )}
-          </div>
-
-          <p className="font-futura text-center text-[15px] text-[#6e6e73] lg:text-left">
-            ¿Aún no tienes acceso?{' '}
-            <a
-              href={AULA_LOGIN_URL}
-              className="font-medium text-[#2d4a7a] underline decoration-[#2d4a7a]/30 underline-offset-2 transition-colors hover:text-[#1e3a5f] hover:decoration-[#1e3a5f]/50"
-            >
-              Ingresa al aula virtual
-            </a>
-          </p>
+          <MemoriasPurchaseTierSection
+            comingSoon={isComingSoon}
+            onGeneralPurchase={handleGeneralPurchase}
+          />
         </div>
       </div>
     </div>
