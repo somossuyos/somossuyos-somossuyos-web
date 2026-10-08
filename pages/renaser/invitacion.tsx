@@ -3,10 +3,11 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  buildMemoriasCartItemForTier,
+  buildMemoriasCartItemForInvitation,
   MEMORIAS_CART_TITLE,
 } from '@/src/lib/shop/memoriasGeneralCheckout';
-import { getMemoriasCongresoPrice } from '@/src/lib/shop/memoriasCongresoCourse';
+import { calculateRenaserInvitationPricing } from '@/src/lib/renaserInvitations/pricing';
+import { formatPrice } from '@/src/utils/formatPrice';
 import { useAppDispatch } from '@/src/redux/hooks';
 import { addItem } from '@/src/redux/features/cartSlice';
 import { AULA_VIRTUAL_URL } from '@/src/lib/renaserInvitations/config';
@@ -82,13 +83,13 @@ export default function RenaserInvitacionPage() {
   }, [router.isReady, router.query.t, router, loadMe]);
 
   const goToCheckout = () => {
-    const item = buildMemoriasCartItemForTier('GENERAL');
+    const item = buildMemoriasCartItemForInvitation();
     if (!item) return;
     dispatch(addItem(item));
     router.push('/carrito?renaserInvitacion=1');
   };
 
-  const price = getMemoriasCongresoPrice();
+  const pricing = calculateRenaserInvitationPricing();
 
   return (
     <>
@@ -125,8 +126,8 @@ export default function RenaserInvitacionPage() {
               <strong>{me.emailMasked}</strong>.
             </p>
             <p className="text-[15px] text-[#6e6e73]">
-              Memoria en video del Congreso RenaSER 2026 — {price.toLocaleString('es-CO')} COP
-              (pago único).
+              Precio regular {formatPrice(pricing.basePriceCop)} COP · beneficio {pricing.discountPercent}% ·
+              total {formatPrice(pricing.finalPriceCop)} COP
             </p>
             <button
               type="button"

@@ -3,6 +3,9 @@ export const DEFAULT_INVITATIONS_TABLE = 'RenaSERPurchaseInvitations';
 export const GENERIC_INVITATION_ERROR =
   'La invitación no es válida o ya no está disponible.';
 
+export const INVITATION_ONLY_CHECKOUT_MESSAGE =
+  'Este acceso está disponible exclusivamente para invitados de RenaSER 2026.';
+
 export const INVITATION_ALREADY_USED_MESSAGE =
   'Esta invitación ya fue utilizada.';
 

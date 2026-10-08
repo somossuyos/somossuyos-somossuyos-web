@@ -8,6 +8,7 @@ import {
   GENERIC_INVITATION_ERROR,
   INVITATION_ALREADY_USED_MESSAGE,
 } from '@/src/lib/renaserInvitations/config';
+import { calculateRenaserInvitationPricing } from '@/src/lib/renaserInvitations/pricing';
 
 type MeOk = {
   ok: true;
@@ -19,6 +20,7 @@ type MeOk = {
   canPurchase: boolean;
   alreadyPurchased: boolean;
   aulaUrl: string;
+  pricing: ReturnType<typeof calculateRenaserInvitationPricing>;
 };
 
 type MeErr = { ok: false; error: string };
@@ -54,5 +56,6 @@ export default async function handler(
     canPurchase: true,
     alreadyPurchased: false,
     aulaUrl: AULA_VIRTUAL_URL,
+    pricing: calculateRenaserInvitationPricing(),
   });
 }

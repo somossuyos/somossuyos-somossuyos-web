@@ -1,15 +1,16 @@
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { CheckoutData } from '@/src/entities/CheckoutData';
 import { Dispatch, SetStateAction } from 'react';
 
 export function useRenaserInvitationCartPrefill(
   setForm: Dispatch<SetStateAction<CheckoutData>>,
-): { lockEmail: boolean } {
+): { lockEmail: boolean; emailMasked: string } {
   const router = useRouter();
   const active =
     router.query.renaserInvitacion === '1' ||
     router.query.renaserInvitacion === 'true';
+  const [emailMasked, setEmailMasked] = useState('');
 
   useEffect(() => {
     if (!router.isReady || !active) return;
@@ -17,6 +18,7 @@ export function useRenaserInvitationCartPrefill(
       .then((r) => r.json())
       .then((json) => {
         if (!json?.ok) return;
+        setEmailMasked(typeof json.emailMasked === 'string' ? json.emailMasked : '');
         setForm((prev) => ({
           ...prev,
           names: { value: json.firstName || prev.names.value, isValid: true },
@@ -27,5 +29,5 @@ export function useRenaserInvitationCartPrefill(
       .catch(() => undefined);
   }, [router.isReady, active, setForm]);
 
-  return { lockEmail: active };
+  return { lockEmail: active, emailMasked };
 }

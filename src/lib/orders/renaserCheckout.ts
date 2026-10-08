@@ -6,6 +6,11 @@ import {
   getMemoriasCongresoSinglePurchaseCheckoutError,
   isMemoriasCongresoCheckoutItem,
 } from '@/src/lib/shop/memoriasCongresoCourse';
+import {
+  calculateRenaserInvitationPricing,
+  type RenaserInvitationPricing,
+} from '@/src/lib/renaserInvitations/pricing';
+import { isInvitationEnforcementEnabled } from '@/src/lib/renaserInvitations/config';
 
 export const RENSER_CANONICAL_PRODUCT_ID = String(getMemoriasCongresoCourseId());
 
@@ -28,10 +33,34 @@ export function getRenaserAmountInCents(): number {
 
 /** Rechaza si el cliente envió un total distinto al precio servidor RenaSER. */
 export function validateRenaserClientTotalPrice(clientTotalCop: number): boolean {
+  if (isInvitationEnforcementEnabled()) {
+    const invited = calculateRenaserInvitationPricing();
+    return clientTotalCop === invited.finalPriceCop;
+  }
   return clientTotalCop === getRenaserPriceCop();
 }
 
-export function buildRenaserPendingOrderFields(form: CheckoutDTO['form']) {
+export function getRenaserServerPricing(): RenaserInvitationPricing {
+  if (isInvitationEnforcementEnabled()) {
+    return calculateRenaserInvitationPricing();
+  }
+  const base = getRenaserPriceCop();
+  return {
+    basePriceCop: base,
+    baseAmountInCents: getRenaserAmountInCents(),
+    discountPercent: 0,
+    discountAmountCop: 0,
+    discountAmountInCents: 0,
+    finalPriceCop: base,
+    finalAmountInCents: getRenaserAmountInCents(),
+  };
+}
+
+export function buildRenaserPendingOrderFields(
+  form: CheckoutDTO['form'],
+  pricing: RenaserInvitationPricing,
+  invitation?: { tokenHash: string; emailNormalized: string },
+) {
   return {
     productId: RENSER_CANONICAL_PRODUCT_ID,
     productSlug: getMemoriasCongresoCourseSlug(),
@@ -39,7 +68,14 @@ export function buildRenaserPendingOrderFields(form: CheckoutDTO['form']) {
     lastName: form.lastNames?.trim() ?? '',
     email: form.email.trim().toLowerCase(),
     phone: form.phone?.trim() ?? '',
-    amountInCents: getRenaserAmountInCents(),
+    amountInCents: pricing.finalAmountInCents,
     currency: 'COP' as const,
+    baseAmountInCents: pricing.baseAmountInCents,
+    discountPercent: pricing.discountPercent,
+    discountAmountInCents: pricing.discountAmountInCents,
+    ...(invitation?.tokenHash ? { invitationTokenHash: invitation.tokenHash } : {}),
+    ...(invitation?.emailNormalized
+      ? { invitationEmailNormalized: invitation.emailNormalized }
+      : {}),
   };
 }

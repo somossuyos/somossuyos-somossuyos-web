@@ -1,6 +1,10 @@
 import type { NextApiRequest } from 'next';
 import { normalizeInvitationEmail } from './email';
-import { isInvitationEnforcementEnabled, GENERIC_INVITATION_ERROR } from './config';
+import {
+  isInvitationEnforcementEnabled,
+  GENERIC_INVITATION_ERROR,
+  INVITATION_ONLY_CHECKOUT_MESSAGE,
+} from './config';
 import { evaluateInvitationForAccess } from './invitationLogic';
 import {
   getInvitationByTokenHash,
@@ -35,7 +39,7 @@ export async function assertRenaserInvitationCheckout(
 
   const session = readInvitationSessionFromRequest(req.headers.cookie);
   if (!session?.th) {
-    return { ok: false, httpStatus: 403, error: GENERIC_INVITATION_ERROR };
+    return { ok: false, httpStatus: 403, error: INVITATION_ONLY_CHECKOUT_MESSAGE };
   }
 
   const inv = await getInvitationByTokenHash(session.th);

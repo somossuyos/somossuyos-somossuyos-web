@@ -20,6 +20,10 @@ export type CheckoutOrder = {
   provisioningError?: string;
   /** SHA-256 of purchase invitation token (never store raw token). */
   invitationTokenHash?: string;
+  invitationEmailNormalized?: string;
+  baseAmountInCents?: number;
+  discountPercent?: number;
+  discountAmountInCents?: number;
 };
 
 export type CreatePendingCheckoutOrderInput = Omit<

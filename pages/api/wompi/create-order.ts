@@ -9,7 +9,7 @@ import { putPendingCheckoutOrder } from '@/src/lib/orders/checkoutOrdersReposito
 import { buildRenaserOrderReference } from '@/src/lib/orders/reference';
 import {
   buildRenaserPendingOrderFields,
-  getRenaserAmountInCents,
+  getRenaserServerPricing,
   isRenaserCheckout,
   validateRenaserClientTotalPrice,
 } from '@/src/lib/orders/renaserCheckout';
@@ -106,26 +106,14 @@ export default async function handler(
   if (shouldLogWompiEnvVerbose()) {
     logWompiServerEnvDiagnostics('wompi/create-order');
   }
-  let amountInCents: number;
-
-  if (renaSer) {
-    if (!validateRenaserClientTotalPrice(data.totalPrice)) {
-      return res.status(400).json({ ok: false, error: 'Invalid RenaSER total price' });
-    }
-    amountInCents = getRenaserAmountInCents();
-  } else {
-    amountInCents = totalToAmountInCents(data.totalPrice);
-  }
-
-  if (amountInCents <= 0) {
-    return res.status(400).json({ ok: false, error: 'Invalid amount' });
-  }
-
   const prefix = /^pub_prod_/i.test(publicKey) ? 'ss-prod-' : 'ss-test-';
-  const reference = renaSer ? buildRenaserOrderReference() : buildLegacyReference(prefix);
+  let reference: string;
+  let amountInCents: number;
 
   try {
     if (renaSer) {
+      reference = buildRenaserOrderReference();
+
       const invitationGuard = await assertRenaserInvitationCheckout(
         req,
         data.form.email,
@@ -138,17 +126,38 @@ export default async function handler(
         });
       }
 
-      const pending = buildRenaserPendingOrderFields({
-        ...data.form,
-        email: normalizeInvitationEmail(data.form.email),
-        names: invitationGuard.firstName || data.form.names,
-        lastNames: invitationGuard.lastName || data.form.lastNames,
-      });
+      const pricing = getRenaserServerPricing();
+      if (!validateRenaserClientTotalPrice(data.totalPrice)) {
+        return res.status(400).json({ ok: false, error: 'Invalid RenaSER total price' });
+      }
+      amountInCents = pricing.finalAmountInCents;
+
+      const pending = buildRenaserPendingOrderFields(
+        {
+          ...data.form,
+          email: normalizeInvitationEmail(data.form.email),
+          names: invitationGuard.firstName || data.form.names,
+          lastNames: invitationGuard.lastName || data.form.lastNames,
+        },
+        pricing,
+        invitationGuard.tokenHash
+          ? {
+              tokenHash: invitationGuard.tokenHash,
+              emailNormalized: invitationGuard.emailNormalized,
+            }
+          : undefined,
+      );
       await putPendingCheckoutOrder({
         reference,
         ...pending,
-        ...(invitationGuard.tokenHash ? { invitationTokenHash: invitationGuard.tokenHash } : {}),
       });
+    } else {
+      reference = buildLegacyReference(prefix);
+      amountInCents = totalToAmountInCents(data.totalPrice);
+    }
+
+    if (amountInCents <= 0) {
+      return res.status(400).json({ ok: false, error: 'Invalid amount' });
     }
 
     const encodedIntegritySignature = encodeWidgetIntegritySha256({
