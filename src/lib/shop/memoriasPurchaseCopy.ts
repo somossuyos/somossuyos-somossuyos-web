@@ -12,6 +12,10 @@ export const MEMORIAS_GENERAL_DESCRIPTION =
 export const MEMORIAS_GENERAL_CTA = 'Comprar acceso';
 export const MEMORIAS_GENERAL_PRICE_LABEL = 'Precio';
 
+export const MEMORIAS_ATTENDEE_REGULAR_PRICE_LABEL = 'Precio regular';
+export const MEMORIAS_ATTENDEE_BENEFIT_LABEL = 'Beneficio RenaSER';
+export const MEMORIAS_ATTENDEE_TOTAL_LABEL = 'Total';
+
 /** Texto eliminado de la ficha — no debe aparecer en la zona de compra. */
 export const MEMORIAS_REMOVED_AULA_ACCESS_SNIPPETS = [
   '¿Aún no tienes acceso?',

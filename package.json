@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/lib/renaserIntegration.test.ts src/lib/renaserInvitations.test.ts src/lib/renaserInvitationsHardening.test.ts src/lib/renaserInvitationDiscount.test.ts src/lib/renaserInvitations/exchangeInvitation.test.ts src/lib/renaserBenefit/sharedBenefit.test.ts src/lib/shop/memoriasPurchaseZone.test.ts",
+    "test": "node --import tsx --test src/lib/renaserIntegration.test.ts src/lib/renaserInvitations.test.ts src/lib/renaserInvitationsHardening.test.ts src/lib/renaserInvitationDiscount.test.ts src/lib/renaserInvitations/exchangeInvitation.test.ts src/lib/renaserBenefit/sharedBenefit.test.ts src/lib/shop/memoriasPurchaseZone.test.ts src/lib/shop/memoriasProductBenefitUi.test.ts",
     "sitemap": "next-sitemap",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",

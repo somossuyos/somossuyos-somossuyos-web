@@ -1,23 +1,28 @@
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
+/** Beneficio asistente solo si /api/renaser/benefit/me confirma cookie válida (no usa query params). */
 export function useRenaserBenefitCart(): { benefitActive: boolean; loading: boolean } {
-  const router = useRouter();
-  const hint =
-    router.query.renaserBeneficio === '1' || router.query.renaserBeneficio === 'true';
   const [benefitActive, setBenefitActive] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!router.isReady) return;
-    fetch('/api/renaser/benefit/me')
+    let cancelled = false;
+    fetch('/api/renaser/benefit/me', { credentials: 'same-origin' })
       .then((r) => r.json())
       .then((json) => {
+        if (cancelled) return;
         setBenefitActive(Boolean(json?.ok && json.benefitActive));
       })
-      .catch(() => setBenefitActive(false))
-      .finally(() => setLoading(false));
-  }, [router.isReady, hint]);
+      .catch(() => {
+        if (!cancelled) setBenefitActive(false);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return { benefitActive, loading };
 }

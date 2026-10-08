@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatPrice } from '@/src/utils/formatPrice';
 import { getMemoriasRegularPriceCop } from '@/src/lib/shop/memoriasCongresoPricing';
+import { calculateRenaserInvitationPricing } from '@/src/lib/renaserInvitations/pricing';
 import {
   MEMORIAS_GENERAL_CTA,
   MEMORIAS_GENERAL_DESCRIPTION,
@@ -10,18 +11,25 @@ import {
   MEMORIAS_PURCHASE_LAYOUT,
   MEMORIAS_PURCHASE_SECTION_SUBTITLE,
   MEMORIAS_PURCHASE_SECTION_TITLE,
+  MEMORIAS_ATTENDEE_BENEFIT_LABEL,
+  MEMORIAS_ATTENDEE_TOTAL_LABEL,
+  MEMORIAS_ATTENDEE_REGULAR_PRICE_LABEL,
 } from '@/src/lib/shop/memoriasPurchaseCopy';
 
 type MemoriasPurchaseTierSectionProps = {
   comingSoon: boolean;
+  /** Cookie renaser_benefit validada vía /api/renaser/benefit/me */
+  attendeeBenefitActive?: boolean;
   onGeneralPurchase: () => void;
 };
 
 const MemoriasPurchaseTierSection = ({
   comingSoon,
+  attendeeBenefitActive = false,
   onGeneralPurchase,
 }: MemoriasPurchaseTierSectionProps) => {
   const regularPrice = getMemoriasRegularPriceCop();
+  const attendeePricing = calculateRenaserInvitationPricing();
 
   return (
     <section className="mb-10 sm:mb-12" aria-labelledby="memorias-purchase-heading">
@@ -56,12 +64,33 @@ const MemoriasPurchaseTierSection = ({
             <p className="font-futura mb-4 flex-1 text-[15px] leading-relaxed text-[#6e6e73]">
               {MEMORIAS_GENERAL_DESCRIPTION}
             </p>
-            <p className="font-futura mb-5 text-[13px] text-[#86868b]">
-              {MEMORIAS_GENERAL_PRICE_LABEL}{' '}
-              <span className="text-[22px] font-light tracking-tight text-[#1d1d1f]">
-                {formatPrice(regularPrice)}
-              </span>
-            </p>
+            {attendeeBenefitActive ? (
+              <dl className="font-futura mb-5 space-y-2 text-[13px] text-[#86868b]">
+                <div className="flex justify-between gap-4">
+                  <dt>{MEMORIAS_ATTENDEE_REGULAR_PRICE_LABEL}</dt>
+                  <dd className="text-[#1d1d1f]">{formatPrice(attendeePricing.basePriceCop)}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt>{MEMORIAS_ATTENDEE_BENEFIT_LABEL}</dt>
+                  <dd className="text-[#2d4a7a]">
+                    -{formatPrice(attendeePricing.discountAmountCop)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4 border-t border-[#e5e5ea] pt-2 font-semibold text-[#1d1d1f]">
+                  <dt>{MEMORIAS_ATTENDEE_TOTAL_LABEL}</dt>
+                  <dd className="text-[22px] font-light tracking-tight">
+                    {formatPrice(attendeePricing.finalPriceCop)}
+                  </dd>
+                </div>
+              </dl>
+            ) : (
+              <p className="font-futura mb-5 text-[13px] text-[#86868b]">
+                {MEMORIAS_GENERAL_PRICE_LABEL}{' '}
+                <span className="text-[22px] font-light tracking-tight text-[#1d1d1f]">
+                  {formatPrice(regularPrice)}
+                </span>
+              </p>
+            )}
             <button
               type="button"
               onClick={onGeneralPurchase}

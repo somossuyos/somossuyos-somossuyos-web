@@ -44,7 +44,7 @@ const isComingSoon = process.env.NEXT_PUBLIC_MEMORIAS_COMING_SOON !== 'false';
 const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetailProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { benefitActive } = useRenaserBenefitCart();
+  const { benefitActive, loading: benefitLoading } = useRenaserBenefitCart();
 
   const handleGeneralPurchase = () => {
     const item = benefitActive
@@ -95,6 +95,7 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
 
           <MemoriasPurchaseTierSection
             comingSoon={isComingSoon}
+            attendeeBenefitActive={!benefitLoading && benefitActive}
             onGeneralPurchase={handleGeneralPurchase}
           />
 
