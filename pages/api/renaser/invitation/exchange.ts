@@ -1,13 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { hashInvitationToken } from '@/src/lib/renaserInvitations/token';
-import { evaluateInvitationForAccess } from '@/src/lib/renaserInvitations/invitationLogic';
-import { getInvitationByTokenHash } from '@/src/lib/renaserInvitations/repository';
 import { maskEmailForDisplay } from '@/src/lib/renaserInvitations/email';
 import {
-  createInvitationSessionValue,
   invitationSessionCookieHeader,
 } from '@/src/lib/renaserInvitations/session';
 import { GENERIC_INVITATION_ERROR } from '@/src/lib/renaserInvitations/config';
+import { performInvitationExchange } from '@/src/lib/renaserInvitations/exchangeInvitation';
 
 type ExchangeOk = {
   ok: true;
@@ -28,30 +25,27 @@ export default async function handler(
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const tokenRaw = typeof req.body?.token === 'string' ? req.body.token.trim() : '';
-  if (!tokenRaw || tokenRaw.length < 20) {
-    return res.status(400).json({ ok: false, error: GENERIC_INVITATION_ERROR });
+  try {
+    const result = await performInvitationExchange(req.body?.token);
+    if (!result.ok) {
+      return res.status(result.httpStatus).json({ ok: false, error: result.error });
+    }
+
+    res.setHeader('Set-Cookie', invitationSessionCookieHeader(result.sessionValue));
+
+    return res.status(200).json({
+      ok: true,
+      firstName: result.invitation.firstName,
+      lastName: result.invitation.lastName,
+      emailMasked: maskEmailForDisplay(result.invitation.emailNormalized),
+      redirectPath: '/renaser/invitacion',
+    });
+  } catch (e) {
+    const name = e instanceof Error ? e.name : 'UnknownError';
+    console.error('[renaser/invitation/exchange] unexpected error', {
+      errorName: name,
+      message: e instanceof Error ? e.message.slice(0, 200) : 'unknown',
+    });
+    return res.status(503).json({ ok: false, error: GENERIC_INVITATION_ERROR });
   }
-
-  const tokenHash = hashInvitationToken(tokenRaw);
-  const inv = await getInvitationByTokenHash(tokenHash);
-  const access = evaluateInvitationForAccess(inv);
-  if (!access.ok) {
-    return res.status(403).json({ ok: false, error: access.message });
-  }
-
-  const sessionValue = createInvitationSessionValue(tokenHash);
-  if (!sessionValue) {
-    return res.status(500).json({ ok: false, error: GENERIC_INVITATION_ERROR });
-  }
-
-  res.setHeader('Set-Cookie', invitationSessionCookieHeader(sessionValue));
-
-  return res.status(200).json({
-    ok: true,
-    firstName: access.invitation.firstName,
-    lastName: access.invitation.lastName,
-    emailMasked: maskEmailForDisplay(access.invitation.emailNormalized),
-    redirectPath: '/renaser/invitacion',
-  });
 }
