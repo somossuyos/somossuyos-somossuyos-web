@@ -9,11 +9,9 @@ import { putPendingCheckoutOrder } from '@/src/lib/orders/checkoutOrdersReposito
 import { buildRenaserOrderReference } from '@/src/lib/orders/reference';
 import {
   buildRenaserPendingOrderFields,
-  getRenaserServerPricing,
   isRenaserCheckout,
-  validateRenaserClientTotalPrice,
+  resolveRenaserCheckoutPricing,
 } from '@/src/lib/orders/renaserCheckout';
-import { assertRenaserInvitationCheckout } from '@/src/lib/renaserInvitations/checkoutGuard';
 import { normalizeInvitationEmail } from '@/src/lib/renaserInvitations/email';
 
 type CreateOrderOk = {
@@ -114,38 +112,31 @@ export default async function handler(
     if (renaSer) {
       reference = buildRenaserOrderReference();
 
-      const invitationGuard = await assertRenaserInvitationCheckout(
+      const pricingResult = await resolveRenaserCheckoutPricing(
         req,
         data.form.email,
+        data.totalPrice,
         reference,
       );
-      if (!invitationGuard.ok) {
-        return res.status(invitationGuard.httpStatus).json({
+      if (!pricingResult.ok) {
+        return res.status(pricingResult.httpStatus).json({
           ok: false,
-          error: invitationGuard.error,
+          error: pricingResult.error,
         });
       }
 
-      const pricing = getRenaserServerPricing();
-      if (!validateRenaserClientTotalPrice(data.totalPrice)) {
-        return res.status(400).json({ ok: false, error: 'Invalid RenaSER total price' });
-      }
+      const { pricing, invitation, firstName, lastName, emailNormalized } = pricingResult;
       amountInCents = pricing.finalAmountInCents;
 
       const pending = buildRenaserPendingOrderFields(
         {
           ...data.form,
-          email: normalizeInvitationEmail(data.form.email),
-          names: invitationGuard.firstName || data.form.names,
-          lastNames: invitationGuard.lastName || data.form.lastNames,
+          email: emailNormalized || normalizeInvitationEmail(data.form.email),
+          names: firstName || data.form.names,
+          lastNames: lastName || data.form.lastNames,
         },
         pricing,
-        invitationGuard.tokenHash
-          ? {
-              tokenHash: invitationGuard.tokenHash,
-              emailNormalized: invitationGuard.emailNormalized,
-            }
-          : undefined,
+        invitation,
       );
       await putPendingCheckoutOrder({
         reference,

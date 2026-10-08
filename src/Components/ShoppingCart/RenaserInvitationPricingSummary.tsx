@@ -16,7 +16,7 @@ const RenaserInvitationPricingSummary = ({ emailDisplay }: Props) => {
           <dd>{formatPrice(p.basePriceCop)} COP</dd>
         </div>
         <div className="flex justify-between gap-4">
-          <dt className="text-[#6e6e73]">Beneficio exclusivo</dt>
+          <dt className="text-[#6e6e73]">Beneficio exclusivo asistentes RenaSER</dt>
           <dd className="text-[#2d4a7a]">-{formatPrice(p.discountAmountCop)} COP</dd>
         </div>
         <div className="flex justify-between gap-4 border-t border-[#e5e5ea] pt-2 font-semibold">

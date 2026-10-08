@@ -3,9 +3,6 @@ export const DEFAULT_INVITATIONS_TABLE = 'RenaSERPurchaseInvitations';
 export const GENERIC_INVITATION_ERROR =
   'La invitación no es válida o ya no está disponible.';
 
-export const INVITATION_ONLY_CHECKOUT_MESSAGE =
-  'Este acceso está disponible exclusivamente para invitados de RenaSER 2026.';
-
 export const INVITATION_ALREADY_USED_MESSAGE =
   'Esta invitación ya fue utilizada.';
 
@@ -28,8 +25,17 @@ export function getReservationMinutes(): number {
   return Math.min(n, 120);
 }
 
-export function isInvitationEnforcementEnabled(): boolean {
+/**
+ * Invitaciones y precio especial habilitados (no bloquea compra pública a precio lista).
+ * `RENASER_INVITATIONS_ENFORCE=false` desactiva solo el camino invitado (legacy).
+ */
+export function isRenaserInvitationFeatureEnabled(): boolean {
   return process.env.RENASER_INVITATIONS_ENFORCE !== 'false';
+}
+
+/** @deprecated Use isRenaserInvitationFeatureEnabled — ya no implica invitation-only. */
+export function isInvitationEnforcementEnabled(): boolean {
+  return isRenaserInvitationFeatureEnabled();
 }
 
 export function getInvitationSessionSecret(): string | undefined {

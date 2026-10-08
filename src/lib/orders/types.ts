@@ -2,6 +2,8 @@ export type CheckoutOrderStatus = 'PENDING' | 'APPROVED' | 'DECLINED' | 'VOIDED'
 
 export type ProvisioningStatus = 'NOT_STARTED' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
+export type RenaserOrderPricingMode = 'PUBLIC' | 'INVITED';
+
 export type CheckoutOrder = {
   reference: string;
   productId: string;
@@ -21,7 +23,9 @@ export type CheckoutOrder = {
   /** SHA-256 of purchase invitation token (never store raw token). */
   invitationTokenHash?: string;
   invitationEmailNormalized?: string;
+  pricingMode?: RenaserOrderPricingMode;
   baseAmountInCents?: number;
+  benefitAmountInCents?: number;
   discountPercent?: number;
   discountAmountInCents?: number;
 };

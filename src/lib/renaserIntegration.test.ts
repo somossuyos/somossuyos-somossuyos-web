@@ -55,8 +55,11 @@ describe('RenaSER checkout pricing', () => {
   });
 
   it('2. rejects altered client total', () => {
-    assert.equal(validateRenaserClientTotalPrice(250000), true);
-    assert.equal(validateRenaserClientTotalPrice(1), false);
+    assert.equal(validateRenaserClientTotalPrice(250000, 'PUBLIC'), true);
+    assert.equal(validateRenaserClientTotalPrice(150000, 'PUBLIC'), false);
+    assert.equal(validateRenaserClientTotalPrice(1, 'PUBLIC'), false);
+    assert.equal(validateRenaserClientTotalPrice(150000, 'INVITED'), true);
+    assert.equal(validateRenaserClientTotalPrice(250000, 'INVITED'), false);
   });
 });
 

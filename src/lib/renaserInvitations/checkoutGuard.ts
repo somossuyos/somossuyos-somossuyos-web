@@ -1,9 +1,8 @@
 import type { NextApiRequest } from 'next';
 import { normalizeInvitationEmail } from './email';
 import {
-  isInvitationEnforcementEnabled,
+  isRenaserInvitationFeatureEnabled,
   GENERIC_INVITATION_ERROR,
-  INVITATION_ONLY_CHECKOUT_MESSAGE,
 } from './config';
 import { evaluateInvitationForAccess } from './invitationLogic';
 import {
@@ -22,24 +21,27 @@ export type RenaserCheckoutGuardResult =
     }
   | { ok: false; httpStatus: 403; error: string };
 
+/** Valida sesión de invitación, email y reserva CHECKOUT_STARTED (camino INVITED). */
 export async function assertRenaserInvitationCheckout(
   req: NextApiRequest,
   formEmail: string,
   orderReference: string,
 ): Promise<RenaserCheckoutGuardResult> {
-  if (!isInvitationEnforcementEnabled()) {
+  if (!isRenaserInvitationFeatureEnabled()) {
     return {
-      ok: true,
-      tokenHash: '',
-      emailNormalized: normalizeInvitationEmail(formEmail),
-      firstName: '',
-      lastName: '',
+      ok: false,
+      httpStatus: 403,
+      error: GENERIC_INVITATION_ERROR,
     };
   }
 
   const session = readInvitationSessionFromRequest(req.headers.cookie);
   if (!session?.th) {
-    return { ok: false, httpStatus: 403, error: INVITATION_ONLY_CHECKOUT_MESSAGE };
+    return {
+      ok: false,
+      httpStatus: 403,
+      error: GENERIC_INVITATION_ERROR,
+    };
   }
 
   const inv = await getInvitationByTokenHash(session.th);

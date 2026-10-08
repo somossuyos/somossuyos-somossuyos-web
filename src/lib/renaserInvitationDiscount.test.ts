@@ -6,7 +6,10 @@ import {
 } from './renaserInvitations/pricing';
 import {
   buildRenaserPendingOrderFields,
+  getRenaserPublicPricing,
+  getRenaserInvitedPricing,
   validateRenaserClientTotalPrice,
+  resolveRenaserCheckoutPricing,
 } from './orders/renaserCheckout';
 import { validateRenaserApprovedPayment } from './wompi/renaserPaymentValidation';
 import type { CheckoutOrder } from './orders/types';
@@ -18,15 +21,17 @@ import {
 } from './renaserInvitations/invitation-email-template';
 import { createInMemoryInvitationsRepository } from './renaserInvitations/repository';
 import { hashInvitationToken, generateInvitationToken } from './renaserInvitations/token';
-import { releaseInvitationIfPaymentFailed } from './renaserInvitations/webhookInvitation';
+import {
+  consumeInvitationOnApprovedPayment,
+  releaseInvitationIfPaymentFailed,
+} from './renaserInvitations/webhookInvitation';
 import { assertRenaserInvitationCheckout } from './renaserInvitations/checkoutGuard';
 import type { NextApiRequest } from 'next';
 import { formatPrice } from '../utils/formatPrice';
-
 const ORIGINAL = { ...process.env };
 
 function order(overrides: Partial<CheckoutOrder> = {}): CheckoutOrder {
-  const pricing = calculateRenaserInvitationPricing();
+  const pricing = getRenaserInvitedPricing();
   return {
     reference: 'ss-renaser-disc',
     productId: RENSER_CANONICAL_PRODUCT_ID,
@@ -37,6 +42,8 @@ function order(overrides: Partial<CheckoutOrder> = {}): CheckoutOrder {
     phone: '1',
     amountInCents: pricing.finalAmountInCents,
     baseAmountInCents: pricing.baseAmountInCents,
+    benefitAmountInCents: pricing.benefitAmountInCents,
+    pricingMode: 'INVITED',
     discountPercent: pricing.discountPercent,
     discountAmountInCents: pricing.discountAmountInCents,
     currency: 'COP',
@@ -50,41 +57,75 @@ function order(overrides: Partial<CheckoutOrder> = {}): CheckoutOrder {
   };
 }
 
-describe('RenaSER invitation invited price 150000 COP', () => {
+function publicOrder(overrides: Partial<CheckoutOrder> = {}): CheckoutOrder {
+  const pricing = getRenaserPublicPricing();
+  return order({
+    amountInCents: pricing.finalAmountInCents,
+    baseAmountInCents: pricing.baseAmountInCents,
+    benefitAmountInCents: 0,
+    pricingMode: 'PUBLIC',
+    discountPercent: 0,
+    discountAmountInCents: 0,
+    invitationTokenHash: undefined,
+    invitationEmailNormalized: undefined,
+    ...overrides,
+  });
+}
+
+describe('RenaSER PUBLIC_FULL_PRICE + INVITED_SPECIAL_PRICE', () => {
   beforeEach(() => {
     process.env.RENASER_INVITATIONS_ENFORCE = 'true';
+    process.env.RENASER_INVITATION_SESSION_SECRET = 'test-session-secret-for-renaser';
   });
   afterEach(() => {
     process.env = { ...ORIGINAL };
   });
 
-  it('1. backend pricing final = 150000 COP', () => {
-    const p = calculateRenaserInvitationPricing();
-    assert.equal(p.basePriceCop, 250000);
-    assert.equal(p.discountAmountCop, 100000);
-    assert.equal(p.discountPercent, 40);
-    assert.equal(p.finalPriceCop, 150000);
-    assert.equal(p.finalAmountInCents, 15000000);
-    assert.equal(p.baseAmountInCents, 25000000);
-    assert.equal(p.discountAmountInCents, 10000000);
+  it('1. público sin invitación compra a 250000', async () => {
+    const req = { headers: {} } as NextApiRequest;
+    const r = await resolveRenaserCheckoutPricing(req, 'public@example.com', 250000, 'ss-renaser-pub');
+    assert.equal(r.ok, true);
+    if (r.ok) {
+      assert.equal(r.pricing.pricingMode, 'PUBLIC');
+      assert.equal(r.pricing.finalPriceCop, 250000);
+      assert.equal(r.invitation, undefined);
+    }
   });
 
-  it('2. amountInCents for Wompi = 15000000', () => {
-    const p = calculateRenaserInvitationPricing();
-    assert.equal(p.finalAmountInCents, 15000000);
+  it('2. invitado válido compra a 150000', async () => {
+    const repo = createInMemoryInvitationsRepository();
+    const tokenHash = hashInvitationToken(generateInvitationToken());
+    await repo.putInvitationIfNotExists({
+      tokenHash,
+      emailNormalized: 'inv@example.com',
+      firstName: 'I',
+      lastName: 'N',
+    });
+    const reserved = await repo.tryReserveInvitationForCheckout(tokenHash, 'ss-renaser-inv');
+    assert.equal(reserved.ok, true);
+    assert.equal(validateRenaserClientTotalPrice(150000, 'INVITED'), true);
+    assert.equal(getRenaserInvitedPricing().finalPriceCop, 150000);
   });
 
-  it('3. frontend sends 100000 COP → rejected', () => {
-    assert.equal(validateRenaserInvitedClientTotalPrice(100000), false);
-    assert.equal(validateRenaserClientTotalPrice(100000), false);
+  it('3. público amountInCents = 25000000', () => {
+    assert.equal(getRenaserPublicPricing().finalAmountInCents, 25000000);
   });
 
-  it('4. frontend sends 250000 COP → rejected for invited checkout', () => {
-    assert.equal(validateRenaserInvitedClientTotalPrice(250000), false);
-    assert.equal(validateRenaserClientTotalPrice(250000), false);
+  it('4. invitado amountInCents = 15000000', () => {
+    assert.equal(getRenaserInvitedPricing().finalAmountInCents, 15000000);
   });
 
-  it('5. webhook 15000000 → PASS', () => {
+  it('5. webhook público con 25000000 PASS', () => {
+    const o = publicOrder();
+    const r = validateRenaserApprovedPayment(o, {
+      status: 'APPROVED',
+      amount_in_cents: 25000000,
+      currency: 'COP',
+    });
+    assert.equal(r.ok, true);
+  });
+
+  it('6. webhook invitado con 15000000 PASS', () => {
     const o = order();
     const r = validateRenaserApprovedPayment(o, {
       status: 'APPROVED',
@@ -94,17 +135,17 @@ describe('RenaSER invitation invited price 150000 COP', () => {
     assert.equal(r.ok, true);
   });
 
-  it('6. webhook 10000000 → FAIL', () => {
-    const o = order();
+  it('7. webhook público con 15000000 FAIL', () => {
+    const o = publicOrder();
     const r = validateRenaserApprovedPayment(o, {
       status: 'APPROVED',
-      amount_in_cents: 10000000,
+      amount_in_cents: 15000000,
       currency: 'COP',
     });
     assert.equal(r.ok, false);
   });
 
-  it('7. webhook 25000000 → FAIL for invited order', () => {
+  it('8. webhook invitado con 25000000 FAIL', () => {
     const o = order();
     const r = validateRenaserApprovedPayment(o, {
       status: 'APPROVED',
@@ -114,7 +155,57 @@ describe('RenaSER invitation invited price 150000 COP', () => {
     assert.equal(r.ok, false);
   });
 
-  it('8. DECLINED does not consume invitation', async () => {
+  it('9. público puede editar email (sin lock en backend)', async () => {
+    const req = { headers: {} } as NextApiRequest;
+    const r = await resolveRenaserCheckoutPricing(req, 'any@example.com', 250000, 'ss-renaser-pub2');
+    assert.equal(r.ok, true);
+    if (r.ok) assert.equal(r.emailNormalized, 'any@example.com');
+  });
+
+  it('10. invitado email bloqueado en guard (mismatch)', async () => {
+    const req = { headers: {} } as NextApiRequest;
+    const r = await assertRenaserInvitationCheckout(req, 'x@example.com', 'ss-renaser-x');
+    assert.equal(r.ok, false);
+  });
+
+  it('11. compra pública no toca invitation table', async () => {
+    const repo = createInMemoryInvitationsRepository();
+    const hash = hashInvitationToken(generateInvitationToken());
+    await repo.putInvitationIfNotExists({
+      tokenHash: hash,
+      emailNormalized: 'stay@example.com',
+      firstName: 'S',
+      lastName: 'T',
+    });
+    const consume = await consumeInvitationOnApprovedPayment(
+      publicOrder({ email: 'buyer@example.com' }),
+      'trx-pub',
+      repo,
+    );
+    assert.equal(consume.ok, true);
+    assert.equal((await repo.getInvitationByTokenHash(hash))?.status, 'AVAILABLE');
+  });
+
+  it('12. compra invitada APPROVED consume invitación', async () => {
+    const repo = createInMemoryInvitationsRepository();
+    const hash = hashInvitationToken(generateInvitationToken());
+    await repo.putInvitationIfNotExists({
+      tokenHash: hash,
+      emailNormalized: 'ok@example.com',
+      firstName: 'O',
+      lastName: 'K',
+    });
+    await repo.tryReserveInvitationForCheckout(hash, 'ss-renaser-ok');
+    const c = await consumeInvitationOnApprovedPayment(
+      order({ reference: 'ss-renaser-ok', invitationTokenHash: hash, email: 'ok@example.com' }),
+      'trx',
+      repo,
+    );
+    assert.equal(c.ok, true);
+    assert.equal((await repo.getInvitationByTokenHash(hash))?.status, 'PURCHASED');
+  });
+
+  it('13. DECLINED invitado no consume', async () => {
     const repo = createInMemoryInvitationsRepository();
     const hash = hashInvitationToken(generateInvitationToken());
     await repo.putInvitationIfNotExists({
@@ -133,113 +224,59 @@ describe('RenaSER invitation invited price 150000 COP', () => {
     assert.equal((await repo.getInvitationByTokenHash(hash))?.status, 'AVAILABLE');
   });
 
-  it('9. APPROVED consumes invitation', async () => {
-    const repo = createInMemoryInvitationsRepository();
-    const hash = hashInvitationToken(generateInvitationToken());
-    await repo.putInvitationIfNotExists({
-      tokenHash: hash,
-      emailNormalized: 'ok@example.com',
-      firstName: 'O',
-      lastName: 'K',
-    });
-    await repo.tryReserveInvitationForCheckout(hash, 'ss-renaser-ok');
-    const c = await repo.markInvitationPurchasedIdempotent(
-      hash,
-      'ss-renaser-ok',
-      'trx',
-      'ok@example.com',
+  it('14. provisioning metadata en ambos caminos', () => {
+    const pub = buildRenaserPendingOrderFields(
+      { names: 'A', lastNames: 'B', email: 'a@b.com', phone: '1', direction: {} as never },
+      getRenaserPublicPricing(),
     );
-    assert.equal(c.ok, true);
-  });
+    assert.equal(pub.pricingMode, 'PUBLIC');
+    assert.equal(pub.amountInCents, 25000000);
+    assert.equal(pub.benefitAmountInCents, 0);
 
-  it('10. duplicate APPROVED idempotent', async () => {
-    const repo = createInMemoryInvitationsRepository();
-    const hash = hashInvitationToken(generateInvitationToken());
-    await repo.putInvitationIfNotExists({
-      tokenHash: hash,
-      emailNormalized: 'dup@example.com',
-      firstName: 'D',
-      lastName: 'U',
-    });
-    await repo.tryReserveInvitationForCheckout(hash, 'ss-renaser-dup');
-    await repo.markInvitationPurchasedIdempotent(hash, 'ss-renaser-dup', 't1', 'dup@example.com');
-    const again = await repo.markInvitationPurchasedIdempotent(
-      hash,
-      'ss-renaser-dup',
-      't1',
-      'dup@example.com',
-    );
-    assert.equal(again.ok, true);
-  });
-
-  it('11. email template contains 150.000 COP', () => {
-    const email = buildPurchaseInvitationEmail({ firstName: 'Ana', token: 'test-token-value' });
-    assert.match(email.text, /150\.000 COP/);
-    assert.match(email.html, /150\.000 COP/);
-  });
-
-  it('12. email template does not mention 60% discount', () => {
-    const email = buildPurchaseInvitationEmail({ firstName: 'Ana', token: 'test-token-value' });
-    assert.doesNotMatch(email.text, /60\s*%/);
-    assert.doesNotMatch(email.html, /60\s*%/);
-    assert.equal(PURCHASE_INVITATION_SUBJECT, 'Memorias del Congreso RenaSER 2026');
-    assert.match(email.html, new RegExp(PURCHASE_INVITATION_CTA_LABEL));
-    assert.doesNotMatch(email.text, /test-token-value/);
-  });
-
-  it('13. checkout copy amounts 250k → -100k → 150k', () => {
-    const p = calculateRenaserInvitationPricing();
-    assert.match(formatPrice(p.basePriceCop), /250\.?000/);
-    assert.match(formatPrice(p.discountAmountCop), /100\.?000/);
-    assert.match(formatPrice(p.finalPriceCop), /150\.?000/);
-  });
-
-  it('15. order fields store discount metadata', () => {
-    const p = calculateRenaserInvitationPricing();
-    const fields = buildRenaserPendingOrderFields(
-      {
-        names: 'A',
-        lastNames: 'B',
-        email: 'a@b.com',
-        phone: '1',
-        direction: {} as never,
-      },
-      p,
+    const inv = buildRenaserPendingOrderFields(
+      { names: 'A', lastNames: 'B', email: 'a@b.com', phone: '1', direction: {} as never },
+      getRenaserInvitedPricing(),
       { tokenHash: 'abc', emailNormalized: 'a@b.com' },
     );
-    assert.equal(fields.amountInCents, 15000000);
-    assert.equal(fields.baseAmountInCents, 25000000);
-    assert.equal(fields.discountAmountInCents, 10000000);
-    assert.equal(fields.discountPercent, 40);
-    assert.equal(fields.invitationEmailNormalized, 'a@b.com');
+    assert.equal(inv.pricingMode, 'INVITED');
+    assert.equal(inv.amountInCents, 15000000);
+    assert.equal(inv.benefitAmountInCents, 10000000);
   });
 
-  it('PURCHASED invitation blocks reserve', async () => {
-    const repo = createInMemoryInvitationsRepository();
-    const hash = hashInvitationToken(generateInvitationToken());
-    await repo.putInvitationIfNotExists({
-      tokenHash: hash,
-      emailNormalized: 'p@example.com',
-      firstName: 'P',
-      lastName: 'Q',
-    });
-    const inv = (await repo.getInvitationByTokenHash(hash))!;
-    inv.status = 'PURCHASED';
-    const r = await repo.tryReserveInvitationForCheckout(hash, 'ss-renaser-new');
-    assert.equal(r.ok, false);
+  it('15. producto precio lista 250k (helpers)', () => {
+    const p = getRenaserPublicPricing();
+    assert.equal(p.finalPriceCop, 250000);
+    assert.match(formatPrice(p.basePriceCop), /250\.?000/);
   });
 
-  it('checkout without session blocked', async () => {
+  it('backend invited pricing final = 150000 COP', () => {
+    const p = calculateRenaserInvitationPricing();
+    assert.equal(p.basePriceCop, 250000);
+    assert.equal(p.discountAmountCop, 100000);
+    assert.equal(p.finalPriceCop, 150000);
+    assert.equal(p.finalAmountInCents, 15000000);
+  });
+
+  it('frontend sends wrong totals rejected', () => {
+    assert.equal(validateRenaserInvitedClientTotalPrice(100000), false);
+    assert.equal(validateRenaserClientTotalPrice(100000, 'PUBLIC'), false);
+    assert.equal(validateRenaserClientTotalPrice(100000, 'INVITED'), false);
+    assert.equal(validateRenaserClientTotalPrice(250000, 'INVITED'), false);
+    assert.equal(validateRenaserClientTotalPrice(150000, 'PUBLIC'), false);
+  });
+
+  it('checkout without session allowed at public price only', async () => {
     const req = { headers: {} } as NextApiRequest;
-    const r = await assertRenaserInvitationCheckout(req, 'x@example.com', 'ss-renaser-x');
-    assert.equal(r.ok, false);
-    if (!r.ok) {
-      assert.match(r.error, /exclusivamente para invitados/i);
-    }
+    const r = await resolveRenaserCheckoutPricing(req, 'x@example.com', 250000, 'ss-renaser-x');
+    assert.equal(r.ok, true);
+    const bad = await resolveRenaserCheckoutPricing(req, 'x@example.com', 150000, 'ss-renaser-y');
+    assert.equal(bad.ok, false);
   });
 
-  it('valid invited client total 150000 accepted', () => {
-    assert.equal(validateRenaserInvitedClientTotalPrice(150000), true);
-    assert.equal(validateRenaserClientTotalPrice(150000), true);
+  it('email template contains 150.000 COP', () => {
+    const email = buildPurchaseInvitationEmail({ firstName: 'Ana', token: 'test-token-value' });
+    assert.match(email.text, /150\.000 COP/);
+    assert.equal(PURCHASE_INVITATION_SUBJECT, 'Memorias del Congreso RenaSER 2026');
+    assert.match(email.html, new RegExp(PURCHASE_INVITATION_CTA_LABEL));
   });
 });

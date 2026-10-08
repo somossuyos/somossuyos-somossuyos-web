@@ -1,5 +1,4 @@
 import type { CheckoutOrder } from '@/src/lib/orders/types';
-import { isInvitationEnforcementEnabled } from './config';
 import {
   markInvitationPurchasedIdempotent,
   releaseInvitationReservation,
@@ -21,7 +20,7 @@ export async function releaseInvitationIfPaymentFailed(
   statusRaw: string,
   deps: InvitationWebhookDeps = defaultInvitationDeps,
 ): Promise<void> {
-  if (!order?.reference || !isInvitationEnforcementEnabled()) return;
+  if (!order?.reference || !order.invitationTokenHash) return;
   const fail = ['DECLINED', 'ERROR', 'VOIDED'].includes(statusRaw.toUpperCase());
   if (!fail) return;
   await deps.releaseInvitationReservation(order.reference);
@@ -32,11 +31,8 @@ export async function consumeInvitationOnApprovedPayment(
   trxId: string,
   deps: InvitationWebhookDeps = defaultInvitationDeps,
 ): Promise<{ ok: true; already: boolean } | { ok: false }> {
-  if (!isInvitationEnforcementEnabled()) {
-    return { ok: true, already: false };
-  }
   if (!order.invitationTokenHash) {
-    return { ok: false };
+    return { ok: true, already: false };
   }
   const consume = await deps.markInvitationPurchasedIdempotent(
     order.invitationTokenHash,
