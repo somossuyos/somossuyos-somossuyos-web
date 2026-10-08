@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/lib/renaserIntegration.test.ts src/lib/shop/memoriasPurchaseZone.test.ts",
+    "test": "node --import tsx --test src/lib/renaserIntegration.test.ts src/lib/renaserInvitations.test.ts src/lib/renaserInvitationsHardening.test.ts src/lib/shop/memoriasPurchaseZone.test.ts",
     "sitemap": "next-sitemap",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1146.0",
+    "@aws-sdk/client-ses": "^3.1146.0",
+    "@aws-sdk/client-sesv2": "^3.1148.0",
     "@aws-sdk/lib-dynamodb": "^3.1146.0",
     "@reduxjs/toolkit": "^2.2.6",
     "embla-carousel-react": "^8.6.0",
@@ -54,6 +56,7 @@
     "postcss": "^8",
     "tailwindcss": "^3",
     "tsx": "^4.23.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "xlsx": "^0.18.5"
   }
 }

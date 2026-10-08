@@ -13,6 +13,8 @@ import {
   isRenaserCheckout,
   validateRenaserClientTotalPrice,
 } from '@/src/lib/orders/renaserCheckout';
+import { assertRenaserInvitationCheckout } from '@/src/lib/renaserInvitations/checkoutGuard';
+import { normalizeInvitationEmail } from '@/src/lib/renaserInvitations/email';
 
 type CreateOrderOk = {
   ok: true;
@@ -124,10 +126,28 @@ export default async function handler(
 
   try {
     if (renaSer) {
-      const pending = buildRenaserPendingOrderFields(data.form);
+      const invitationGuard = await assertRenaserInvitationCheckout(
+        req,
+        data.form.email,
+        reference,
+      );
+      if (!invitationGuard.ok) {
+        return res.status(invitationGuard.httpStatus).json({
+          ok: false,
+          error: invitationGuard.error,
+        });
+      }
+
+      const pending = buildRenaserPendingOrderFields({
+        ...data.form,
+        email: normalizeInvitationEmail(data.form.email),
+        names: invitationGuard.firstName || data.form.names,
+        lastNames: invitationGuard.lastName || data.form.lastNames,
+      });
       await putPendingCheckoutOrder({
         reference,
         ...pending,
+        ...(invitationGuard.tokenHash ? { invitationTokenHash: invitationGuard.tokenHash } : {}),
       });
     }
 
@@ -160,7 +180,6 @@ export default async function handler(
     console.info('[wompi/create-order]', {
       reference,
       amountInCents,
-      email: data.form.email.trim(),
       renaSer,
       wompiChannel: wompiCreds.channel,
       summary: summarizeOrder(data),

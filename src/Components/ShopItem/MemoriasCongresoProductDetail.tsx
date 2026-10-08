@@ -8,6 +8,7 @@ import { useAppDispatch } from '@/src/redux/hooks';
 import { addItem } from '@/src/redux/features/cartSlice';
 import { useRouter } from 'next/router';
 import MemoriasPurchaseTierSection from './MemoriasPurchaseTierSection';
+import { isRenaserInvitationsPublicEnforced } from '@/src/lib/renaserInvitations/publicConfig';
 
 const CONFERENCISTAS = [
   {
@@ -88,10 +89,23 @@ const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetail
             </p>
           </div>
 
-          <MemoriasPurchaseTierSection
-            comingSoon={isComingSoon}
-            onGeneralPurchase={handleGeneralPurchase}
-          />
+          {isComingSoon || !isRenaserInvitationsPublicEnforced() ? (
+            <MemoriasPurchaseTierSection
+              comingSoon={isComingSoon}
+              onGeneralPurchase={handleGeneralPurchase}
+            />
+          ) : (
+            <section className="mb-10 sm:mb-12 font-futura">
+              <h2 className="mb-2 text-[22px] font-semibold tracking-tight text-[#1d1d1f]">
+                Acceso por invitación
+              </h2>
+              <p className="max-w-lg text-[15px] leading-relaxed text-[#6e6e73]">
+                La compra de esta memoria está disponible únicamente para personas con invitación
+                personal enviada por correo. Abre el enlace del mensaje «Acceder a RenaSER 2026» para
+                continuar al pago con tu correo autorizado.
+              </p>
+            </section>
+          )}
 
           <section className="mb-10 sm:mb-12">
             <h2 className="font-futura mb-4 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#aeaeb2]">

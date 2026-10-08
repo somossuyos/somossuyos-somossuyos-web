@@ -5,6 +5,13 @@ node_modules/
 .next/
 out/
 
+# RenaSER invitation token vault (never commit)
+.renaser-token-vault.jsonl
+.renaser-*-vault*.jsonl
+private/
+*.xlsx
+
+
 # Env (never commit secrets)
 .env
 .env.local

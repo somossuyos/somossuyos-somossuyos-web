@@ -23,7 +23,11 @@ import { processWompiTransactionUpdate } from './wompi/processWompiTransaction';
 import type { CheckoutOrder } from './orders/types';
 import { signSkillCertRequest } from './skillcert/provision';
 
-const ORIGINAL_ENV = { ...process.env };
+const ORIGINAL_ENV = { ...process.env, RENASER_INVITATIONS_ENFORCE: 'false' };
+
+before(() => {
+  process.env.RENASER_INVITATIONS_ENFORCE = 'false';
+});
 
 function baseOrder(overrides: Partial<CheckoutOrder> = {}): CheckoutOrder {
   return {

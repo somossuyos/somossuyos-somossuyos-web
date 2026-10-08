@@ -2,28 +2,13 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "SomosSuyosCheckoutOrdersTable",
+      "Sid": "RenaSERPurchaseInvitationsRuntime",
       "Effect": "Allow",
       "Action": [
-        "dynamodb:CreateTable",
-        "dynamodb:DescribeTable",
-        "dynamodb:GetItem",
-        "dynamodb:PutItem",
-        "dynamodb:UpdateItem"
-      ],
-      "Resource": "arn:aws:dynamodb:us-east-1:475029594948:table/SomosSuyosCheckoutOrders"
-    },
-    {
-      "Sid": "RenaSERPurchaseInvitationsTable",
-      "Effect": "Allow",
-      "Action": [
-        "dynamodb:CreateTable",
-        "dynamodb:DescribeTable",
         "dynamodb:GetItem",
         "dynamodb:PutItem",
         "dynamodb:UpdateItem",
-        "dynamodb:Query",
-        "dynamodb:Scan"
+        "dynamodb:Query"
       ],
       "Resource": [
         "arn:aws:dynamodb:us-east-1:475029594948:table/RenaSERPurchaseInvitations",

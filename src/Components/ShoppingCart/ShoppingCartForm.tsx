@@ -7,6 +7,7 @@ import useShoppingCart, {
   isCartDigitalOnly,
 } from '@/src/customHooks/useShoppingCart';
 import { isMemoriasCongresoSinglePurchaseItemId } from '@/src/lib/shop/memoriasCongresoCourse';
+import { useRenaserInvitationCartPrefill } from '@/src/customHooks/useRenaserInvitationCartPrefill';
 
 type CheckoutFormProps = {
   form: CheckoutData;
@@ -17,11 +18,13 @@ type CheckoutFormProps = {
 type ShoppingCartPersonalFieldsProps = {
   form: CheckoutData;
   showRenaserEmailHint: boolean;
+  lockEmail: boolean;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 };
 const ShoppingCartPersonalFields = ({
   form,
   showRenaserEmailHint,
+  lockEmail,
   handleChange,
 }: ShoppingCartPersonalFieldsProps) => (
   <>
@@ -51,6 +54,7 @@ const ShoppingCartPersonalFields = ({
         }
         isValid={form.email.value.length === 0 || form.email.isValid}
         onChange={handleChange}
+        disabled={lockEmail}
       />
       {showRenaserEmailHint ? (
         <p className="mt-2 text-sm text-gray-700 leading-snug">
@@ -167,6 +171,7 @@ const ShoppingCartForm = ({ form, setForm }: CheckoutFormProps) => {
   const showRenaserEmailHint = items.some((item) =>
     isMemoriasCongresoSinglePurchaseItemId(item.id),
   );
+  const { lockEmail } = useRenaserInvitationCartPrefill(setForm);
   return (
     <form className="w-full sm:w-[80%] lg:w-[500px] xl:w-[700px]">
       <h2 className="font-bold m-2">Detalles de comprador</h2>
@@ -175,6 +180,7 @@ const ShoppingCartForm = ({ form, setForm }: CheckoutFormProps) => {
         <ShoppingCartPersonalFields
           form={form}
           showRenaserEmailHint={showRenaserEmailHint}
+          lockEmail={lockEmail}
           handleChange={handleChange}
         />
         {!isDigital && (

@@ -18,6 +18,8 @@ export type CheckoutOrder = {
   wompiTransactionId?: string;
   provisioningStatus: ProvisioningStatus;
   provisioningError?: string;
+  /** SHA-256 of purchase invitation token (never store raw token). */
+  invitationTokenHash?: string;
 };
 
 export type CreatePendingCheckoutOrderInput = Omit<

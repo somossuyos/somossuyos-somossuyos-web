@@ -11,6 +11,10 @@ import {
   shouldSendNovenaDigitalFulfillment,
   validateRenaserApprovedPayment,
 } from './renaserPaymentValidation';
+import {
+  consumeInvitationOnApprovedPayment,
+  releaseInvitationIfPaymentFailed,
+} from '@/src/lib/renaserInvitations/webhookInvitation';
 import { str } from './webhookStrings';
 
 export type ProcessTransactionDeps = CheckoutOrdersStore & {
@@ -48,6 +52,10 @@ export async function processWompiTransactionUpdate(
     await deps.updateCheckoutOrderStatus(reference, mapped, trxId || undefined);
   }
 
+  if (order?.productId === RENSER_CANONICAL_PRODUCT_ID) {
+    await releaseInvitationIfPaymentFailed(order, statusRaw);
+  }
+
   if (statusRaw !== 'APPROVED') {
     return result;
   }
@@ -72,6 +80,14 @@ export async function processWompiTransactionUpdate(
       console.warn('[wompi/process] RenaSER validation failed', {
         reference: order.reference,
         reason: validation.reason,
+      });
+      return result;
+    }
+
+    const invite = await consumeInvitationOnApprovedPayment(order, trxId);
+    if (!invite.ok) {
+      console.warn('[wompi/process] RenaSER invitation consume blocked', {
+        reference: order.reference,
       });
       return result;
     }

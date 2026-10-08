@@ -25,7 +25,7 @@ export function getDefaultWompiCredentials(): WompiServerCredentials {
   };
 }
 
-/** Credenciales Wompi sandbox dedicadas a RenaSER (Memorias courseId 20260720). */
+/** Credenciales Wompi dedicadas a RenaSER (Memorias courseId 20260720). */
 export function getRenaserWompiCredentials(): WompiServerCredentials {
   return {
     channel: 'renaser',
@@ -42,7 +42,7 @@ export function isRenaserWompiConfigured(): boolean {
   return Boolean(c.publicKey && c.integritySecret && c.eventsSecret);
 }
 
-/** create-order: RenaSER usa sandbox aislado; resto de la tienda usa Wompi global. */
+/** create-order: RenaSER usa RENASER_WOMPI_* aislado; resto de la tienda usa Wompi global. */
 export function resolveWompiCredentialsForCheckout(isRenaserProduct: boolean): WompiServerCredentials {
   if (isRenaserProduct) {
     return getRenaserWompiCredentials();
