@@ -1,11 +1,7 @@
 import { formatPrice } from '@/src/utils/formatPrice';
 import { calculateRenaserInvitationPricing } from '@/src/lib/renaserInvitations/pricing';
 
-type Props = {
-  emailDisplay?: string;
-};
-
-const RenaserInvitationPricingSummary = ({ emailDisplay }: Props) => {
+const RenaserInvitationPricingSummary = () => {
   const p = calculateRenaserInvitationPricing();
   return (
     <div className="sm:col-span-2 mb-4 rounded-lg border border-[#2d4a7a]/20 bg-[#f5f5f7] p-4 font-futura text-[15px] text-[#1d1d1f]">
@@ -23,12 +19,6 @@ const RenaserInvitationPricingSummary = ({ emailDisplay }: Props) => {
           <dt>Total a pagar</dt>
           <dd>{formatPrice(p.finalPriceCop)} COP</dd>
         </div>
-        {emailDisplay ? (
-          <div className="flex justify-between gap-4 pt-1 text-[14px]">
-            <dt className="text-[#6e6e73]">Correo autorizado</dt>
-            <dd className="text-right break-all">{emailDisplay}</dd>
-          </div>
-        ) : null}
       </dl>
     </div>
   );

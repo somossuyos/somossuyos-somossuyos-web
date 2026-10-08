@@ -22,9 +22,9 @@ function getSesClient(): SESv2Client {
 export async function sendRenaserInvitationEmail(
   params: SendInvitationEmailParams,
 ): Promise<SendInvitationEmailResult> {
+  void params.invitationUrl;
   const content = buildRenaserInvitationEmail({
     firstName: params.firstName,
-    invitationUrl: params.invitationUrl,
   });
 
   if (params.dryRun) {

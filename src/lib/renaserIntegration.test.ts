@@ -58,8 +58,8 @@ describe('RenaSER checkout pricing', () => {
     assert.equal(validateRenaserClientTotalPrice(250000, 'PUBLIC'), true);
     assert.equal(validateRenaserClientTotalPrice(150000, 'PUBLIC'), false);
     assert.equal(validateRenaserClientTotalPrice(1, 'PUBLIC'), false);
-    assert.equal(validateRenaserClientTotalPrice(150000, 'INVITED'), true);
-    assert.equal(validateRenaserClientTotalPrice(250000, 'INVITED'), false);
+    assert.equal(validateRenaserClientTotalPrice(150000, 'ATTENDEE'), true);
+    assert.equal(validateRenaserClientTotalPrice(250000, 'ATTENDEE'), false);
   });
 });
 

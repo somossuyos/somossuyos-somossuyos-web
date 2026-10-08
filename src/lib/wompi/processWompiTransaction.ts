@@ -84,12 +84,14 @@ export async function processWompiTransactionUpdate(
       return result;
     }
 
-    const invite = await consumeInvitationOnApprovedPayment(order, trxId);
-    if (!invite.ok) {
-      console.warn('[wompi/process] RenaSER invitation consume blocked', {
-        reference: order.reference,
-      });
-      return result;
+    if (order.invitationTokenHash) {
+      const invite = await consumeInvitationOnApprovedPayment(order, trxId);
+      if (!invite.ok) {
+        console.warn('[wompi/process] RenaSER invitation consume blocked', {
+          reference: order.reference,
+        });
+        return result;
+      }
     }
 
     const started = await deps.tryMarkProvisioningProcessing(order.reference);

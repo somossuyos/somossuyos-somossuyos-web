@@ -34,13 +34,16 @@ export function buildMemoriasCartItemForTier(tier: RenaserPurchaseTier) {
   };
 }
 
-/** Carrito invitación: precio final con descuento (backend valida igual). */
-export function buildMemoriasCartItemForInvitation() {
+/** Carrito asistente (cookie renaser_benefit): precio 150k (backend valida). */
+export function buildMemoriasCartItemForAttendee() {
   const item = buildMemoriasCartItemForTier('GENERAL');
   if (!item) return null;
   const { finalPriceCop } = calculateRenaserInvitationPricing();
   return { ...item, price: finalPriceCop };
 }
+
+/** @deprecated Use buildMemoriasCartItemForAttendee */
+export const buildMemoriasCartItemForInvitation = buildMemoriasCartItemForAttendee;
 
 /** Rechaza intentos de bypass por query string en checkout RenaSER. */
 export function isClientDiscountQueryBypass(searchParams: URLSearchParams): boolean {

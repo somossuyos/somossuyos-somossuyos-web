@@ -51,7 +51,6 @@ export type SendPurchaseInvitationResult =
 export async function sendPurchaseInvitationEmail(params: {
   emailNormalized: string;
   firstName: string;
-  token: string;
 }): Promise<SendPurchaseInvitationResult> {
   if (await isEmailSuppressed(params.emailNormalized)) {
     return { sent: false, errorCode: 'suppressed' };
@@ -59,7 +58,6 @@ export async function sendPurchaseInvitationEmail(params: {
 
   const { html, text } = buildPurchaseInvitationEmail({
     firstName: params.firstName,
-    token: params.token,
   });
 
   try {

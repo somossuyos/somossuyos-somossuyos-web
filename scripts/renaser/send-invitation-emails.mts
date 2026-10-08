@@ -92,10 +92,10 @@ async function main() {
       }
       const token = fs.readFileSync(tokenPath, 'utf8').trim();
 
+      void token;
       const result = await sendPurchaseInvitationEmail({
         emailNormalized: inv.emailNormalized,
         firstName: inv.firstName,
-        token,
       });
       await updateInvitationEmailDelivery({
         emailNormalized: inv.emailNormalized,

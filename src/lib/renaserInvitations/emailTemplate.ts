@@ -3,7 +3,7 @@ import {
   PURCHASE_INVITATION_CTA_LABEL,
   PURCHASE_INVITATION_SUBJECT,
 } from './invitation-email-template';
-import { buildInvitationLandingUrl } from './config';
+import { buildSharedBenefitLandingUrl } from '@/src/lib/renaserBenefit/config';
 
 export type RenaserInvitationEmailContent = {
   subject: string;
@@ -13,17 +13,9 @@ export type RenaserInvitationEmailContent = {
 
 export function buildRenaserInvitationEmail(params: {
   firstName: string;
-  invitationUrl: string;
 }): RenaserInvitationEmailContent {
-  let token = '';
-  try {
-    token = new URL(params.invitationUrl).searchParams.get('t')?.trim() ?? '';
-  } catch {
-    token = '';
-  }
   const built = buildPurchaseInvitationEmail({
     firstName: params.firstName,
-    token: token || 'placeholder',
   });
   return {
     subject: PURCHASE_INVITATION_SUBJECT,
@@ -32,8 +24,9 @@ export function buildRenaserInvitationEmail(params: {
   };
 }
 
-export function invitationUrlFromToken(token: string): string {
-  return buildInvitationLandingUrl(token);
+/** @deprecated Legacy per-token URLs; use buildSharedBenefitLandingUrl(). */
+export function invitationUrlFromToken(_token: string): string | null {
+  return buildSharedBenefitLandingUrl();
 }
 
 export { PURCHASE_INVITATION_CTA_LABEL, PURCHASE_INVITATION_SUBJECT };

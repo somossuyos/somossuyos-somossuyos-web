@@ -125,7 +125,7 @@ export default async function handler(
         });
       }
 
-      const { pricing, invitation, firstName, lastName, emailNormalized } = pricingResult;
+      const { pricing, firstName, lastName, emailNormalized } = pricingResult;
       amountInCents = pricing.finalAmountInCents;
 
       const pending = buildRenaserPendingOrderFields(
@@ -136,7 +136,6 @@ export default async function handler(
           lastNames: lastName || data.form.lastNames,
         },
         pricing,
-        invitation,
       );
       await putPendingCheckoutOrder({
         reference,

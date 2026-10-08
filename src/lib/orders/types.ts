@@ -2,7 +2,7 @@ export type CheckoutOrderStatus = 'PENDING' | 'APPROVED' | 'DECLINED' | 'VOIDED'
 
 export type ProvisioningStatus = 'NOT_STARTED' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
-export type RenaserOrderPricingMode = 'PUBLIC' | 'INVITED';
+export type RenaserOrderPricingMode = 'PUBLIC' | 'ATTENDEE' | 'INVITED';
 
 export type CheckoutOrder = {
   reference: string;

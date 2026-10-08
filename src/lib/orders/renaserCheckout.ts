@@ -11,8 +11,7 @@ import {
   calculateRenaserInvitationPricing,
   type RenaserInvitationPricing,
 } from '@/src/lib/renaserInvitations/pricing';
-import { isRenaserInvitationFeatureEnabled } from '@/src/lib/renaserInvitations/config';
-import { assertRenaserInvitationCheckout } from '@/src/lib/renaserInvitations/checkoutGuard';
+import { isBenefitSessionActive } from '@/src/lib/renaserBenefit/session';
 import { normalizeInvitationEmail } from '@/src/lib/renaserInvitations/email';
 
 export const RENSER_CANONICAL_PRODUCT_ID = String(getMemoriasCongresoCourseId());
@@ -20,7 +19,7 @@ export const RENSER_CANONICAL_PRODUCT_ID = String(getMemoriasCongresoCourseId())
 /** SkillCert product slug (aula). */
 export const SKILLCERT_RENASER_PRODUCT_ID = 'renaser-2026';
 
-export type RenaserPricingMode = 'PUBLIC' | 'INVITED';
+export type RenaserPricingMode = 'PUBLIC' | 'ATTENDEE';
 
 export type RenaserServerPricing = RenaserInvitationPricing & {
   pricingMode: RenaserPricingMode;
@@ -57,21 +56,25 @@ export function getRenaserPublicPricing(): RenaserServerPricing {
   };
 }
 
-export function getRenaserInvitedPricing(): RenaserServerPricing {
-  const invited = calculateRenaserInvitationPricing();
+export function getRenaserAttendeePricing(): RenaserServerPricing {
+  const attendee = calculateRenaserInvitationPricing();
   return {
-    ...invited,
-    pricingMode: 'INVITED',
-    benefitAmountInCents: invited.discountAmountInCents,
+    ...attendee,
+    pricingMode: 'ATTENDEE',
+    benefitAmountInCents: attendee.discountAmountInCents,
   };
 }
 
-/** Precio servidor según modo (backend-only). */
-export function getRenaserServerPricingForMode(mode: RenaserPricingMode): RenaserServerPricing {
-  return mode === 'INVITED' ? getRenaserInvitedPricing() : getRenaserPublicPricing();
+/** @deprecated Use getRenaserAttendeePricing */
+export function getRenaserInvitedPricing(): RenaserServerPricing {
+  return getRenaserAttendeePricing();
 }
 
-/** @deprecated Infer mode explicitly via resolveRenaserCheckoutPricing. */
+export function getRenaserServerPricingForMode(mode: RenaserPricingMode): RenaserServerPricing {
+  return mode === 'ATTENDEE' ? getRenaserAttendeePricing() : getRenaserPublicPricing();
+}
+
+/** @deprecated Infer mode via resolveRenaserCheckoutPricing. */
 export function getRenaserServerPricing(): RenaserServerPricing {
   return getRenaserPublicPricing();
 }
@@ -88,7 +91,6 @@ export type ResolveRenaserCheckoutPricingResult =
   | {
       ok: true;
       pricing: RenaserServerPricing;
-      invitation?: { tokenHash: string; emailNormalized: string };
       firstName: string;
       lastName: string;
       emailNormalized: string;
@@ -96,17 +98,18 @@ export type ResolveRenaserCheckoutPricingResult =
   | { ok: false; httpStatus: number; error: string };
 
 /**
- * Fuente de verdad: total del cliente elige PUBLIC vs INVITED;
- * el camino invitado exige invitación válida en sesión.
+ * Fuente de verdad: total del cliente + cookie renaser_benefit (enlace compartido).
+ * No usa invitaciones Dynamo ni /invitation/exchange.
  */
 export async function resolveRenaserCheckoutPricing(
   req: NextApiRequest,
   formEmail: string,
   clientTotalCop: number,
-  orderReference: string,
+  _orderReference: string,
 ): Promise<ResolveRenaserCheckoutPricingResult> {
   const publicPricing = getRenaserPublicPricing();
-  const invitedPricing = getRenaserInvitedPricing();
+  const attendeePricing = getRenaserAttendeePricing();
+  const emailNormalized = normalizeInvitationEmail(formEmail);
 
   if (clientTotalCop === publicPricing.finalPriceCop) {
     return {
@@ -114,44 +117,30 @@ export async function resolveRenaserCheckoutPricing(
       pricing: publicPricing,
       firstName: '',
       lastName: '',
-      emailNormalized: normalizeInvitationEmail(formEmail),
+      emailNormalized,
     };
   }
 
-  if (clientTotalCop !== invitedPricing.finalPriceCop) {
+  if (clientTotalCop !== attendeePricing.finalPriceCop) {
     return { ok: false, httpStatus: 400, error: 'Invalid RenaSER total price' };
   }
 
-  if (!isRenaserInvitationFeatureEnabled()) {
-    return { ok: false, httpStatus: 400, error: 'Invalid RenaSER total price' };
-  }
-
-  const invitationGuard = await assertRenaserInvitationCheckout(req, formEmail, orderReference);
-  if (!invitationGuard.ok) {
-    return {
-      ok: false,
-      httpStatus: invitationGuard.httpStatus,
-      error: invitationGuard.error,
-    };
+  if (!isBenefitSessionActive(req.headers.cookie)) {
+    return { ok: false, httpStatus: 403, error: 'Invalid RenaSER total price' };
   }
 
   return {
     ok: true,
-    pricing: invitedPricing,
-    invitation: {
-      tokenHash: invitationGuard.tokenHash,
-      emailNormalized: invitationGuard.emailNormalized,
-    },
-    firstName: invitationGuard.firstName,
-    lastName: invitationGuard.lastName,
-    emailNormalized: invitationGuard.emailNormalized,
+    pricing: attendeePricing,
+    firstName: '',
+    lastName: '',
+    emailNormalized,
   };
 }
 
 export function buildRenaserPendingOrderFields(
   form: CheckoutDTO['form'],
   pricing: RenaserServerPricing,
-  invitation?: { tokenHash: string; emailNormalized: string },
 ) {
   return {
     productId: RENSER_CANONICAL_PRODUCT_ID,
@@ -167,9 +156,5 @@ export function buildRenaserPendingOrderFields(
     benefitAmountInCents: pricing.benefitAmountInCents,
     discountPercent: pricing.discountPercent,
     discountAmountInCents: pricing.discountAmountInCents,
-    ...(invitation?.tokenHash ? { invitationTokenHash: invitation.tokenHash } : {}),
-    ...(invitation?.emailNormalized
-      ? { invitationEmailNormalized: invitation.emailNormalized }
-      : {}),
   };
 }
