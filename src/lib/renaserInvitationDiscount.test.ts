@@ -79,6 +79,11 @@ describe('RenaSER PUBLIC + shared benefit ATTENDEE', () => {
     assert.match(email.text, /40\s*%\s*de descuento/i);
     assert.equal(PURCHASE_INVITATION_SUBJECT, 'Memorias del Congreso RenaSER 2026');
     assert.match(email.html, new RegExp(PURCHASE_INVITATION_CTA_LABEL));
+    const idxMoment = email.html.indexOf('Ha llegado el momento que tanto esperabas.');
+    const idxCta = email.html.indexOf(PURCHASE_INVITATION_CTA_LABEL);
+    const idxGift = email.html.indexOf('Este regalo ha sido preparado');
+    assert.ok(idxMoment >= 0 && idxCta > idxMoment && idxGift > idxCta);
+    assert.match(email.html, /renaser\/beneficio\?k=/);
   });
 
   it('pricing helpers', () => {

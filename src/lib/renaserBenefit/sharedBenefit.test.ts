@@ -125,10 +125,27 @@ describe('RenaSER shared private link benefit', () => {
     assert.equal(provisionCalls, 1);
   });
 
-  it('12. /renaser/beneficio tiene noindex', () => {
+  it('12. /renaser/beneficio tiene noindex y cookie firmada', () => {
     const src = readFileSync(join(process.cwd(), 'pages/renaser/beneficio.tsx'), 'utf8');
     assert.match(src, /noindex/i);
     assert.match(src, /Set-Cookie/);
+    assert.doesNotMatch(src, /invitation\/exchange/);
+  });
+
+  it('13. redirect elimina k de la URL (destino sin query k)', () => {
+    const src = readFileSync(join(process.cwd(), 'pages/renaser/beneficio.tsx'), 'utf8');
+    assert.match(src, /destination:\s*`\/tienda\/curso\/\$\{slug\}/);
+    assert.doesNotMatch(src, /destination:[^`]*\?k=/);
+  });
+
+  it('14. create-order usa 25000000 PUBLIC y 15000000 ATTENDEE', () => {
+    assert.equal(getRenaserPublicPricing().finalAmountInCents, 25000000);
+    assert.equal(getRenaserAttendeePricing().finalAmountInCents, 15000000);
+    const createOrderSrc = readFileSync(
+      join(process.cwd(), 'pages/api/wompi/create-order.ts'),
+      'utf8',
+    );
+    assert.match(createOrderSrc, /amountInCents\s*=\s*pricing\.finalAmountInCents/);
   });
 
   it('order fields sin shared token', () => {
