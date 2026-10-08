@@ -15,6 +15,7 @@ frontend:
         - env | grep -e '^API_URL=' >> .env.production || true
         - env | grep -e '^RESEND_API_KEY=' -e '^RESEND_FROM_EMAIL=' -e '^INTERNAL_MAIL_SECRET=' >> .env.production || true
         - env | grep -e '^SOMOSSUYOS_ORDERS_TABLE_NAME=' -e '^SKILLCERT_API_URL=' -e '^SKILLCERT_PROVISION_KEY_ID=' -e '^SKILLCERT_PROVISION_SECRET=' >> .env.production || true
+        - env | grep -e '^RENASER_SHARED_BENEFIT_TOKEN=' -e '^RENASER_BENEFIT_SESSION_SECRET=' -e '^RENASER_BENEFIT_SESSION_TTL_SECONDS=' >> .env.production || true
         - env | grep -e '^NEXT_PUBLIC_' >> .env.production || true
         - npm run build
   artifacts:
