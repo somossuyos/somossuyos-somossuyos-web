@@ -7,9 +7,6 @@ import useShoppingCart, {
   isCartDigitalOnly,
 } from '@/src/customHooks/useShoppingCart';
 import { isMemoriasCongresoSinglePurchaseItemId } from '@/src/lib/shop/memoriasCongresoCourse';
-import { useRenaserBenefitCart } from '@/src/customHooks/useRenaserBenefitCart';
-import RenaserInvitationPricingSummary from './RenaserInvitationPricingSummary';
-
 type CheckoutFormProps = {
   form: CheckoutData;
   setForm: Dispatch<SetStateAction<CheckoutData>>;
@@ -172,17 +169,11 @@ const ShoppingCartForm = ({ form, setForm }: CheckoutFormProps) => {
   const showRenaserEmailHint = items.some((item) =>
     isMemoriasCongresoSinglePurchaseItemId(item.id),
   );
-  const { benefitActive } = useRenaserBenefitCart();
-  const showInvitationPricing =
-    benefitActive && items.some((item) => isMemoriasCongresoSinglePurchaseItemId(item.id));
   return (
     <form className="w-full sm:w-[80%] lg:w-[500px] xl:w-[700px]">
       <h2 className="font-bold m-2">Detalles de comprador</h2>
       <div className="w-full h-2 bg-pale-skin mt-4 mb-10"></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 p-2 gap-x-4 gap-y-6">
-        {showInvitationPricing ? (
-          <RenaserInvitationPricingSummary />
-        ) : null}
         <ShoppingCartPersonalFields
           form={form}
           showRenaserEmailHint={showRenaserEmailHint}

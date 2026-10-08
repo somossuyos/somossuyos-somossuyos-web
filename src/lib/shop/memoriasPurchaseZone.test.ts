@@ -5,10 +5,7 @@ import { describe, it } from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import MemoriasPurchaseTierSection from '@/src/Components/ShopItem/MemoriasPurchaseTierSection';
-import MemoriasAttendeeVerificationModal from '@/src/Components/ShopItem/MemoriasAttendeeVerificationModal';
 import {
-  MEMORIAS_ATTENDEE_CTA,
-  MEMORIAS_ATTENDEE_TITLE,
   MEMORIAS_GENERAL_CTA,
   MEMORIAS_GENERAL_TITLE,
   MEMORIAS_PURCHASE_LAYOUT,
@@ -19,7 +16,6 @@ import { buildMemoriasCartItemForTier } from './memoriasGeneralCheckout';
 import {
   getCheckoutPriceCopForTier,
   getMemoriasRegularPriceCop,
-  MEMORIAS_ATTENDEE_PRICE_COP,
 } from './memoriasCongresoPricing';
 import { getMemoriasCongresoPrice } from './memoriasCongresoCourse';
 import { isClientDiscountQueryBypass } from './memoriasGeneralCheckout';
@@ -36,44 +32,40 @@ describe('Memorias purchase zone copy', () => {
     }
   });
 
-  it('2. tier section shows two purchase options', () => {
+  it('2. tier section shows single purchase option at public price', () => {
     const html = renderToStaticMarkup(
       React.createElement(MemoriasPurchaseTierSection, {
         comingSoon: false,
         onGeneralPurchase: () => undefined,
       }),
     );
-    assert.match(html, new RegExp(MEMORIAS_ATTENDEE_TITLE));
     assert.match(html, new RegExp(MEMORIAS_GENERAL_TITLE));
-    assert.match(html, new RegExp(MEMORIAS_ATTENDEE_CTA));
     assert.match(html, new RegExp(MEMORIAS_GENERAL_CTA));
     assert.match(html, new RegExp(MEMORIAS_PURCHASE_SECTION_TITLE));
+    assert.doesNotMatch(html, /Comprar con descuento/i);
+    assert.doesNotMatch(html, /Tarifa especial/i);
   });
 
-  it('3–6. required CTAs and titles appear', () => {
+  it('3–6. required CTA and title appear', () => {
     const html = renderToStaticMarkup(
       React.createElement(MemoriasPurchaseTierSection, {
         comingSoon: false,
         onGeneralPurchase: () => undefined,
       }),
     );
-    assert.ok(html.includes('Ya asistí a RenaSER 2026'));
-    assert.ok(html.includes('No asistí al Congreso'));
-    assert.ok(html.includes('Comprar con descuento'));
+    assert.ok(html.includes('Congreso Internacional RenaSER 2026'));
     assert.ok(html.includes('Comprar acceso'));
   });
 
-  it('7. general cart item uses regular server price only', () => {
+  it('7. cart item uses regular server price only', () => {
     const item = buildMemoriasCartItemForTier('GENERAL');
     assert.ok(item);
     assert.equal(item.price, getMemoriasCongresoPrice());
     assert.equal(item.price, 250000);
   });
 
-  it('8. attendee tier does not produce a cart item client-side', () => {
-    assert.equal(buildMemoriasCartItemForTier('ATTENDEE'), null);
-    assert.equal(getCheckoutPriceCopForTier('ATTENDEE'), null);
-    assert.equal(MEMORIAS_ATTENDEE_PRICE_COP, 150_000);
+  it('8. only GENERAL tier is supported client-side', () => {
+    assert.equal(getCheckoutPriceCopForTier('GENERAL'), 250000);
   });
 
   it('9. rejects discount query-param bypass flags', () => {
@@ -94,7 +86,7 @@ describe('Memorias purchase zone copy', () => {
     assert.match(source, /isMemorias \?/);
   });
 
-  it('12. responsive grid structure is present', () => {
+  it('12. purchase layout wrapper is present', () => {
     const html = renderToStaticMarkup(
       React.createElement(MemoriasPurchaseTierSection, {
         comingSoon: false,
@@ -102,19 +94,5 @@ describe('Memorias purchase zone copy', () => {
       }),
     );
     assert.ok(html.includes(MEMORIAS_PURCHASE_LAYOUT.tierGridClass.split(' ')[0]));
-    assert.ok(html.includes('md:grid-cols-2'));
-  });
-
-  it('13. verification modal exposes dialog semantics', () => {
-    const html = renderToStaticMarkup(
-      React.createElement(MemoriasAttendeeVerificationModal, {
-        open: true,
-        onClose: () => undefined,
-        returnFocusRef: { current: null },
-      }),
-    );
-    assert.ok(html.includes('role="dialog"'));
-    assert.ok(html.includes('aria-modal="true"'));
-    assert.ok(html.includes('Verifica tu asistencia'));
   });
 });

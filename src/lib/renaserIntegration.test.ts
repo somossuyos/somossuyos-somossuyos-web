@@ -55,11 +55,9 @@ describe('RenaSER checkout pricing', () => {
   });
 
   it('2. rejects altered client total', () => {
-    assert.equal(validateRenaserClientTotalPrice(250000, 'PUBLIC'), true);
-    assert.equal(validateRenaserClientTotalPrice(150000, 'PUBLIC'), false);
-    assert.equal(validateRenaserClientTotalPrice(1, 'PUBLIC'), false);
-    assert.equal(validateRenaserClientTotalPrice(150000, 'ATTENDEE'), true);
-    assert.equal(validateRenaserClientTotalPrice(250000, 'ATTENDEE'), false);
+    assert.equal(validateRenaserClientTotalPrice(250000), true);
+    assert.equal(validateRenaserClientTotalPrice(150000), false);
+    assert.equal(validateRenaserClientTotalPrice(1), false);
   });
 });
 
@@ -190,7 +188,15 @@ describe('Webhook processing', () => {
     assert.equal(provisionCalls, 0);
   });
 
-  it('9. currency mismatch does not provision', async () => {
+  it('8b. rejects legacy 15000000 cents', async () => {
+    provisionCalls = 0;
+    const ref = 'ss-renaser-legacy-amt';
+    await repo.putPendingCheckoutOrder({ ...baseOrder({ reference: ref }) });
+    await runProcess(trxApproved(ref, 15000000));
+    assert.equal(provisionCalls, 0);
+  });
+
+  it('9. currency mismatch does not provision', () => {
     const order = baseOrder({ reference: 'ss-renaser-cur' });
     const v = validateRenaserApprovedPayment(order, {
       status: 'APPROVED',

@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
-import {
-  MEMORIAS_ATTENDEE_MODAL_CTA,
-  MEMORIAS_ATTENDEE_MODAL_EMAIL_LABEL,
-  MEMORIAS_ATTENDEE_MODAL_FOOTNOTE,
-  MEMORIAS_ATTENDEE_MODAL_INTRO,
-  MEMORIAS_ATTENDEE_MODAL_TITLE,
-  MEMORIAS_ATTENDEE_VERIFICATION_PENDING_MESSAGE,
-} from '@/src/lib/shop/memoriasPurchaseCopy';
+
+/** Legacy modal (verificación asistentes); no en flujo de compra actual. */
+const MEMORIAS_ATTENDEE_MODAL_TITLE = 'Verifica tu asistencia';
+const MEMORIAS_ATTENDEE_MODAL_INTRO =
+  'Ingresa el correo electrónico que utilizaste para registrarte en RenaSER 2026.';
+const MEMORIAS_ATTENDEE_MODAL_EMAIL_LABEL = 'Correo electrónico';
+const MEMORIAS_ATTENDEE_MODAL_CTA = 'Verificar mi asistencia';
+const MEMORIAS_ATTENDEE_MODAL_FOOTNOTE =
+  'Si encontramos tu registro, podrás continuar con la compra.';
+const MEMORIAS_ATTENDEE_VERIFICATION_PENDING_MESSAGE =
+  'Recibimos tu solicitud. La verificación automática se activará pronto.';
 
 type MemoriasAttendeeVerificationModalProps = {
   open: boolean;

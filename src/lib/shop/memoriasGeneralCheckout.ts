@@ -5,11 +5,10 @@ import {
 } from './memoriasCongresoCourse';
 import type { RenaserPurchaseTier } from './memoriasCongresoPricing';
 import { getCheckoutPriceCopForTier } from './memoriasCongresoPricing';
-import { calculateRenaserInvitationPricing } from '@/src/lib/renaserInvitations/pricing';
 
 export const MEMORIAS_CART_TITLE = 'Memoria en video del Congreso RenaSER 2026';
 
-/** Ítem de carrito solo para tier GENERAL; nunca aplica descuento desde el cliente. */
+/** Ítem de carrito RenaSER; precio siempre el de lista (servidor valida en create-order). */
 export function buildMemoriasCartItemForTier(tier: RenaserPurchaseTier) {
   if (tier !== 'GENERAL') {
     return null;
@@ -34,15 +33,12 @@ export function buildMemoriasCartItemForTier(tier: RenaserPurchaseTier) {
   };
 }
 
-/** Carrito asistente (cookie renaser_benefit): precio 150k (backend valida). */
+/** @deprecated Mismo ítem que GENERAL (sin descuento). */
 export function buildMemoriasCartItemForAttendee() {
-  const item = buildMemoriasCartItemForTier('GENERAL');
-  if (!item) return null;
-  const { finalPriceCop } = calculateRenaserInvitationPricing();
-  return { ...item, price: finalPriceCop };
+  return buildMemoriasCartItemForTier('GENERAL');
 }
 
-/** @deprecated Use buildMemoriasCartItemForAttendee */
+/** @deprecated Use buildMemoriasCartItemForTier('GENERAL') */
 export const buildMemoriasCartItemForInvitation = buildMemoriasCartItemForAttendee;
 
 /** Rechaza intentos de bypass por query string en checkout RenaSER. */

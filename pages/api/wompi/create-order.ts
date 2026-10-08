@@ -9,6 +9,7 @@ import { putPendingCheckoutOrder } from '@/src/lib/orders/checkoutOrdersReposito
 import { buildRenaserOrderReference } from '@/src/lib/orders/reference';
 import {
   buildRenaserPendingOrderFields,
+  getRenaserAmountInCents,
   isRenaserCheckout,
   resolveRenaserCheckoutPricing,
 } from '@/src/lib/orders/renaserCheckout';
@@ -126,7 +127,10 @@ export default async function handler(
       }
 
       const { pricing, firstName, lastName, emailNormalized } = pricingResult;
-      amountInCents = pricing.finalAmountInCents;
+      amountInCents = getRenaserAmountInCents();
+      if (amountInCents !== pricing.finalAmountInCents) {
+        return res.status(500).json({ ok: false, error: 'Invalid RenaSER server price' });
+      }
 
       const pending = buildRenaserPendingOrderFields(
         {

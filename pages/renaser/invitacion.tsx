@@ -126,8 +126,7 @@ export default function RenaserInvitacionPage() {
               <strong>{me.emailMasked}</strong>.
             </p>
             <p className="text-[15px] text-[#6e6e73]">
-              Precio regular {formatPrice(pricing.basePriceCop)} COP · beneficio {pricing.discountPercent}% ·
-              total {formatPrice(pricing.finalPriceCop)} COP
+              Total {formatPrice(pricing.finalPriceCop)} COP
             </p>
             <button
               type="button"

@@ -1,15 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { calculateRenaserInvitationPricing } from '@/src/lib/renaserInvitations/pricing';
+import { getRenaserPublicPricing } from '@/src/lib/orders/renaserCheckout';
 import { isBenefitSessionActive } from '@/src/lib/renaserBenefit/session';
 
 type MeOk = {
   ok: true;
   benefitActive: true;
-  pricing: ReturnType<typeof calculateRenaserInvitationPricing>;
+  pricing: ReturnType<typeof getRenaserPublicPricing>;
 };
 
 type MeErr = { ok: false; benefitActive: false };
 
+/** @deprecated Cookie de beneficio ya no altera precio; mantenido por compatibilidad. */
 export default function handler(req: NextApiRequest, res: NextApiResponse<MeOk | MeErr>) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
@@ -23,6 +24,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<MeOk |
   return res.status(200).json({
     ok: true,
     benefitActive: true,
-    pricing: calculateRenaserInvitationPricing(),
+    pricing: getRenaserPublicPricing(),
   });
 }
