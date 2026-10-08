@@ -7,6 +7,11 @@ import {
   getMemoriasCongresoSinglePurchaseCheckoutError,
   isMemoriasCongresoCheckoutItem,
 } from '@/src/lib/shop/memoriasCongresoCourse';
+import {
+  calculateRenaserInvitationPricing,
+  type RenaserInvitationPricing,
+} from '@/src/lib/renaserInvitations/pricing';
+import { isBenefitSessionActive } from '@/src/lib/renaserBenefit/session';
 import { normalizeInvitationEmail } from '@/src/lib/renaserInvitations/email';
 
 export const RENSER_CANONICAL_PRODUCT_ID = String(getMemoriasCongresoCourseId());
@@ -14,16 +19,9 @@ export const RENSER_CANONICAL_PRODUCT_ID = String(getMemoriasCongresoCourseId())
 /** SkillCert product slug (aula). */
 export const SKILLCERT_RENASER_PRODUCT_ID = 'renaser-2026';
 
-export type RenaserPricingMode = 'PUBLIC';
+export type RenaserPricingMode = 'PUBLIC' | 'ATTENDEE';
 
-export type RenaserServerPricing = {
-  basePriceCop: number;
-  baseAmountInCents: number;
-  discountPercent: number;
-  discountAmountCop: number;
-  discountAmountInCents: number;
-  finalPriceCop: number;
-  finalAmountInCents: number;
+export type RenaserServerPricing = RenaserInvitationPricing & {
   pricingMode: RenaserPricingMode;
   benefitAmountInCents: number;
 };
@@ -58,28 +56,33 @@ export function getRenaserPublicPricing(): RenaserServerPricing {
   };
 }
 
-/** @deprecated Sin tarifa asistente; mismo precio público. */
 export function getRenaserAttendeePricing(): RenaserServerPricing {
-  return getRenaserPublicPricing();
+  const attendee = calculateRenaserInvitationPricing();
+  return {
+    ...attendee,
+    pricingMode: 'ATTENDEE',
+    benefitAmountInCents: attendee.discountAmountInCents,
+  };
 }
 
-/** @deprecated Use getRenaserPublicPricing */
+/** @deprecated Use getRenaserAttendeePricing */
 export function getRenaserInvitedPricing(): RenaserServerPricing {
-  return getRenaserPublicPricing();
+  return getRenaserAttendeePricing();
 }
 
-/** @deprecated Solo existe precio PUBLIC. */
-export function getRenaserServerPricingForMode(_mode?: RenaserPricingMode): RenaserServerPricing {
-  return getRenaserPublicPricing();
+export function getRenaserServerPricingForMode(mode: RenaserPricingMode): RenaserServerPricing {
+  return mode === 'ATTENDEE' ? getRenaserAttendeePricing() : getRenaserPublicPricing();
 }
 
-/** @deprecated Use getRenaserPublicPricing */
 export function getRenaserServerPricing(): RenaserServerPricing {
   return getRenaserPublicPricing();
 }
 
-export function validateRenaserClientTotalPrice(clientTotalCop: number): boolean {
-  return clientTotalCop === getRenaserPublicPricing().finalPriceCop;
+export function validateRenaserClientTotalPrice(
+  clientTotalCop: number,
+  mode: RenaserPricingMode,
+): boolean {
+  return clientTotalCop === getRenaserServerPricingForMode(mode).finalPriceCop;
 }
 
 export type ResolveRenaserCheckoutPricingResult =
@@ -92,23 +95,38 @@ export type ResolveRenaserCheckoutPricingResult =
     }
   | { ok: false; httpStatus: number; error: string };
 
-/** Fuente de verdad: siempre 250.000 COP; el total del cliente debe coincidir. */
+/** Cookie renaser_benefit (enlace compartido) → ATTENDEE 150k; si no → PUBLIC 250k. */
 export async function resolveRenaserCheckoutPricing(
-  _req: NextApiRequest,
+  req: NextApiRequest,
   formEmail: string,
   clientTotalCop: number,
   _orderReference: string,
 ): Promise<ResolveRenaserCheckoutPricingResult> {
-  const pricing = getRenaserPublicPricing();
+  const publicPricing = getRenaserPublicPricing();
+  const attendeePricing = getRenaserAttendeePricing();
   const emailNormalized = normalizeInvitationEmail(formEmail);
 
-  if (clientTotalCop !== pricing.finalPriceCop) {
+  if (clientTotalCop === publicPricing.finalPriceCop) {
+    return {
+      ok: true,
+      pricing: publicPricing,
+      firstName: '',
+      lastName: '',
+      emailNormalized,
+    };
+  }
+
+  if (clientTotalCop !== attendeePricing.finalPriceCop) {
     return { ok: false, httpStatus: 400, error: 'Invalid RenaSER total price' };
+  }
+
+  if (!isBenefitSessionActive(req.headers.cookie)) {
+    return { ok: false, httpStatus: 403, error: 'Invalid RenaSER total price' };
   }
 
   return {
     ok: true,
-    pricing,
+    pricing: attendeePricing,
     firstName: '',
     lastName: '',
     emailNormalized,
@@ -130,8 +148,8 @@ export function buildRenaserPendingOrderFields(
     currency: 'COP' as const,
     pricingMode: pricing.pricingMode,
     baseAmountInCents: pricing.baseAmountInCents,
-    benefitAmountInCents: 0,
-    discountPercent: 0,
-    discountAmountInCents: 0,
+    benefitAmountInCents: pricing.benefitAmountInCents,
+    discountPercent: pricing.discountPercent,
+    discountAmountInCents: pricing.discountAmountInCents,
   };
 }

@@ -1,12 +1,14 @@
 import ShopItemCarousel from './ShopItemCarousel';
 import { MEMORIAS_CONGRESO_COVER_PATH } from '@/src/lib/shop/memoriasCongresoCourse';
 import {
+  buildMemoriasCartItemForAttendee,
   buildMemoriasCartItemForTier,
   MEMORIAS_CART_TITLE,
 } from '@/src/lib/shop/memoriasGeneralCheckout';
 import { useAppDispatch } from '@/src/redux/hooks';
 import { addItem } from '@/src/redux/features/cartSlice';
 import { useRouter } from 'next/router';
+import { useRenaserBenefitCart } from '@/src/customHooks/useRenaserBenefitCart';
 import MemoriasPurchaseTierSection from './MemoriasPurchaseTierSection';
 
 const CONFERENCISTAS = [
@@ -42,11 +44,15 @@ const isComingSoon = process.env.NEXT_PUBLIC_MEMORIAS_COMING_SOON !== 'false';
 const MemoriasCongresoProductDetail = ({ images }: MemoriasCongresoProductDetailProps) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { benefitActive } = useRenaserBenefitCart();
+
   const handleGeneralPurchase = () => {
-    const item = buildMemoriasCartItemForTier('GENERAL');
+    const item = benefitActive
+      ? buildMemoriasCartItemForAttendee()
+      : buildMemoriasCartItemForTier('GENERAL');
     if (!item) return;
     dispatch(addItem(item));
-    router.push('/carrito');
+    router.push(benefitActive ? '/carrito?renaserBeneficio=1' : '/carrito');
   };
 
   return (

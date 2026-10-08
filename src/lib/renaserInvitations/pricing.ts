@@ -1,10 +1,10 @@
 import { getMemoriasCongresoPrice } from '@/src/lib/shop/memoriasCongresoCourse';
 
-/** @deprecated Descuento RenaSER desactivado (precio único). */
-export const RENASER_INVITATION_DISCOUNT_AMOUNT_COP = 0;
+/** Beneficio fijo asistentes RenaSER 2026 (enteros, backend-only). */
+export const RENASER_INVITATION_DISCOUNT_AMOUNT_COP = 100_000;
 
-/** @deprecated Descuento RenaSER desactivado (precio único). */
-export const RENASER_INVITATION_DISCOUNT_PERCENT = 0;
+/** Equivalente sobre precio lista 250.000 COP (solo comunicación). */
+export const RENASER_INVITATION_DISCOUNT_PERCENT = 40;
 
 export type RenaserInvitationPricing = {
   basePriceCop: number;
@@ -20,19 +20,21 @@ function copToCents(cop: number): number {
   return Math.round(cop * 100);
 }
 
-/** Precio único RenaSER 2026 (mismo que lista pública). */
+/** Precio asistente: base 250.000 COP − 100.000 COP beneficio = 150.000 COP. */
 export function calculateRenaserInvitationPricing(
   basePriceCop = getMemoriasCongresoPrice(),
 ): RenaserInvitationPricing {
   const safeBase = Math.max(0, Math.round(basePriceCop));
+  const discountAmountCop = RENASER_INVITATION_DISCOUNT_AMOUNT_COP;
+  const finalPriceCop = safeBase - discountAmountCop;
   return {
     basePriceCop: safeBase,
     baseAmountInCents: copToCents(safeBase),
-    discountPercent: 0,
-    discountAmountCop: 0,
-    discountAmountInCents: 0,
-    finalPriceCop: safeBase,
-    finalAmountInCents: copToCents(safeBase),
+    discountPercent: RENASER_INVITATION_DISCOUNT_PERCENT,
+    discountAmountCop,
+    discountAmountInCents: copToCents(discountAmountCop),
+    finalPriceCop,
+    finalAmountInCents: copToCents(finalPriceCop),
   };
 }
 

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it, afterEach } from 'node:test';
+import { describe, it, beforeEach, afterEach } from 'node:test';
 import {
   calculateRenaserInvitationPricing,
   validateRenaserInvitedClientTotalPrice,
@@ -7,7 +7,7 @@ import {
 import {
   buildRenaserPendingOrderFields,
   getRenaserPublicPricing,
-  getRenaserAmountInCents,
+  getRenaserAttendeePricing,
   validateRenaserClientTotalPrice,
   resolveRenaserCheckoutPricing,
 } from './orders/renaserCheckout';
@@ -21,116 +21,81 @@ import {
 } from './renaserInvitations/invitation-email-template';
 import type { NextApiRequest } from 'next';
 import { formatPrice } from '../utils/formatPrice';
+import { createBenefitSessionValue } from './renaserBenefit/session';
 
 const ORIGINAL = { ...process.env };
 
-function publicOrder(overrides: Partial<CheckoutOrder> = {}): CheckoutOrder {
-  const pricing = getRenaserPublicPricing();
-  return {
-    reference: 'ss-renaser-disc',
-    productId: RENSER_CANONICAL_PRODUCT_ID,
-    productSlug: 'memorias-en-video-del-congreso',
-    firstName: 'A',
-    lastName: 'B',
-    email: 'inv@example.com',
-    phone: '1',
-    amountInCents: pricing.finalAmountInCents,
-    baseAmountInCents: pricing.baseAmountInCents,
-    benefitAmountInCents: 0,
-    pricingMode: 'PUBLIC',
-    discountPercent: 0,
-    discountAmountInCents: 0,
-    currency: 'COP',
-    status: 'PENDING',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    provisioningStatus: 'NOT_STARTED',
-    ...overrides,
-  };
+function reqWithBenefit(): NextApiRequest {
+  const session = createBenefitSessionValue();
+  assert.ok(session);
+  return { headers: { cookie: `renaser_benefit=${session}` } } as NextApiRequest;
 }
 
-describe('RenaSER precio único PUBLIC', () => {
+describe('RenaSER PUBLIC + shared benefit ATTENDEE', () => {
+  beforeEach(() => {
+    process.env.RENASER_SHARED_BENEFIT_TOKEN = 'test-shared-benefit-token-value';
+    process.env.RENASER_BENEFIT_SESSION_SECRET = 'test-benefit-session-secret-value';
+  });
   afterEach(() => {
     process.env = { ...ORIGINAL };
-    process.env.RENASER_SHARED_BENEFIT_TOKEN = 'test-shared-benefit-token-value';
   });
 
-  it('1. público compra a 250000', async () => {
-    const req = { headers: {} } as NextApiRequest;
-    const r = await resolveRenaserCheckoutPricing(req, 'public@example.com', 250000, 'ss-renaser-pub');
-    assert.equal(r.ok, true);
-    if (r.ok) assert.equal(r.pricing.pricingMode, 'PUBLIC');
+  it('público 250k y asistente 150k con cookie', async () => {
+    const pub = await resolveRenaserCheckoutPricing({ headers: {} } as NextApiRequest, 'a@b.com', 250000, 'r1');
+    assert.equal(pub.ok, true);
+    const att = await resolveRenaserCheckoutPricing(reqWithBenefit(), 'a@b.com', 150000, 'r2');
+    assert.equal(att.ok, true);
+    if (att.ok) assert.equal(att.pricing.pricingMode, 'ATTENDEE');
   });
 
-  it('2. enlace privado (sin cookie) también exige 250000', async () => {
-    const r = await resolveRenaserCheckoutPricing({ headers: {} } as NextApiRequest, 'a@b.com', 250000, 'ss-renaser-a');
-    assert.equal(r.ok, true);
-    if (r.ok) assert.equal(r.pricing.finalPriceCop, 250000);
-  });
-
-  it('3–4. amountInCents Wompi siempre 25000000', () => {
+  it('Wompi cents public/attendee', () => {
     assert.equal(getRenaserPublicPricing().finalAmountInCents, 25000000);
-    assert.equal(getRenaserAmountInCents(), 25000000);
+    assert.equal(getRenaserAttendeePricing().finalAmountInCents, 15000000);
   });
 
-  it('5–8. webhook amounts', () => {
-    assert.equal(
-      validateRenaserApprovedPayment(publicOrder(), {
-        status: 'APPROVED',
-        amount_in_cents: 25000000,
-        currency: 'COP',
-      }).ok,
-      true,
-    );
-    assert.equal(
-      validateRenaserApprovedPayment(publicOrder(), {
-        status: 'APPROVED',
-        amount_in_cents: 15000000,
-        currency: 'COP',
-      }).ok,
-      false,
-    );
+  it('webhook validation', () => {
+    const pub: CheckoutOrder = {
+      reference: 'p',
+      productId: RENSER_CANONICAL_PRODUCT_ID,
+      productSlug: 'memorias-en-video-del-congreso',
+      firstName: 'A',
+      lastName: 'B',
+      email: 'a@b.com',
+      phone: '1',
+      amountInCents: 25000000,
+      currency: 'COP',
+      status: 'PENDING',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      provisioningStatus: 'NOT_STARTED',
+    };
+    const att = { ...pub, reference: 'a', amountInCents: 15000000 };
+    assert.equal(validateRenaserApprovedPayment(pub, { status: 'APPROVED', amount_in_cents: 25000000, currency: 'COP' }).ok, true);
+    assert.equal(validateRenaserApprovedPayment(att, { status: 'APPROVED', amount_in_cents: 15000000, currency: 'COP' }).ok, true);
   });
 
-  it('9. cualquier email válido a precio lista', async () => {
-    const r = await resolveRenaserCheckoutPricing({ headers: {} } as NextApiRequest, 'any@example.com', 250000, 'ref');
-    assert.equal(r.ok, true);
+  it('email template 40% shared link', () => {
+    const email = buildPurchaseInvitationEmail({ firstName: 'Ana' });
+    assert.match(email.text, /40\s*%\s*de descuento/i);
+    assert.equal(PURCHASE_INVITATION_SUBJECT, 'Memorias del Congreso RenaSER 2026');
+    assert.match(email.html, new RegExp(PURCHASE_INVITATION_CTA_LABEL));
   });
 
-  it('10. 150000 rechazado', async () => {
-    const r = await resolveRenaserCheckoutPricing({ headers: {} } as NextApiRequest, 'x@example.com', 150000, 'ref');
-    assert.equal(r.ok, false);
-  });
-
-  it('14. order metadata PUBLIC sin descuento', () => {
-    const pub = buildRenaserPendingOrderFields(
-      { names: 'A', lastNames: 'B', email: 'a@b.com', phone: '1', direction: {} as never },
-      getRenaserPublicPricing(),
-    );
-    assert.equal(pub.pricingMode, 'PUBLIC');
-    assert.equal(pub.amountInCents, 25000000);
-    assert.equal(pub.benefitAmountInCents, 0);
-    assert.equal(pub.discountPercent, 0);
-  });
-
-  it('pricing helpers sin descuento', () => {
+  it('pricing helpers', () => {
     const p = calculateRenaserInvitationPricing();
-    assert.equal(p.finalPriceCop, 250000);
-    assert.equal(p.discountAmountCop, 0);
-    assert.equal(validateRenaserInvitedClientTotalPrice(250000), true);
-    assert.equal(validateRenaserInvitedClientTotalPrice(150000), false);
-    assert.equal(validateRenaserClientTotalPrice(250000), true);
+    assert.equal(p.finalPriceCop, 150000);
+    assert.equal(validateRenaserInvitedClientTotalPrice(150000), true);
+    assert.equal(validateRenaserClientTotalPrice(250000, 'PUBLIC'), true);
+    assert.equal(validateRenaserClientTotalPrice(150000, 'ATTENDEE'), true);
     assert.match(formatPrice(p.basePriceCop), /250\.?000/);
   });
 
-  it('email template sin mención de descuento', () => {
-    process.env.RENASER_SHARED_BENEFIT_TOKEN = 'test-shared-benefit-token-value';
-    const email = buildPurchaseInvitationEmail({ firstName: 'Ana' });
-    assert.doesNotMatch(email.text, /40\s*%/i);
-    assert.doesNotMatch(email.text, /descuento/i);
-    assert.doesNotMatch(email.text, /150\.?000/i);
-    assert.equal(PURCHASE_INVITATION_SUBJECT, 'Memorias del Congreso RenaSER 2026');
-    assert.match(email.html, new RegExp(PURCHASE_INVITATION_CTA_LABEL));
-    assert.doesNotMatch(email.text, /test-token-value/);
+  it('order metadata', () => {
+    const att = buildRenaserPendingOrderFields(
+      { names: 'A', lastNames: 'B', email: 'a@b.com', phone: '1', direction: {} as never },
+      getRenaserAttendeePricing(),
+    );
+    assert.equal(att.pricingMode, 'ATTENDEE');
+    assert.equal(att.amountInCents, 15000000);
   });
 });

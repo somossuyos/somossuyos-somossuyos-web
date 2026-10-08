@@ -5,6 +5,7 @@ import {
 } from './memoriasCongresoCourse';
 import type { RenaserPurchaseTier } from './memoriasCongresoPricing';
 import { getCheckoutPriceCopForTier } from './memoriasCongresoPricing';
+import { calculateRenaserInvitationPricing } from '@/src/lib/renaserInvitations/pricing';
 
 export const MEMORIAS_CART_TITLE = 'Memoria en video del Congreso RenaSER 2026';
 
@@ -33,9 +34,12 @@ export function buildMemoriasCartItemForTier(tier: RenaserPurchaseTier) {
   };
 }
 
-/** @deprecated Mismo ítem que GENERAL (sin descuento). */
+/** Carrito asistente (cookie renaser_benefit): precio 150k. */
 export function buildMemoriasCartItemForAttendee() {
-  return buildMemoriasCartItemForTier('GENERAL');
+  const item = buildMemoriasCartItemForTier('GENERAL');
+  if (!item) return null;
+  const { finalPriceCop } = calculateRenaserInvitationPricing();
+  return { ...item, price: finalPriceCop };
 }
 
 /** @deprecated Use buildMemoriasCartItemForTier('GENERAL') */
