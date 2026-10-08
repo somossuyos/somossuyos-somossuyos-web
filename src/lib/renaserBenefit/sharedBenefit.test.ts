@@ -15,6 +15,7 @@ import {
   buildRenaserPendingOrderFields,
 } from '../orders/renaserCheckout';
 import { validateRenaserApprovedPayment } from '../wompi/renaserPaymentValidation';
+import { encodeWidgetIntegritySha256 } from '../wompi/integrity';
 import type { NextApiRequest } from 'next';
 import type { CheckoutOrder } from '../orders/types';
 import { RENSER_CANONICAL_PRODUCT_ID } from '../orders/renaserCheckout';
@@ -75,6 +76,38 @@ describe('RenaSER shared private link benefit', () => {
   it('6. frontend intenta 150000 sin cookie → rechazo', async () => {
     const r = await resolveRenaserCheckoutPricing({ headers: {} } as NextApiRequest, 'a@b.com', 150000, 'ref');
     assert.equal(r.ok, false);
+  });
+
+  it('6b. cookie ATTENDEE ignora totalPrice manipulado (250000 o 1)', async () => {
+    const req = reqWithBenefitCookie();
+    for (const total of [250000, 1]) {
+      const r = await resolveRenaserCheckoutPricing(req, 'a@b.com', total, 'ref');
+      assert.equal(r.ok, true);
+      if (r.ok) {
+        assert.equal(r.pricing.pricingMode, 'ATTENDEE');
+        assert.equal(r.pricing.finalAmountInCents, 15000000);
+      }
+    }
+  });
+
+  it('6c. firma Wompi ATTENDEE usa 15000000 centavos', () => {
+    const ref = 'ss-renaser-test-ref';
+    const secret = 'test-integrity-secret';
+    const sigAtt = encodeWidgetIntegritySha256({
+      reference: ref,
+      amountInCents: 15000000,
+      integritySecret: secret,
+    });
+    const sigPub = encodeWidgetIntegritySha256({
+      reference: ref,
+      amountInCents: 25000000,
+      integritySecret: secret,
+    });
+    assert.notEqual(sigAtt, sigPub);
+    assert.equal(
+      encodeWidgetIntegritySha256({ reference: ref, amountInCents: 15000000, integritySecret: secret }),
+      sigAtt,
+    );
   });
 
   it('7–10. webhook amounts', () => {

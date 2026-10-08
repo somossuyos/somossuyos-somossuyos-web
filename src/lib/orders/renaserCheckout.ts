@@ -106,6 +106,17 @@ export async function resolveRenaserCheckoutPricing(
   const attendeePricing = getRenaserAttendeePricing();
   const emailNormalized = normalizeInvitationEmail(formEmail);
 
+  /** Cookie firmada gana sobre totalPrice del cliente (no confiar en montos manipulados). */
+  if (isBenefitSessionActive(req.headers.cookie)) {
+    return {
+      ok: true,
+      pricing: attendeePricing,
+      firstName: '',
+      lastName: '',
+      emailNormalized,
+    };
+  }
+
   if (clientTotalCop === publicPricing.finalPriceCop) {
     return {
       ok: true,
@@ -116,21 +127,11 @@ export async function resolveRenaserCheckoutPricing(
     };
   }
 
-  if (clientTotalCop !== attendeePricing.finalPriceCop) {
-    return { ok: false, httpStatus: 400, error: 'Invalid RenaSER total price' };
-  }
-
-  if (!isBenefitSessionActive(req.headers.cookie)) {
+  if (clientTotalCop === attendeePricing.finalPriceCop) {
     return { ok: false, httpStatus: 403, error: 'Invalid RenaSER total price' };
   }
 
-  return {
-    ok: true,
-    pricing: attendeePricing,
-    firstName: '',
-    lastName: '',
-    emailNormalized,
-  };
+  return { ok: false, httpStatus: 400, error: 'Invalid RenaSER total price' };
 }
 
 export function buildRenaserPendingOrderFields(
