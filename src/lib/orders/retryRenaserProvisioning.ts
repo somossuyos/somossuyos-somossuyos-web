@@ -2,6 +2,7 @@ import {
   getCheckoutOrderByReference,
   markProvisioningCompleted,
   markProvisioningFailed,
+  tryMarkProvisioningProcessing,
   tryMarkProvisioningRetry,
 } from './checkoutOrdersRepository';
 import { RENSER_CANONICAL_PRODUCT_ID } from './renaserCheckout';
@@ -31,12 +32,54 @@ export async function retryRenaserProvisioning(reference: string): Promise<Retry
     return { ok: true, outcome: 'skipped' };
   }
 
-  const started = await tryMarkProvisioningRetry(ref);
+  let started = false;
+  if (order.provisioningStatus === 'FAILED') {
+    started = await tryMarkProvisioningRetry(ref);
+  } else if (order.provisioningStatus === 'NOT_STARTED') {
+    started = await tryMarkProvisioningProcessing(ref);
+  }
   if (!started) {
     if (order.provisioningStatus === 'PROCESSING') {
       return { ok: true, outcome: 'skipped' };
     }
     return { ok: false, error: 'cannot_start_retry' };
+  }
+
+  const trxId = order.wompiTransactionId || ref;
+  const provResult = await provisionSkillCertAccess(order, trxId);
+
+  if (provResult.ok) {
+    await markProvisioningCompleted(ref);
+    return {
+      ok: true,
+      outcome: provResult.status === 'already_provisioned' ? 'already_provisioned' : 'provisioned',
+    };
+  }
+
+  await markProvisioningFailed(ref, provResult.error);
+  return { ok: false, error: provResult.error };
+}
+
+/**
+ * Re-sync SkillCert access when checkout is APPROVED but aula side lacks entitlement
+ * (e.g. legacy COMPLETED flag without RenaSERProvisionedOrders). Idempotent on aula.
+ * Does not create a new checkout order or Wompi charge.
+ */
+export async function reconcileRenaserAccess(reference: string): Promise<RetryProvisioningResult> {
+  const ref = reference?.trim();
+  if (!ref) return { ok: false, error: 'missing_reference' };
+
+  const order = await getCheckoutOrderByReference(ref);
+  if (!order) return { ok: false, error: 'order_not_found' };
+  if (order.productId !== RENSER_CANONICAL_PRODUCT_ID) {
+    return { ok: false, error: 'not_renaser_product' };
+  }
+  if (order.status !== 'APPROVED') {
+    return { ok: false, error: 'payment_not_approved' };
+  }
+
+  if (order.provisioningStatus !== 'COMPLETED') {
+    return retryRenaserProvisioning(ref);
   }
 
   const trxId = order.wompiTransactionId || ref;
