@@ -1,6 +1,10 @@
 # Strapi — colección `camino-santiago-inscripciones`
 
-**Estado verificado (2026):** `GET https://cms.somossuyos.com/api/camino-santiago-inscripciones` responde **404 Not Found**. La colección **aún no existe**; el frontend y la API route de Next.js están listos, pero **no habrá persistencia** hasta completar esta configuración.
+**Repositorio backend:** https://github.com/somossuyos/somossuyos-cms (rama `feature/camino-santiago-inscripciones` con el content-type en código).
+
+**Estado producción (hasta desplegar CMS):** `GET https://cms.somossuyos.com/api/camino-santiago-inscripciones` responde **404**. Tras merge y deploy del CMS, debe responder **403** (Public sin acceso) o **401** sin token.
+
+**Operación detallada:** ver `somossuyos-cms/docs/camino-santiago-inscripciones-operacion.md`.
 
 **CMS:** https://cms.somossuyos.com (Strapi, header `x-powered-by: Strapi`).
 
@@ -33,8 +37,10 @@ En **Content-Type Builder** → **Create new collection type**:
 | Pasaporte vigente | Enumeration | `pasaporte_vigente` | Si, No |
 | Aceptó datos | Boolean | `acepto_datos` | |
 | Fecha inscripción | DateTime | `fecha_inscripcion` | requerido |
+| Fecha aceptación política | DateTime | `fecha_aceptacion_politica` | requerido |
+| Estado inscripción | Enumeration | `estado_inscripcion` | RECIBIDA (default), EN_REVISION, CONTACTADA, CERRADA |
 
-Guardar y **reiniciar Strapi** si aplica.
+En el repo CMS esto ya está versionado en `src/api/camino-santiago-inscripcion/.../schema.json` — no recrear a mano salvo hotfix.
 
 ## 2. Permisos (Settings → Users & Permissions → Roles)
 
@@ -67,15 +73,15 @@ Guardar y **reiniciar Strapi** si aplica.
 
 `amplify.yml` ya incluye el grep de `STRAPI_CAMINO_API_TOKEN` hacia `.env.production`.
 
-## 4. Exportación CSV para el encargado
+## 4. Exportación CSV / Excel para el encargado
 
-Strapi **no trae export CSV nativo** en todas las versiones. Opciones recomendadas (sin nuevo dashboard en Next):
+El CMS ya incluye **`strapi-plugin-excel-export-2024`**. Tras deploy, la colección está registrada en `config/excel.ts`.
 
-1. **Plugin** [strapi-plugin-import-export-entries](https://github.com/Baboo7/strapi-plugin-import-export-entries) (Strapi v4): instalar en el proyecto backend del CMS, exportar desde Content Manager → Export (UTF-8; activar BOM en Excel si el plugin lo permite).
-2. **Export manual:** Content Manager → seleccionar entradas → copiar/pegar o usar plugin.
-3. **CSV seguro para Excel:** al exportar, prefijar celdas que empiezan por `=`, `+`, `-`, `@` con apóstrofe o tab; el plugin suele ofrecer “sanitized export”; si no, el encargado abre con “Datos → Desde texto/CSV” en Excel.
+1. Login en https://cms.somossuyos.com/admin
+2. Content Manager → **Camino Santiago Inscripcion**
+3. Exportar vía el plugin (igual que inscripciones de eventos)
 
-No se implementó endpoint público de listado/descarga en Next.js (requerimiento de seguridad).
+No hay endpoint público de descarga en Next.js.
 
 ## 5. Pruebas funcionales (obligatorias tras crear la colección)
 

@@ -57,4 +57,6 @@ export type CaminoInscriptionStrapiData = {
   pasaporte_vigente: string;
   acepto_datos: boolean;
   fecha_inscripcion: string;
+  fecha_aceptacion_politica: string;
+  estado_inscripcion: string;
 };

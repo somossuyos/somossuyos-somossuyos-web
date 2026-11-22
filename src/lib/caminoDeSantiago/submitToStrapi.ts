@@ -7,6 +7,7 @@ export type StrapiSubmitResult =
   | { ok: false; reason: 'not_configured' | 'strapi_error' | 'collection_missing'; status?: number };
 
 function mapToStrapi(data: CaminoInscriptionClientPayload, edad: number): CaminoInscriptionStrapiData {
+  const now = new Date().toISOString();
   return {
     nombre_completo: data.nombreCompleto,
     tipo_documento: data.tipoDocumento,
@@ -24,7 +25,9 @@ function mapToStrapi(data: CaminoInscriptionClientPayload, edad: number): Camino
     telefono_alternativo: data.telefonoAlternativo?.trim() || null,
     pasaporte_vigente: data.pasaporteVigente,
     acepto_datos: true,
-    fecha_inscripcion: new Date().toISOString(),
+    fecha_inscripcion: now,
+    fecha_aceptacion_politica: now,
+    estado_inscripcion: 'RECIBIDA',
   };
 }
 
