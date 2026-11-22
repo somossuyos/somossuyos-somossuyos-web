@@ -50,12 +50,14 @@ export const caminoDeSantiagoContent = {
       { id: 'price', label: 'Valor del viaje', value: null },
     ] satisfies CaminoTripField[],
   },
-  interest: {
-    title: 'Registro de interesados',
-    description:
-      'Déjanos tus datos y un breve mensaje. El equipo de Somos Suyos te contactará con información sobre fechas, requisitos y próximos pasos. No realizamos cobros ni reservas desde este formulario.',
-    defaultMessage:
-      'Me interesa recibir mas informacion sobre el viaje al Camino de Santiago organizado por Somos Suyos.',
+  inscription: {
+    title: 'FORMULARIO DE INSCRIPCION — CAMINO DE SANTIAGO',
+    subtitle: 'Inscripcion de personas interesadas en participar en la experiencia Camino de Santiago, Espana.',
+    ageNotice: 'Aplica para personas de 18 a 45 anos (edad calculada desde la fecha de nacimiento).',
+    privacyPolicyHref: 'https://www.somossuyos.com/contacto',
+    successTitle: '¡Tu inscripcion fue recibida!',
+    successMessage:
+      'Gracias por tu interes en vivir la experiencia Camino de Santiago con Somos Suyos. Hemos recibido tus datos y el equipo encargado podra comunicarse contigo para ampliar la informacion. Esto no confirma cupo ni reserva definitiva.',
   },
   seo: {
     title: 'Camino de Santiago',

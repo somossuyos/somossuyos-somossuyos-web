@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { caminoDeSantiagoContent, formatTripFieldValue } from '@/src/lib/caminoDeSantiago/content';
-import CaminoInterestForm from './CaminoInterestForm';
+import CaminoInscriptionForm from './CaminoInscriptionForm';
 
-const { hero, presentation, experience, tripDetails, interest } = caminoDeSantiagoContent;
+const { hero, presentation, experience, tripDetails, inscription } = caminoDeSantiagoContent;
 
 const CaminoDeSantiagoComponent = () => {
   const scrollToInterest = () => {
@@ -89,19 +89,16 @@ const CaminoDeSantiagoComponent = () => {
       </section>
 
       <section className="py-20 px-4 sm:px-[8%] xl:px-[120px]">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
-          <div>
-            <h2 className="font-stretch-pro text-[24px] sm:text-[36px] text-pale-skin mb-4">{interest.title}</h2>
-            <p className="font-futura text-white/85 text-base sm:text-lg mb-6">{interest.description}</p>
-            <p className="font-futura text-sm text-white/60">
-              Tambien puedes ir a{' '}
-              <Link href="/contacto" className="text-pale-skin underline underline-offset-2">
-                Contacto
-              </Link>{' '}
-              si prefieres el formulario general.
-            </p>
-          </div>
-          <CaminoInterestForm />
+        <div className="max-w-4xl">
+          <h2 className="font-stretch-pro text-[22px] sm:text-[32px] text-pale-skin mb-2">{inscription.title}</h2>
+          <p className="font-futura text-white/80 text-base mb-10">{inscription.subtitle}</p>
+          <CaminoInscriptionForm />
+          <p className="font-futura text-sm text-white/50 mt-8">
+            Dudas generales:{' '}
+            <Link href="/contacto" className="text-pale-skin underline underline-offset-2">
+              Contacto
+            </Link>
+          </p>
         </div>
       </section>
     </div>
