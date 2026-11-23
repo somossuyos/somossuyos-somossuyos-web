@@ -6,7 +6,7 @@ import {
   CAMINO_PASSPORT_VALID_OPTIONS,
   CAMINO_SEX_OPTIONS,
 } from '@/src/lib/caminoDeSantiago/inscriptionTypes';
-import { caminoDeSantiagoContent } from '@/src/lib/caminoDeSantiago/content';
+import { caminoDeSantiagoContent, getCaminoPrivacyPolicyHref } from '@/src/lib/caminoDeSantiago/content';
 import { countryNames } from '@/src/utils/countryNames';
 
 const inputClass = (invalid: boolean) =>
@@ -20,6 +20,7 @@ const CaminoInscriptionForm = () => {
   const { fields, edadHint, loading, completed, errorMessage, handleChange, handleSubmit } =
     useCaminoInscriptionForm();
   const { inscription } = caminoDeSantiagoContent;
+  const privacyPolicyHref = getCaminoPrivacyPolicyHref();
 
   if (completed) {
     return (
@@ -309,15 +310,25 @@ const CaminoInscriptionForm = () => {
         />
         <label htmlFor="aceptoDatos" className="font-futura text-sm text-white/85">
           Acepto el{' '}
-          <a
-            href={inscription.privacyPolicyHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-pale-skin underline"
-          >
-            tratamiento de datos personales
-          </a>{' '}
+          {privacyPolicyHref ? (
+            <a
+              href={privacyPolicyHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pale-skin underline"
+            >
+              tratamiento de datos personales
+            </a>
+          ) : (
+            <span className="text-pale-skin">tratamiento de datos personales</span>
+          )}{' '}
           de Somos Suyos. *
+          {!privacyPolicyHref ? (
+            <span className="block text-white/55 text-xs mt-1">
+              La política integral está en revisión; el enlace se publicará antes de abrir inscripciones en
+              producción.
+            </span>
+          ) : null}
         </label>
       </div>
 

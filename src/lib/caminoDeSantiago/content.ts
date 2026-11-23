@@ -54,7 +54,8 @@ export const caminoDeSantiagoContent = {
     title: 'FORMULARIO DE INSCRIPCION — CAMINO DE SANTIAGO',
     subtitle: 'Inscripcion de personas interesadas en participar en la experiencia Camino de Santiago, Espana.',
     ageNotice: 'Aplica para personas de 18 a 45 anos (edad calculada desde la fecha de nacimiento).',
-    privacyPolicyHref: 'https://www.somossuyos.com/contacto',
+    /** URL oficial aprobada vía NEXT_PUBLIC_CAMINO_PRIVACY_POLICY_URL; vacío = enlace deshabilitado hasta publicar política */
+    privacyPolicyHref: '',
     successTitle: '¡Tu inscripcion fue recibida!',
     successMessage:
       'Gracias por tu interes en vivir la experiencia Camino de Santiago con Somos Suyos. Hemos recibido tus datos y el equipo encargado podra comunicarse contigo para ampliar la informacion. Esto no confirma cupo ni reserva definitiva.',
@@ -69,4 +70,12 @@ export const caminoDeSantiagoContent = {
 
 export function formatTripFieldValue(value: string | null): string {
   return value?.trim() ? value.trim() : 'Por confirmar';
+}
+
+/** Política de tratamiento de datos para el checkbox del formulario (no usar /contacto). */
+export function getCaminoPrivacyPolicyHref(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_CAMINO_PRIVACY_POLICY_URL?.trim();
+  if (fromEnv) return fromEnv;
+  const fromContent = caminoDeSantiagoContent.inscription.privacyPolicyHref?.trim();
+  return fromContent ?? '';
 }
