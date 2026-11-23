@@ -75,6 +75,7 @@ const Navbar = () => {
             options={[
               // { label: 'En El Noviazgo', href: '/eventos/noviazgo' },
               // { label: 'Para Matrimonios', href: '/eventos/matrimonios' },
+              { label: 'Camino de Santiago', href: '/camino-de-santiago' },
               { label: 'Realizados', href: '/eventos/realizados' },
               { label: 'Próximos', href: '/eventos' },
             ]}
