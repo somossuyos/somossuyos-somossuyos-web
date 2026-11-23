@@ -1,11 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { caminoDeSantiagoContent, formatTripFieldValue } from '@/src/lib/caminoDeSantiago/content';
+import { isCaminoInscriptionsEnabled } from '@/src/lib/caminoDeSantiago/featureFlags';
 import CaminoInscriptionForm from './CaminoInscriptionForm';
+import CaminoInscriptionsComingSoon from './CaminoInscriptionsComingSoon';
 
 const { hero, presentation, experience, tripDetails, inscription } = caminoDeSantiagoContent;
 
 const CaminoDeSantiagoComponent = () => {
+  const inscriptionsOpen = isCaminoInscriptionsEnabled();
   const scrollToInterest = () => {
     document.getElementById('registro')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -30,7 +33,7 @@ const CaminoDeSantiagoComponent = () => {
               onClick={scrollToInterest}
               className="bg-pale-skin text-black font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity"
             >
-              {hero.ctaLabel}
+              {inscriptionsOpen ? hero.ctaLabel : 'INSCRIPCIONES PROXIMAMENTE'}
             </button>
           </div>
           <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden border border-white/10 shadow-nav">
@@ -91,8 +94,10 @@ const CaminoDeSantiagoComponent = () => {
       <section className="py-20 px-4 sm:px-[8%] xl:px-[120px]">
         <div className="max-w-4xl">
           <h2 className="font-stretch-pro text-[22px] sm:text-[32px] text-pale-skin mb-2">{inscription.title}</h2>
-          <p className="font-futura text-white/80 text-base mb-10">{inscription.subtitle}</p>
-          <CaminoInscriptionForm />
+          {inscriptionsOpen ? (
+            <p className="font-futura text-white/80 text-base mb-10">{inscription.subtitle}</p>
+          ) : null}
+          {inscriptionsOpen ? <CaminoInscriptionForm /> : <CaminoInscriptionsComingSoon />}
           <p className="font-futura text-sm text-white/50 mt-8">
             Dudas generales:{' '}
             <Link href="/contacto" className="text-pale-skin underline underline-offset-2">

@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { isCaminoInscriptionsEnabled } from '@/src/lib/caminoDeSantiago/featureFlags';
 import { validateCaminoInscriptionPayload } from '@/src/lib/caminoDeSantiago/validateInscription';
 import { submitCaminoInscriptionToStrapi } from '@/src/lib/caminoDeSantiago/submitToStrapi';
 
@@ -9,6 +10,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, code: 'method_not_allowed', message: 'Metodo no permitido.' });
+  }
+
+  if (!isCaminoInscriptionsEnabled()) {
+    return res.status(503).json({
+      ok: false,
+      code: 'inscriptions_closed',
+      message: 'Inscripciones próximamente. Estamos preparando todos los detalles de esta experiencia.',
+    });
   }
 
   const validation = validateCaminoInscriptionPayload(req.body);
