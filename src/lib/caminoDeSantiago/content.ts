@@ -14,8 +14,8 @@ export const caminoDeSantiagoContent = {
     title: 'CAMINO DE SANTIAGO',
     subtitle: 'Una experiencia de fe, encuentro y transformación.',
     ctaLabel: 'QUIERO MÁS INFORMACIÓN',
-    /** URL de imagen en CMS/S3 cuando esté disponible; null usa placeholder visual */
-    imageUrl: null as string | null,
+    /** Estático en /public; 1080×1350 (4:5) — hero usa el mismo ratio */
+    imageUrl: '/images/camino_santiago.jpeg',
     imageAlt: 'Camino de Santiago — peregrinación',
   },
   presentation: {
@@ -59,6 +59,31 @@ export const caminoDeSantiagoContent = {
     successTitle: '¡Tu inscripcion fue recibida!',
     successMessage:
       'Gracias por tu interes en vivir la experiencia Camino de Santiago con Somos Suyos. Hemos recibido tus datos y el equipo encargado podra comunicarse contigo para ampliar la informacion. Esto no confirma cupo ni reserva definitiva.',
+  },
+  community: {
+    stepsIntro:
+      'Para vivir esta experiencia con Somos Suyos, primero únete a nuestra comunidad de WhatsApp. Ahí compartimos el formulario, el webinar informativo y el enlace de pago cuando esté disponible.',
+    whatsappGroupLabel: 'Unirme al grupo de WhatsApp',
+    whatsappChatLabel: 'Escribir por WhatsApp (Camino)',
+    paymentLabel: 'Ir al pago del viaje',
+    paymentPendingNote:
+      'El enlace de pago se publicará aquí en cuanto esté listo (variable NEXT_PUBLIC_CAMINO_PAYMENT_URL en Amplify).',
+    formHint: 'También puedes guardar el',
+    webinarDate: null as string | null,
+    steps: [
+      {
+        title: 'Grupo WhatsApp',
+        description: 'Únete al grupo de la peregrinación Camino de Santiago y Fátima SOS.',
+      },
+      {
+        title: 'Formulario',
+        description: 'Diligencia el formulario de interés en esta página (sección inscripciones).',
+      },
+      {
+        title: 'Webinar y pago',
+        description: 'Participa en el webinar informativo y realiza el pago cuando te indiquemos.',
+      },
+    ],
   },
   seo: {
     title: 'Camino de Santiago',

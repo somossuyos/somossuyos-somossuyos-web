@@ -4,6 +4,7 @@ import { caminoDeSantiagoContent, formatTripFieldValue } from '@/src/lib/caminoD
 import { isCaminoInscriptionsEnabled } from '@/src/lib/caminoDeSantiago/featureFlags';
 import CaminoInscriptionForm from './CaminoInscriptionForm';
 import CaminoInscriptionsComingSoon from './CaminoInscriptionsComingSoon';
+import CaminoCommunityActions from './CaminoCommunityActions';
 
 const { hero, presentation, experience, tripDetails, inscription } = caminoDeSantiagoContent;
 
@@ -28,17 +29,26 @@ const CaminoDeSantiagoComponent = () => {
             <p className="font-futura text-white/80 text-base sm:text-lg max-w-xl mb-8">
               Un camino por España que une oracion, cultura y fraternidad. Informacion del itinerario en actualizacion.
             </p>
-            <button
-              type="button"
-              onClick={scrollToInterest}
-              className="bg-pale-skin text-black font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity"
-            >
-              {inscriptionsOpen ? hero.ctaLabel : 'INSCRIPCIONES PROXIMAMENTE'}
-            </button>
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+              <button
+                type="button"
+                onClick={scrollToInterest}
+                className="bg-pale-skin text-black font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity"
+              >
+                {inscriptionsOpen ? hero.ctaLabel : 'INSCRIPCIONES PROXIMAMENTE'}
+              </button>
+            </div>
           </div>
-          <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden border border-white/10 shadow-nav">
+          <div className="relative w-full max-w-[520px] mx-auto xl:max-w-none aspect-[4/5] rounded-[24px] overflow-hidden border border-white/10 shadow-nav">
             {hero.imageUrl ? (
-              <Image src={hero.imageUrl} alt={hero.imageAlt} fill className="object-cover" priority sizes="(max-width: 1280px) 100vw, 50vw" />
+              <Image
+                src={hero.imageUrl}
+                alt={hero.imageAlt}
+                fill
+                className="object-cover object-center"
+                priority
+                sizes="(max-width: 1280px) 100vw, (max-width: 1536px) 45vw, 520px"
+              />
             ) : (
               <div
                 className="absolute inset-0 bg-gradient-to-br from-[#2a2622] via-[#1a1816] to-black flex flex-col items-center justify-center px-8 text-center"
@@ -51,6 +61,15 @@ const CaminoDeSantiagoComponent = () => {
               </div>
             )}
           </div>
+        </div>
+      </section>
+
+      <section id="comunidad-whatsapp" className="py-14 px-4 sm:px-[8%] xl:px-[120px] border-y border-white/10">
+        <div className="max-w-4xl">
+          <h2 className="font-stretch-pro text-[22px] sm:text-[32px] text-pale-skin mb-6">
+            Comunidad WhatsApp — Camino y Fátima SOS
+          </h2>
+          <CaminoCommunityActions variant="dark" />
         </div>
       </section>
 
