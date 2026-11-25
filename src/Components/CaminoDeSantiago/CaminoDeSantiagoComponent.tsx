@@ -5,6 +5,7 @@ import { isCaminoInscriptionsEnabled } from '@/src/lib/caminoDeSantiago/featureF
 import CaminoInscriptionForm from './CaminoInscriptionForm';
 import CaminoInscriptionsComingSoon from './CaminoInscriptionsComingSoon';
 import CaminoCommunityActions from './CaminoCommunityActions';
+import CaminoPaymentSection from './CaminoPaymentSection';
 import { getCaminoWhatsAppActionUrl } from '@/src/lib/caminoDeSantiago/whatsappLinks';
 
 const { hero, presentation, experience, tripDetails, inscription, community } = caminoDeSantiagoContent;
@@ -117,6 +118,10 @@ const CaminoDeSantiagoComponent = () => {
             </div>
           ))}
         </dl>
+      </section>
+
+      <section className="px-4 sm:px-[8%] xl:px-[120px]">
+        <CaminoPaymentSection />
       </section>
 
       <section className="py-20 px-4 sm:px-[8%] xl:px-[120px]">

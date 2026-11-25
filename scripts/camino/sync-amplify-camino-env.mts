@@ -19,6 +19,9 @@ const KEYS = [
   'NEXT_PUBLIC_CAMINO_WHATSAPP_GROUP_URL',
   'NEXT_PUBLIC_CAMINO_PRIVACY_POLICY_URL',
   'NEXT_PUBLIC_CAMINO_PAYMENT_URL',
+  'CAMINO_EUR_TO_COP_RATE',
+  'CAMINO_EUR_TO_COP_RATE_LABEL',
+  'CAMINO_EUR_TO_COP_RATE_AS_OF',
   'NEXT_PUBLIC_BASE_URL',
 ] as const;
 
@@ -67,10 +70,13 @@ for (const key of required) {
   }
 }
 
-const defaults: Partial<Record<(typeof KEYS)[number], string>> = {
+const defaults: Partial<Record<string, string>> = {
   NEXT_PUBLIC_CAMINO_INSCRIPTIONS_ENABLED: 'true',
   NEXT_PUBLIC_CAMINO_WHATSAPP_GROUP_URL: 'https://chat.whatsapp.com/LZtFDpH4ype95N0tt0DJ6k',
   NEXT_PUBLIC_BASE_URL: 'https://www.somossuyos.com',
+  CAMINO_EUR_TO_COP_RATE: '4700',
+  CAMINO_EUR_TO_COP_RATE_LABEL: 'Referencia Somos Suyos (casas de cambio)',
+  CAMINO_EUR_TO_COP_RATE_AS_OF: '2026-11-25',
 };
 
 const desired: Record<string, string> = {};

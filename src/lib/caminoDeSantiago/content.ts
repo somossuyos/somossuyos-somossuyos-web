@@ -67,7 +67,7 @@ export const caminoDeSantiagoContent = {
     whatsappChatLabel: 'Únete al grupo',
     paymentLabel: 'Ir al pago del viaje',
     paymentPendingNote:
-      'El enlace de pago se publicará aquí en cuanto esté listo (variable NEXT_PUBLIC_CAMINO_PAYMENT_URL en Amplify).',
+      'Pago disponible en la sección Pago del viaje (Wompi): pago único o cuotas según el calendario del programa.',
     formHint: 'También puedes guardar el',
     webinarDate: null as string | null,
     steps: [

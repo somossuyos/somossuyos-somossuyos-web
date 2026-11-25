@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { caminoDeSantiagoContent } from '@/src/lib/caminoDeSantiago/content';
-import { getCaminoPaymentUrl, getCaminoWhatsAppActionUrl } from '@/src/lib/caminoDeSantiago/whatsappLinks';
+import { getCaminoWhatsAppActionUrl } from '@/src/lib/caminoDeSantiago/whatsappLinks';
 
 type Props = {
   variant?: 'dark' | 'light';
@@ -10,7 +10,7 @@ type Props = {
 const CaminoCommunityActions = ({ variant = 'dark', compact = false }: Props) => {
   const { community } = caminoDeSantiagoContent;
   const whatsappHref = getCaminoWhatsAppActionUrl();
-  const paymentHref = getCaminoPaymentUrl();
+  const paymentHref = '/camino-de-santiago#pago';
   const primaryBtn =
     variant === 'dark'
       ? 'bg-[#25D366] text-white font-bold px-8 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2'
@@ -39,22 +39,11 @@ const CaminoCommunityActions = ({ variant = 'dark', compact = false }: Props) =>
           <WhatsAppGlyph />
           {community.whatsappGroupLabel}
         </a>
-        {paymentHref ? (
-          <a href={paymentHref} target="_blank" rel="noopener noreferrer" className={secondaryBtn}>
-            {community.paymentLabel}
-          </a>
-        ) : (
-          <span
-            className={`${secondaryBtn} opacity-50 cursor-not-allowed`}
-            title="Enlace de pago pendiente de configuración"
-          >
-            {community.paymentLabel} — por confirmar
-          </span>
-        )}
+        <Link href={paymentHref} className={secondaryBtn}>
+          {community.paymentLabel}
+        </Link>
       </div>
-      {!paymentHref ? (
-        <p className={`font-futura text-xs ${noteClass}`}>{community.paymentPendingNote}</p>
-      ) : null}
+      <p className={`font-futura text-xs ${noteClass}`}>{community.paymentPendingNote}</p>
       <p className={`font-futura text-xs ${noteClass}`}>
         {community.formHint}{' '}
         <Link href="/camino-de-santiago#registro" className="text-pale-skin underline underline-offset-2">
