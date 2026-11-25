@@ -14,7 +14,7 @@ describe('caminoWompiPricing', () => {
   });
 
   it('single plan charge in cents', () => {
-    const r = resolveCaminoChargeWithRate(460, 'other', 4500);
-    expect(r.amountInCents).toBe(460 * 4500 * 100);
+    const r = resolveCaminoChargeWithRate(1670, 'other', 4700);
+    expect(r.amountInCents).toBe(1670 * 4700 * 100);
   });
 });

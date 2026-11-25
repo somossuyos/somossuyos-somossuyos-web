@@ -66,8 +66,7 @@ export const caminoDeSantiagoContent = {
     whatsappGroupLabel: 'Únete al grupo',
     whatsappChatLabel: 'Únete al grupo',
     paymentLabel: 'Ir al pago del viaje',
-    paymentPendingNote:
-      'Pago disponible en la sección Pago del viaje (Wompi): pago único o cuotas según el calendario del programa.',
+    paymentPendingNote: 'Reservas y formas de pago en esta misma página.',
     formHint: 'También puedes guardar el',
     webinarDate: null as string | null,
     steps: [
