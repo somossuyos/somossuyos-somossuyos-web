@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import { caminoDeSantiagoContent } from '@/src/lib/caminoDeSantiago/content';
-import {
-  getCaminoPaymentUrl,
-  getCaminoWhatsAppActionUrl,
-  getCaminoWhatsAppGroupUrl,
-} from '@/src/lib/caminoDeSantiago/whatsappLinks';
+import { getCaminoPaymentUrl, getCaminoWhatsAppActionUrl } from '@/src/lib/caminoDeSantiago/whatsappLinks';
 
 type Props = {
   variant?: 'dark' | 'light';
@@ -15,8 +11,6 @@ const CaminoCommunityActions = ({ variant = 'dark', compact = false }: Props) =>
   const { community } = caminoDeSantiagoContent;
   const whatsappHref = getCaminoWhatsAppActionUrl();
   const paymentHref = getCaminoPaymentUrl();
-  const isGroup = Boolean(getCaminoWhatsAppGroupUrl());
-
   const primaryBtn =
     variant === 'dark'
       ? 'bg-[#25D366] text-white font-bold px-8 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2'
@@ -43,7 +37,7 @@ const CaminoCommunityActions = ({ variant = 'dark', compact = false }: Props) =>
           className={primaryBtn}
         >
           <WhatsAppGlyph />
-          {isGroup ? community.whatsappGroupLabel : community.whatsappChatLabel}
+          {community.whatsappGroupLabel}
         </a>
         {paymentHref ? (
           <a href={paymentHref} target="_blank" rel="noopener noreferrer" className={secondaryBtn}>

@@ -11,9 +11,7 @@ const WhatsAppButton = () => {
   const router = useRouter();
   const isCamino = isCaminoWhatsAppContext(router.pathname);
   const href = isCamino ? getCaminoWhatsAppActionUrl() : getDefaultSiteWhatsAppUrl();
-  const label = isCamino
-    ? 'Unirse al grupo de WhatsApp — Camino de Santiago'
-    : 'Escribir a Somos Suyos por WhatsApp';
+  const label = isCamino ? 'Únete al grupo — Camino de Santiago' : 'Escribir a Somos Suyos por WhatsApp';
 
   return (
     <a

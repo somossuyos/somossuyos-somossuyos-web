@@ -2,6 +2,10 @@ import { caminoDeSantiagoContent } from './content';
 
 const DEFAULT_SOS_WHATSAPP_NUMBER = '573223885754';
 
+/** Invitación oficial grupo Peregrinación Camino de Santiago y Fátima SOS (público). */
+export const CAMINO_WHATSAPP_GROUP_URL_DEFAULT =
+  'https://chat.whatsapp.com/LZtFDpH4ype95N0tt0DJ6k';
+
 /** Rutas donde el botón flotante usa la configuración Camino. */
 export function isCaminoWhatsAppContext(pathname: string): boolean {
   return pathname === '/camino-de-santiago' || pathname.startsWith('/camino-de-santiago');
@@ -12,9 +16,9 @@ export function getCaminoFormPublicUrl(): string {
   return `${base}${caminoDeSantiagoContent.seo.canonicalPath}#registro`;
 }
 
-export function getCaminoWhatsAppGroupUrl(): string | null {
-  const url = process.env.NEXT_PUBLIC_CAMINO_WHATSAPP_GROUP_URL?.trim();
-  return url || null;
+export function getCaminoWhatsAppGroupUrl(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_CAMINO_WHATSAPP_GROUP_URL?.trim();
+  return fromEnv || CAMINO_WHATSAPP_GROUP_URL_DEFAULT;
 }
 
 export function getCaminoPaymentUrl(): string | null {
@@ -50,7 +54,7 @@ export function getCaminoWhatsAppPrefillChatUrl(): string {
  * Destino del botón flotante / CTA principal: grupo si está configurado; si no, chat con texto Camino.
  */
 export function getCaminoWhatsAppActionUrl(): string {
-  return getCaminoWhatsAppGroupUrl() ?? getCaminoWhatsAppPrefillChatUrl();
+  return getCaminoWhatsAppGroupUrl();
 }
 
 export function getDefaultSiteWhatsAppUrl(): string {

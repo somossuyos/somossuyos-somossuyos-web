@@ -63,8 +63,8 @@ export const caminoDeSantiagoContent = {
   community: {
     stepsIntro:
       'Para vivir esta experiencia con Somos Suyos, primero únete a nuestra comunidad de WhatsApp. Ahí compartimos el formulario, el webinar informativo y el enlace de pago cuando esté disponible.',
-    whatsappGroupLabel: 'Unirme al grupo de WhatsApp',
-    whatsappChatLabel: 'Escribir por WhatsApp (Camino)',
+    whatsappGroupLabel: 'Únete al grupo',
+    whatsappChatLabel: 'Únete al grupo',
     paymentLabel: 'Ir al pago del viaje',
     paymentPendingNote:
       'El enlace de pago se publicará aquí en cuanto esté listo (variable NEXT_PUBLIC_CAMINO_PAYMENT_URL en Amplify).',

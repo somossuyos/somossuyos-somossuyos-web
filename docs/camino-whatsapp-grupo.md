@@ -7,8 +7,10 @@ Usar el **enlace de invitación al grupo** (`https://chat.whatsapp.com/...`) en 
 Configurarlo en Amplify y `.env.local`:
 
 ```bash
-NEXT_PUBLIC_CAMINO_WHATSAPP_GROUP_URL=https://chat.whatsapp.com/TU_CODIGO
+NEXT_PUBLIC_CAMINO_WHATSAPP_GROUP_URL=https://chat.whatsapp.com/LZtFDpH4ype95N0tt0DJ6k
 ```
+
+Si no defines la variable, la web usa el mismo enlace por defecto en código (`CAMINO_WHATSAPP_GROUP_URL_DEFAULT`).
 
 ## Mensaje de bienvenida automático
 
@@ -37,4 +39,4 @@ En `/camino-de-santiago`:
 
 ## wa.me con texto prellenado
 
-Si aún no hay grupo, el botón abre `wa.me` al número Somos Suyos con el mensaje Camino. Útil solo como respaldo temporal.
+`getCaminoWhatsAppPrefillChatUrl()` sigue disponible para campañas en redes; los CTAs de la landing abren siempre el grupo.

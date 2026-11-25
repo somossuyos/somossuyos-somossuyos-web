@@ -5,8 +5,9 @@ import { isCaminoInscriptionsEnabled } from '@/src/lib/caminoDeSantiago/featureF
 import CaminoInscriptionForm from './CaminoInscriptionForm';
 import CaminoInscriptionsComingSoon from './CaminoInscriptionsComingSoon';
 import CaminoCommunityActions from './CaminoCommunityActions';
+import { getCaminoWhatsAppActionUrl } from '@/src/lib/caminoDeSantiago/whatsappLinks';
 
-const { hero, presentation, experience, tripDetails, inscription } = caminoDeSantiagoContent;
+const { hero, presentation, experience, tripDetails, inscription, community } = caminoDeSantiagoContent;
 
 const CaminoDeSantiagoComponent = () => {
   const inscriptionsOpen = isCaminoInscriptionsEnabled();
@@ -30,6 +31,14 @@ const CaminoDeSantiagoComponent = () => {
               Un camino por España que une oracion, cultura y fraternidad. Informacion del itinerario en actualizacion.
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+              <a
+                href={getCaminoWhatsAppActionUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#25D366] text-white font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity text-center"
+              >
+                {community.whatsappGroupLabel}
+              </a>
               <button
                 type="button"
                 onClick={scrollToInterest}
