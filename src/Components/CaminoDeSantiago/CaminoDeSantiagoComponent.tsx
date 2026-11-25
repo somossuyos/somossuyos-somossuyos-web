@@ -78,15 +78,6 @@ const CaminoDeSantiagoComponent = () => {
         </div>
       </section>
 
-      <section id="comunidad-whatsapp" className="py-14 px-4 sm:px-[8%] xl:px-[120px] border-y border-white/10">
-        <div className="max-w-4xl">
-          <h2 className="font-stretch-pro text-[22px] sm:text-[32px] text-pale-skin mb-6">
-            Comunidad WhatsApp — Camino y Fátima SOS
-          </h2>
-          <CaminoCommunityActions variant="dark" />
-        </div>
-      </section>
-
       <section className="py-16 px-4 sm:px-[8%] xl:px-[120px] font-futura text-white/90 text-base leading-relaxed max-w-4xl">
         <p className="mb-4">Un verano INOLVIDABLE en Portugal y España:</p>
         <ul className="list-disc pl-5 space-y-2 mb-8">
@@ -163,6 +154,15 @@ const CaminoDeSantiagoComponent = () => {
               Contacto
             </Link>
           </p>
+        </div>
+      </section>
+
+      <section id="comunidad-whatsapp" className="py-14 px-4 sm:px-[8%] xl:px-[120px] border-t border-white/10">
+        <div className="max-w-4xl">
+          <h2 className="font-stretch-pro text-[22px] sm:text-[32px] text-pale-skin mb-6">
+            Comunidad WhatsApp — Camino y Fátima SOS
+          </h2>
+          <CaminoCommunityActions variant="dark" />
         </div>
       </section>
     </div>
