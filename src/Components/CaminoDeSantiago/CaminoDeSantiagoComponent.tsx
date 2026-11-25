@@ -79,19 +79,19 @@ const CaminoDeSantiagoComponent = () => {
       </section>
 
       <section className="py-16 px-4 sm:px-[8%] xl:px-[120px] font-futura text-white/90 text-base leading-relaxed max-w-4xl">
-        <p className="mb-4">Un verano INOLVIDABLE en Portugal y España:</p>
-        <ul className="list-disc pl-5 space-y-2 mb-8">
-          <li>Retiro en Fátima</li>
-          <li>6 Etapas del Camino de Santiago Portugués Central</li>
-          <li>Llegada a Santiago de Compostela en el año JACOBEO</li>
-          <li>Acompañamiento espiritual- Padre Luis Ángel Espinosa</li>
+        <p className="mb-4 font-bold">Un verano INOLVIDABLE en Portugal y España:</p>
+        <ul className="space-y-2 mb-8 font-bold">
+          <li>🔥 Retiro en Fátima</li>
+          <li>👟 6 Etapas del Camino de Santiago Portugués Central</li>
+          <li>⛪ Llegada a Santiago de Compostela en el año JACOBEO</li>
+          <li>✝️ Acompañamiento espiritual- Padre Luis Ángel Espinosa</li>
         </ul>
-        <p className="mb-3">PRECIO POR PERSONA: 1.670 Euros</p>
-        <p className="mb-2">Incluye:</p>
+        <p className="mb-3 font-bold">PRECIO POR PERSONA: 1.670 Euros</p>
+        <p className="mb-2 font-bold">Incluye:</p>
         <p className="mb-6">
-          Alojamiento Desayunos Traslados terrestres Seguro de asistencia Kit del Peregrino SOMOS SUYOS Catequesis y
-          audios del retiro guiado Eucaristías Acompañamiento espiritual con el Padre Luis Angel Espinosa LC y María
-          Paula Aldana.
+          ★ Alojamiento ★ Desayunos ★ Traslados terrestres ★ Seguro de asistencia ★ Kit del Peregrino SOMOS SUYOS ★
+          Catequesis y audios del retiro guiado ★ Eucaristías ★ Acompañamiento espiritual con el Padre Luis Angel
+          Espinosa LC y María Paula Aldana.
         </p>
         <p className="mb-8">
           Nuestro itinerario espiritual girará en torno al discernimiento, confirmación o crisis de tu vocación personal
