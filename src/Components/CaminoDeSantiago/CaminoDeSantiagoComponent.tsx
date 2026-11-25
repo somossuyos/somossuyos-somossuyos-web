@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { caminoDeSantiagoContent, formatTripFieldValue } from '@/src/lib/caminoDeSantiago/content';
+import { caminoDeSantiagoContent } from '@/src/lib/caminoDeSantiago/content';
 import { isCaminoInscriptionsEnabled } from '@/src/lib/caminoDeSantiago/featureFlags';
 import CaminoInscriptionForm from './CaminoInscriptionForm';
 import CaminoInscriptionsComingSoon from './CaminoInscriptionsComingSoon';
@@ -8,7 +8,7 @@ import CaminoCommunityActions from './CaminoCommunityActions';
 import CaminoPaymentSection from './CaminoPaymentSection';
 import { getCaminoWhatsAppActionUrl } from '@/src/lib/caminoDeSantiago/whatsappLinks';
 
-const { hero, presentation, experience, tripDetails, inscription, community } = caminoDeSantiagoContent;
+const { hero, inscription, community } = caminoDeSantiagoContent;
 
 const CaminoDeSantiagoComponent = () => {
   const inscriptionsOpen = isCaminoInscriptionsEnabled();
@@ -20,16 +20,20 @@ const CaminoDeSantiagoComponent = () => {
     <div className="bg-black text-white min-h-screen">
       <section className="pt-[140px] sm:pt-[180px] xl:pt-[220px] pb-16 px-4 sm:px-[8%] xl:px-[120px]">
         <div className="grid xl:grid-cols-2 gap-10 xl:gap-16 items-center">
-          <div>
-            <p className="font-futura text-pale-skin text-sm tracking-[0.2em] uppercase mb-4">Eventos · Viajes</p>
-            <h1 className="font-stretch-pro text-[28px] sm:text-[42px] xl:text-[56px] leading-tight">
-              {hero.title}
+          <div className="min-w-0 [container-type:inline-size]">
+            <p className="font-futura text-pale-skin text-sm tracking-[0.2em] uppercase mb-4">SOMOS SUYOS 2027</p>
+            <h1 className="font-stretch-pro text-[clamp(1.75rem,11.2cqi,4rem)] leading-[0.95] tracking-[-0.02em]">
+              <span className="block">PEREGRINACIÓN</span>
+              <span className="block">CAMINO DE</span>
+              <span className="block">SANTIAGO +</span>
+              <span className="block">FÁTIMA</span>
             </h1>
-            <p className="font-dark-twenty text-pale-skin text-[32px] sm:text-[48px] xl:text-[64px] leading-none mt-2 mb-6">
-              {hero.subtitle}
+            <p className="font-dark-twenty text-pale-skin text-[28px] sm:text-[40px] xl:text-[52px] leading-none mt-2 mb-4">
+              5 al 12 de Junio 2027
             </p>
+            <p className="font-futura text-white text-lg sm:text-xl mb-2">“CAMINA POR TU VOCACIÓN”</p>
             <p className="font-futura text-white/80 text-base sm:text-lg max-w-xl mb-8">
-              Un camino por España que une oracion, cultura y fraternidad. Informacion del itinerario en actualizacion.
+              EXPERIENCIA DE SENDERISMO ESPIRITUAL CON SOMOS SUYOS
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap gap-4">
               <a
@@ -83,41 +87,63 @@ const CaminoDeSantiagoComponent = () => {
         </div>
       </section>
 
-      <section className="py-16 px-4 sm:px-[8%] xl:px-[120px] bg-white text-black">
-        <h2 className="font-stretch-pro text-[24px] sm:text-[36px] mb-6">{presentation.title}</h2>
-        <div className="grid md:grid-cols-2 gap-8 font-futura text-base sm:text-lg leading-relaxed text-black/85">
-          {presentation.paragraphs.map((paragraph) => (
-            <p key={paragraph.slice(0, 40)}>{paragraph}</p>
-          ))}
-        </div>
-      </section>
-
-      <section className="py-16 px-4 sm:px-[8%] xl:px-[120px]">
-        <h2 className="font-stretch-pro text-[24px] sm:text-[36px] mb-10 text-pale-skin">{experience.title}</h2>
-        <ul className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {experience.items.map((item) => (
-            <li
-              key={item.title}
-              className="rounded-[20px] border border-white/10 bg-white/5 p-6 hover:border-pale-skin/40 transition-colors"
-            >
-              <h3 className="font-dark-twenty text-pale-skin text-2xl mb-3">{item.title}</h3>
-              <p className="font-futura text-sm sm:text-base text-white/80">{item.description}</p>
-            </li>
-          ))}
+      <section className="py-16 px-4 sm:px-[8%] xl:px-[120px] font-futura text-white/90 text-base leading-relaxed max-w-4xl">
+        <p className="mb-4">Un verano INOLVIDABLE en Portugal y España:</p>
+        <ul className="list-disc pl-5 space-y-2 mb-8">
+          <li>Retiro en Fátima</li>
+          <li>6 Etapas del Camino de Santiago Portugués Central</li>
+          <li>Llegada a Santiago de Compostela en el año JACOBEO</li>
+          <li>Acompañamiento espiritual- Padre Luis Ángel Espinosa</li>
         </ul>
-      </section>
-
-      <section id="informacion" className="py-16 px-4 sm:px-[8%] xl:px-[120px] bg-pale-skin text-black">
-        <h2 className="font-stretch-pro text-[24px] sm:text-[36px] mb-4">{tripDetails.title}</h2>
-        <p className="font-futura text-base mb-10 max-w-3xl">{tripDetails.intro}</p>
-        <dl className="grid sm:grid-cols-2 gap-6">
-          {tripDetails.fields.map((field) => (
-            <div key={field.id} className="rounded-[16px] bg-black/5 px-5 py-4 border border-black/10">
-              <dt className="font-futura text-xs uppercase tracking-wide text-black/60 mb-1">{field.label}</dt>
-              <dd className="font-futura text-base sm:text-lg font-medium">{formatTripFieldValue(field.value)}</dd>
-            </div>
-          ))}
-        </dl>
+        <p className="mb-3">PRECIO POR PERSONA: 1.670 Euros</p>
+        <p className="mb-2">Incluye:</p>
+        <p className="mb-6">
+          Alojamiento Desayunos Traslados terrestres Seguro de asistencia Kit del Peregrino SOMOS SUYOS Catequesis y
+          audios del retiro guiado Eucaristías Acompañamiento espiritual con el Padre Luis Angel Espinosa LC y María
+          Paula Aldana.
+        </p>
+        <p className="mb-8">
+          Nuestro itinerario espiritual girará en torno al discernimiento, confirmación o crisis de tu vocación personal
+          desde la Teología del cuerpo.
+        </p>
+        <h2 className="font-stretch-pro text-pale-skin text-2xl mb-4">SERVICIOS INCLUIDOS</h2>
+        <ul className="list-disc pl-5 space-y-2 mb-8">
+          <li>Alojamiento en Hoteles/Pazos/Casas Rurales/Hostales/Pensiones con encanto, en habitación doble con baño privado.</li>
+          <li>Desayunos</li>
+          <li>Traslado de equipaje entre etapas (1 maleta por persona, máximo 20kg)</li>
+          <li>Dossier Digital de la ruta</li>
+          <li>Seguro de asistencia en viaje</li>
+          <li>Asistencia telefónica en ruta</li>
+          <li>Vehículo de asistencia en ruta, en caso de urgencia</li>
+          <li>Obsequios: Vieira y credencial del peregrino</li>
+          <li>Impuestos incluidos</li>
+          <li>Traslados terrestres Desde Lisboa hasta Santiago de Compostela y regreso de Santiago de Compostela a Madrid.</li>
+          <li>Itinerario espiritual (Jornadas guiadas en cada etapa del Camino)</li>
+          <li>Kit de Peregrino SOMOS SUYOS: (camiseta, agenda, lapicero, carnet del peregrino, Material de acompañamiento -para ejercicios y talleres)</li>
+          <li>Audios del retiro guiado y acceso a las grabaciones.</li>
+          <li>Acompañamiento espiritual por parte de SOMOS SUYOS: (MARÍA PAULA ALDANA Y EL PADRE LUIS ANGEL ESPINOSA LC)</li>
+          <li>Eucaristía y acompañamiento Sacerdotal (Confesiones).</li>
+        </ul>
+        <h2 className="font-stretch-pro text-pale-skin text-2xl mb-4">NO INCLUYE:</h2>
+        <ul className="list-disc pl-5 space-y-2 mb-8">
+          <li>Tiquetes aéreos, traslados desde y hacia el aeropuerto.</li>
+          <li>Almuerzos y cenas no indicadas en el itinerario</li>
+          <li>Gastos personales</li>
+          <li>Tour o visitas guiadas no descritas en el plan</li>
+          <li>Equipaje adicional, trámites de documentos de viaje u otros servicios no especificados en el plan.</li>
+          <li>Edad: 18 a 45 años.</li>
+        </ul>
+        <h2 className="font-stretch-pro text-pale-skin text-2xl mb-4">ITINERARIO:</h2>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>Día 1: Salida desde Lisboa y traslado terrestre a Fátima (Alojamiento)</li>
+          <li>Día 2: Fátima: Eucaristía, inicio del retiro espiritual. (Estaremos en Fátima hasta el medio día) Salida de Fátima a Tui. Alojamiento en Tui.</li>
+          <li>Día 3: Etapa Tui – Redondela . Alojamiento</li>
+          <li>Día 4: Etapa Redondela – Pontevedra. Alojamiento.</li>
+          <li>Día 5: Etapa Pontevedra – Caldas de Reis . Alojamiento.</li>
+          <li>Día 6: Etapa Caldas de Reis – Padrón. Alojamiento.</li>
+          <li>Día 7: Etapa Padrón – Santiago de Compostela. Alojamiento.</li>
+          <li>Día 8: Desayuno Santiago de Compostela, salida hacia Madrid en transporte terrestre.</li>
+        </ul>
       </section>
 
       <section className="px-4 sm:px-[8%] xl:px-[120px]">
