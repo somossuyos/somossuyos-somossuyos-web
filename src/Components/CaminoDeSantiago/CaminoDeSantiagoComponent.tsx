@@ -10,9 +10,6 @@ const { hero, inscription, community } = caminoDeSantiagoContent;
 
 const CaminoDeSantiagoComponent = () => {
   const inscriptionsOpen = isCaminoInscriptionsEnabled();
-  const scrollToInterest = () => {
-    document.getElementById('registro')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
 
   return (
     <div className="bg-black text-white min-h-screen">
@@ -30,26 +27,9 @@ const CaminoDeSantiagoComponent = () => {
               5 al 12 de Junio 2027
             </p>
             <p className="font-futura text-white text-lg sm:text-xl mb-2">“CAMINA POR TU VOCACIÓN”</p>
-            <p className="font-futura text-white/80 text-base sm:text-lg max-w-xl mb-8">
+            <p className="font-futura text-white/80 text-base sm:text-lg max-w-xl">
               EXPERIENCIA DE SENDERISMO ESPIRITUAL CON SOMOS SUYOS
             </p>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-              <a
-                href={getCaminoWhatsAppActionUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#25D366] text-white font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity text-center"
-              >
-                {community.whatsappGroupLabel}
-              </a>
-              <button
-                type="button"
-                onClick={scrollToInterest}
-                className="bg-pale-skin text-black font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity"
-              >
-                {inscriptionsOpen ? hero.ctaLabel : 'INSCRIPCIONES PROXIMAMENTE'}
-              </button>
-            </div>
           </div>
           <div className="relative w-full max-w-[520px] mx-auto xl:max-w-none aspect-[4/5] rounded-[24px] overflow-hidden border border-white/10 shadow-nav">
             {hero.imageUrl ? (
