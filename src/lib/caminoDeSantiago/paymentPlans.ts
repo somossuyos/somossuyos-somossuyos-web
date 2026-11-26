@@ -10,13 +10,13 @@ export type CaminoPaymentPlan = {
 export const CAMINO_PAYMENT_PLANS: CaminoPaymentPlan[] = [
   {
     id: 'single',
-    title: 'Un único pago: 1.670 € (Hasta el 20 de diciembre)',
+    title: 'PAGO ÚNICO: 1.670 € (Con descuento incluido) Hasta el 30 de Enero de 2027)',
     amountEur: 1670,
   },
   {
     id: 'installments',
-    title: 'Pago a cuotas',
-    amountEur: 505,
+    title: 'Pago Diferido',
+    amountEur: 531,
   },
 ];
 

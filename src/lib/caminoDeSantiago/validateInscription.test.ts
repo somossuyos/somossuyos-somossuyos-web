@@ -62,8 +62,11 @@ test('validateCaminoInscriptionPayload rejects fast submit', () => {
   if (!result.ok) assert.equal(result.code, 'spam_detected');
 });
 
-test('validateCaminoInscriptionPayload requires privacy checkbox', () => {
-  const result = validateCaminoInscriptionPayload({ ...validBase, aceptoDatos: false });
-  assert.equal(result.ok, false);
-  if (!result.ok) assert.equal(result.code, 'acepto_datos');
+test('validateCaminoInscriptionPayload accepts form through section B', () => {
+  const result = validateCaminoInscriptionPayload({
+    ...validBase,
+    pasaporteVigente: '',
+    aceptoDatos: false,
+  });
+  assert.equal(result.ok, true);
 });

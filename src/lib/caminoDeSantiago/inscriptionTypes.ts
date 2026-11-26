@@ -31,7 +31,7 @@ export type CaminoInscriptionClientPayload = {
   correo: string;
   telefonoMovil: string;
   telefonoAlternativo?: string;
-  pasaporteVigente: CaminoPassportValid;
+  pasaporteVigente?: CaminoPassportValid;
   aceptoDatos: boolean;
   /** Anti-spam: debe ir vacío */
   website?: string;
@@ -54,9 +54,9 @@ export type CaminoInscriptionStrapiData = {
   correo: string;
   telefono_movil: string;
   telefono_alternativo: string | null;
-  pasaporte_vigente: string;
+  pasaporte_vigente?: string | null;
   acepto_datos: boolean;
   fecha_inscripcion: string;
-  fecha_aceptacion_politica: string;
+  fecha_aceptacion_politica?: string | null;
   estado_inscripcion: string;
 };

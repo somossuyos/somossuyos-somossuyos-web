@@ -1,10 +1,8 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import { caminoDeSantiagoContent } from '@/src/lib/caminoDeSantiago/content';
 import { isCaminoInscriptionsEnabled } from '@/src/lib/caminoDeSantiago/featureFlags';
 import CaminoInscriptionForm from './CaminoInscriptionForm';
 import CaminoInscriptionsComingSoon from './CaminoInscriptionsComingSoon';
-import CaminoCommunityActions from './CaminoCommunityActions';
 import CaminoPaymentSection from './CaminoPaymentSection';
 import { getCaminoWhatsAppActionUrl } from '@/src/lib/caminoDeSantiago/whatsappLinks';
 
@@ -86,16 +84,10 @@ const CaminoDeSantiagoComponent = () => {
           <li>⛪ Llegada a Santiago de Compostela en el año JACOBEO</li>
           <li>✝️ Acompañamiento espiritual- Padre Luis Ángel Espinosa</li>
         </ul>
-        <p className="mb-3 font-bold">PRECIO POR PERSONA: 1.670 Euros</p>
-        <p className="mb-2 font-bold">Incluye:</p>
-        <p className="mb-6">
-          ★ Alojamiento ★ Desayunos ★ Traslados terrestres ★ Seguro de asistencia ★ Kit del Peregrino SOMOS SUYOS ★
-          Catequesis y audios del retiro guiado ★ Eucaristías ★ Acompañamiento espiritual con el Padre Luis Angel
-          Espinosa LC y María Paula Aldana.
-        </p>
+        <p className="mb-3 font-bold">PRECIO POR PERSONA: 1.670 €</p>
         <p className="mb-8">
-          Nuestro itinerario espiritual girará en torno al discernimiento, confirmación o crisis de tu vocación personal
-          desde la Teología del cuerpo.
+          Nuestro itinerario espiritual girará en torno al discernimiento, la confirmación o crisis de tu vocación
+          personal desde la Teología del cuerpo.
         </p>
         <h2 className="font-stretch-pro text-pale-skin text-2xl mb-4">SERVICIOS INCLUIDOS</h2>
         <ul className="list-disc pl-5 space-y-2 mb-8">
@@ -114,6 +106,7 @@ const CaminoDeSantiagoComponent = () => {
           <li>Audios del retiro guiado y acceso a las grabaciones.</li>
           <li>Acompañamiento espiritual por parte de SOMOS SUYOS: (MARÍA PAULA ALDANA Y EL PADRE LUIS ANGEL ESPINOSA LC)</li>
           <li>Eucaristía y acompañamiento Sacerdotal (Confesiones).</li>
+          <li>Edad: 18 a 45 años.</li>
         </ul>
         <h2 className="font-stretch-pro text-pale-skin text-2xl mb-4">NO INCLUYE:</h2>
         <ul className="list-disc pl-5 space-y-2 mb-8">
@@ -122,7 +115,6 @@ const CaminoDeSantiagoComponent = () => {
           <li>Gastos personales</li>
           <li>Tour o visitas guiadas no descritas en el plan</li>
           <li>Equipaje adicional, trámites de documentos de viaje u otros servicios no especificados en el plan.</li>
-          <li>Edad: 18 a 45 años.</li>
         </ul>
         <h2 className="font-stretch-pro text-pale-skin text-2xl mb-4">ITINERARIO:</h2>
         <ul className="list-disc pl-5 space-y-2">
@@ -144,26 +136,19 @@ const CaminoDeSantiagoComponent = () => {
       <section className="py-20 px-4 sm:px-[8%] xl:px-[120px]">
         <div className="max-w-4xl">
           <h2 className="font-stretch-pro text-[22px] sm:text-[32px] text-pale-skin mb-2">{inscription.title}</h2>
-          {inscriptionsOpen ? (
-            <p className="font-futura text-white/80 text-base mb-10">{inscription.subtitle}</p>
-          ) : null}
           {inscriptionsOpen ? <CaminoInscriptionForm /> : <CaminoInscriptionsComingSoon />}
-          <p className="font-futura text-sm text-white/50 mt-8">
-            Dudas generales:{' '}
-            <Link href="/contacto" className="text-pale-skin underline underline-offset-2">
-              Contacto
-            </Link>
-          </p>
         </div>
       </section>
 
-      <section id="comunidad-whatsapp" className="py-14 px-4 sm:px-[8%] xl:px-[120px] border-t border-white/10">
-        <div className="max-w-4xl">
-          <h2 className="font-stretch-pro text-[22px] sm:text-[32px] text-pale-skin mb-6">
-            Comunidad WhatsApp — Camino y Fátima SOS
-          </h2>
-          <CaminoCommunityActions variant="dark" />
-        </div>
+      <section id="comunidad-whatsapp" className="pb-20 px-4 sm:px-[8%] xl:px-[120px]">
+        <a
+          href={getCaminoWhatsAppActionUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-[#25D366] text-white font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity inline-block"
+        >
+          {community.whatsappGroupLabel}
+        </a>
       </section>
     </div>
   );

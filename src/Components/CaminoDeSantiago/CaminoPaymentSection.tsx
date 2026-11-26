@@ -1,21 +1,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { type CaminoPaymentPlanId } from '@/src/lib/caminoDeSantiago/paymentPlans';
-import type { CaminoPaymentChannel } from '@/src/lib/caminoDeSantiago/caminoWompiPricing';
 import { getWompiRedirectUrlBrowser, resolveWompiPublicKeyForWidget } from '@/src/lib/wompi/clientEnv';
 import type { PaymentResponseDTO } from '@/src/infrastructure/DTOs/Checkout/PaymentResponseDTO';
 
 const CaminoPaymentSection = () => {
   const router = useRouter();
   const [planId, setPlanId] = useState<CaminoPaymentPlanId>('single');
-  const [creditCard, setCreditCard] = useState(false);
   const [names, setNames] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const paymentChannel: CaminoPaymentChannel = creditCard ? 'credit_card' : 'other';
 
   const handlePay = async () => {
     setError('');
@@ -24,7 +20,7 @@ const CaminoPaymentSection = () => {
       const res = await fetch('/api/camino-santiago/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId, paymentChannel, names, email, phone }),
+        body: JSON.stringify({ planId, paymentChannel: 'other', names, email, phone }),
       });
       const json = (await res.json()) as {
         ok?: boolean;
@@ -81,7 +77,7 @@ const CaminoPaymentSection = () => {
               checked={planId === 'single'}
               onChange={() => setPlanId('single')}
             />
-            Un único pago: 1.670 € (Hasta el 20 de diciembre)
+            PAGO ÚNICO: 1.670 € (Con descuento incluido) Hasta el 30 de Enero de 2027)
           </label>
         </li>
         <li>
@@ -93,33 +89,22 @@ const CaminoPaymentSection = () => {
               checked={planId === 'installments'}
               onChange={() => setPlanId('installments')}
             />
-            Pago a cuotas:
+            Pago Diferido:
           </label>
           <ul className="list-disc pl-6 mt-2 space-y-1">
-            <li>Pago 1: 505 € (Inscripción y reserva del cupo) – Hasta el 20 de diciembre de 2026</li>
-            <li>Pago 2: 405 € - Hasta el 20 de enero de 2027</li>
-            <li>Pago 3: 405 € – Hasta el 20 de febrero de 2027</li>
-            <li>Pago 4: 405 € - Hasta el 20 de Marzo de 2027</li>
+            <li>Pago 1: 531 € (Inscripción y reserva del cupo) – Hasta el 30 de diciembre de 2026</li>
+            <li>Pago 2: 413 € - Hasta el 30 de enero de 2027</li>
+            <li>Pago 3: 413 € – Hasta el 28 de febrero de 2027</li>
+            <li>Pago 4: 413 € - Hasta el 30 de Marzo de 2027</li>
           </ul>
         </li>
       </ul>
       <div className="space-y-3 max-w-3xl mb-8 text-sm sm:text-base leading-relaxed">
-        <p>El pago se recibe a la TRM vigente en casas de cambio al momento de realizar cada pago.</p>
+        <p>El pago se recibe de acuerdo con el valor vigente en casas de cambio al momento de realizar la transacción.</p>
         <p>*** Cupos limitados.</p>
-        <p>
-          El cupo sólo será garantizado una vez sea efectuado el primer pago. Se debe enviar comprobante de pago, foto
-          del pasaporte y nombre de la persona que viajará al correo: contacto@somossuyos.com
-        </p>
-        <p>Métodos de pago: Pago en línea a través de la página de SOMOS SUYOS.</p>
-        <p>** Pagos con tarjeta de crédito tiene un recargo adicional del 6%</p>
-        <p>** Términos y condiciones disponibles en el grupo de whatsapp</p>
-        <p>Diligencia el formulario y recibe toda la información completa.</p>
+        <p>No te quedes sin vivir esta maravillosa experiencia espiritual con nosotros.</p>
+        <p>Diligencia el formulario, únete al grupo de whatspp y recibirás toda la información.</p>
       </div>
-
-      <label className="flex items-start gap-2 mb-6 max-w-3xl text-sm">
-        <input type="checkbox" className="mt-1" checked={creditCard} onChange={(e) => setCreditCard(e.target.checked)} />
-        Pago con tarjeta de crédito (recargo adicional del 6%)
-      </label>
 
       <div className="space-y-3 max-w-md mb-4">
         <input

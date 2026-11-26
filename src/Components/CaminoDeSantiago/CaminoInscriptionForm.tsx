@@ -3,10 +3,9 @@ import { useCaminoInscriptionForm } from '@/src/customHooks/useCaminoInscription
 import {
   CAMINO_CIVIL_STATE_OPTIONS,
   CAMINO_DOCUMENT_TYPES,
-  CAMINO_PASSPORT_VALID_OPTIONS,
   CAMINO_SEX_OPTIONS,
 } from '@/src/lib/caminoDeSantiago/inscriptionTypes';
-import { caminoDeSantiagoContent, getCaminoPrivacyPolicyHref } from '@/src/lib/caminoDeSantiago/content';
+import { caminoDeSantiagoContent } from '@/src/lib/caminoDeSantiago/content';
 import { countryNames } from '@/src/utils/countryNames';
 
 const inputClass = (invalid: boolean) =>
@@ -20,7 +19,6 @@ const CaminoInscriptionForm = () => {
   const { fields, edadHint, loading, completed, errorMessage, handleChange, handleSubmit } =
     useCaminoInscriptionForm();
   const { inscription } = caminoDeSantiagoContent;
-  const privacyPolicyHref = getCaminoPrivacyPolicyHref();
 
   if (completed) {
     return (
@@ -42,8 +40,6 @@ const CaminoInscriptionForm = () => {
       onSubmit={handleSubmit}
       noValidate
     >
-      <p className="sm:col-span-2 font-futura text-sm text-white/70">{inscription.ageNotice}</p>
-
       <SectionTitle>Seccion A — Datos personales</SectionTitle>
 
       <div className="sm:col-span-2 flex flex-col">
@@ -271,65 +267,6 @@ const CaminoInscriptionForm = () => {
           onChange={handleChange}
           className={inputClass(false)}
         />
-      </div>
-
-      <SectionTitle>Seccion C — Aspectos migratorios</SectionTitle>
-
-      <div className="sm:col-span-2 flex flex-col">
-        <span className="text-pale-skin text-[14px] mb-2">
-          Pasaporte vigente minimo hasta diciembre de 2027 *
-        </span>
-        <div className="flex flex-wrap gap-4">
-          {CAMINO_PASSPORT_VALID_OPTIONS.map((opt) => (
-            <label key={opt} className="flex items-center gap-2 font-futura text-sm text-white/90">
-              <input
-                type="radio"
-                name="pasaporteVigente"
-                value={opt}
-                checked={fields.pasaporteVigente === opt}
-                onChange={handleChange}
-                required
-              />
-              {opt}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <SectionTitle>Seccion D — Proteccion de datos</SectionTitle>
-
-      <div className="sm:col-span-2 flex items-start gap-3">
-        <input
-          id="aceptoDatos"
-          name="aceptoDatos"
-          type="checkbox"
-          checked={fields.aceptoDatos}
-          onChange={handleChange}
-          className="mt-1"
-          required
-        />
-        <label htmlFor="aceptoDatos" className="font-futura text-sm text-white/85">
-          Acepto el{' '}
-          {privacyPolicyHref ? (
-            <a
-              href={privacyPolicyHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-pale-skin underline"
-            >
-              tratamiento de datos personales
-            </a>
-          ) : (
-            <span className="text-pale-skin">tratamiento de datos personales</span>
-          )}{' '}
-          de Somos Suyos. *
-          {!privacyPolicyHref ? (
-            <span className="block text-white/55 text-xs mt-1">
-              La política integral está en revisión; el enlace se publicará antes de abrir inscripciones en
-              producción.
-            </span>
-          ) : null}
-        </label>
       </div>
 
       <div className="hidden" aria-hidden="true">

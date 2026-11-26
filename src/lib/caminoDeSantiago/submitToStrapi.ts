@@ -23,10 +23,10 @@ function mapToStrapi(data: CaminoInscriptionClientPayload, edad: number): Camino
     correo: data.correo,
     telefono_movil: data.telefonoMovil,
     telefono_alternativo: data.telefonoAlternativo?.trim() || null,
-    pasaporte_vigente: data.pasaporteVigente,
-    acepto_datos: true,
+    ...(data.pasaporteVigente ? { pasaporte_vigente: data.pasaporteVigente } : {}),
+    acepto_datos: data.aceptoDatos === true,
     fecha_inscripcion: now,
-    fecha_aceptacion_politica: now,
+    ...(data.aceptoDatos ? { fecha_aceptacion_politica: now } : {}),
     estado_inscripcion: 'RECIBIDA',
   };
 }

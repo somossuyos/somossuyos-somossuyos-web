@@ -148,15 +148,16 @@ export function validateCaminoInscriptionPayload(
     telefonoAlternativo = telefonoAlternativoRaw;
   }
 
-  const pasaporteVigente = trimStr(body.pasaporteVigente);
-  if (!isOneOf(pasaporteVigente, CAMINO_PASSPORT_VALID_OPTIONS)) {
-    return { ok: false, code: 'pasaporte_vigente', message: 'Indica si tienes pasaporte vigente.' };
+  const pasaporteRaw = trimStr(body.pasaporteVigente);
+  let pasaporteVigente: CaminoInscriptionClientPayload['pasaporteVigente'];
+  if (pasaporteRaw.length > 0) {
+    if (!isOneOf(pasaporteRaw, CAMINO_PASSPORT_VALID_OPTIONS)) {
+      return { ok: false, code: 'pasaporte_vigente', message: 'Indica si tienes pasaporte vigente.' };
+    }
+    pasaporteVigente = pasaporteRaw;
   }
 
   const aceptoDatos = body.aceptoDatos === true;
-  if (!aceptoDatos) {
-    return { ok: false, code: 'acepto_datos', message: 'Debes aceptar el tratamiento de datos personales.' };
-  }
 
   const data: CaminoInscriptionClientPayload = {
     nombreCompleto,
@@ -173,7 +174,7 @@ export function validateCaminoInscriptionPayload(
     telefonoMovil,
     telefonoAlternativo,
     pasaporteVigente,
-    aceptoDatos: true,
+    aceptoDatos,
     formStartedAt: started,
   };
 
