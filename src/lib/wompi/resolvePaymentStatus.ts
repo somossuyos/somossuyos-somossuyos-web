@@ -15,6 +15,8 @@ import { fetchWompiTransaction, normalizeWompiStatusForUi } from './fetchTransac
 import { processWompiTransactionUpdate } from './processWompiTransaction';
 import { RENSER_CANONICAL_PRODUCT_ID } from '@/src/lib/orders/renaserCheckout';
 import { shouldSendNovenaDigitalFulfillment } from './renaserPaymentValidation';
+import { isCaminoBiblicoOrderReference } from '@/src/lib/caminoBiblico/product';
+import { sendCaminoBiblicoFulfillmentEmail } from '@/src/lib/caminoBiblico/fulfillment';
 
 /**
  * Resuelve el estado del pago para /confirmacion-pago:
@@ -54,6 +56,17 @@ export async function resolvePaymentStatusForConfirmation(
           markProvisioningFailed,
         });
         emailSent = r.renaSerEmailSent;
+      } else if (wompi.customerEmail && isCaminoBiblicoOrderReference(reference)) {
+        const fulfillment = digitalFulfillmentFromWompiTransaction(trxLike, transactionId);
+        if (fulfillment) {
+          const r = await sendCaminoBiblicoFulfillmentEmail(fulfillment);
+          emailSent = r.sent;
+          console.info('[confirmacion-pago] camino-biblico fulfillment', {
+            transactionId,
+            sent: r.sent,
+            error: r.error ?? null,
+          });
+        }
       } else if (wompi.customerEmail && shouldSendNovenaDigitalFulfillment(reference, order)) {
         const fulfillment = digitalFulfillmentFromWompiTransaction(trxLike, transactionId);
         if (fulfillment) {

@@ -39,5 +39,7 @@ export function shouldSendNovenaDigitalFulfillment(
 ): boolean {
   if (order?.productId === RENSER_CANONICAL_PRODUCT_ID) return false;
   if (reference.startsWith('ss-renaser-')) return false;
+  if (reference.startsWith('ss-camino-biblico-')) return false;
+  if (reference.startsWith('ss-camino-')) return false;
   return true;
 }

@@ -3,6 +3,10 @@ import { ShopItem } from '@/src/entities/ShopItem';
 import { ShopItemsDTO } from '@/src/infrastructure/DTOs/Shop/ShopItemsDTO';
 import { shopRepository } from '@/src/infrastructure/repositories/shop.repository';
 import {
+  getCaminoBiblicoCourseSlug,
+  getCaminoBiblicoShopListItem,
+} from '@/src/lib/caminoBiblico/product';
+import {
   getMemoriasCongresoCourseSlug,
   getMemoriasCongresoShopListItem,
 } from '@/src/lib/shop/memoriasCongresoCourse';
@@ -62,12 +66,15 @@ export const getStaticProps: GetStaticProps = async () => {
   }) ?? [];
 
   const memoriasSlug = getMemoriasCongresoCourseSlug();
-  const coursesWithMemorias =
-    courses.some(course => course.slug === memoriasSlug)
-      ? courses
-      : [...courses, getMemoriasCongresoShopListItem()];
+  const caminoBiblicoSlug = getCaminoBiblicoCourseSlug();
+  const coursesWithMemorias = courses.some((course) => course.slug === memoriasSlug)
+    ? courses
+    : [...courses, getMemoriasCongresoShopListItem()];
+  const coursesWithAll = coursesWithMemorias.some((course) => course.slug === caminoBiblicoSlug)
+    ? coursesWithMemorias
+    : [...coursesWithMemorias, getCaminoBiblicoShopListItem()];
 
-  const items = [...productsItems, ...coursesWithMemorias];
+  const items = [...productsItems, ...coursesWithAll];
 
   const shopItems = items.sort((a, b) => {
     return a.category.name.localeCompare(b.category.name);

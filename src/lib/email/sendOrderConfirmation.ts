@@ -16,6 +16,8 @@ export type OrderConfirmationPayload = {
   productName?: string;
   /** Enlace de descarga (PDF en S3, etc.). */
   pdfDownloadUrl?: string;
+  /** Texto del botón de descarga en el correo digital. */
+  downloadButtonLabel?: string;
   /** Si se indica, sustituye el asunto por defecto. */
   subjectOverride?: string;
   /**
@@ -38,12 +40,14 @@ function buildDigitalDownloadHtml(props: {
   productName: string;
   pdfUrl: string;
   reference: string;
+  downloadButtonLabel?: string;
 }): string {
   const { greetingName, productName, pdfUrl, reference } = props;
   const safeProduct = escapeHtml(productName);
   const safeName = escapeHtml(greetingName);
   const safeRef = escapeHtml(reference);
   const safeUrl = escapeHtml(pdfUrl);
+  const btnLabel = escapeHtml(props.downloadButtonLabel?.trim() || 'Descargar (PDF)');
 
   return `
 <!DOCTYPE html>
@@ -82,7 +86,7 @@ function buildDigitalDownloadHtml(props: {
                   <td style="border-radius:999px;background:#111827;">
                     <a href="${safeUrl}" target="_blank" rel="noopener noreferrer"
                       style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-                      Descargar la novena (PDF)
+                      ${btnLabel}
                     </a>
                   </td>
                 </tr>
@@ -295,6 +299,7 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationPayload)
           productName,
           pdfUrl,
           reference: data.reference,
+          downloadButtonLabel: data.downloadButtonLabel,
         })
       : buildDefaultHtml(data);
 

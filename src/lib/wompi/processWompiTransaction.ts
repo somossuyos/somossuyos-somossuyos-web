@@ -11,6 +11,8 @@ import {
   shouldSendNovenaDigitalFulfillment,
   validateRenaserApprovedPayment,
 } from './renaserPaymentValidation';
+import { isCaminoBiblicoOrderReference } from '@/src/lib/caminoBiblico/product';
+import { sendCaminoBiblicoFulfillmentEmail } from '@/src/lib/caminoBiblico/fulfillment';
 import {
   consumeInvitationOnApprovedPayment,
   releaseInvitationIfPaymentFailed,
@@ -63,6 +65,17 @@ export async function processWompiTransactionUpdate(
   if (!order) {
     if (reference) {
       console.warn('[wompi/process] APPROVED sin orden persistida', { reference: reference.slice(0, 24) });
+    }
+    if (isCaminoBiblicoOrderReference(reference)) {
+      const fulfillment = digitalFulfillmentFromWompiTransaction(trx, trxId || reference || 'unknown');
+      if (fulfillment) {
+        const r = await sendCaminoBiblicoFulfillmentEmail({
+          ...fulfillment,
+          productName: fulfillment.productName || undefined,
+        });
+        result.novenaEmailSent = r.sent;
+      }
+      return result;
     }
     if (shouldSendNovenaDigitalFulfillment(reference, null)) {
       const fulfillment = digitalFulfillmentFromWompiTransaction(trx, trxId || reference || 'unknown');
