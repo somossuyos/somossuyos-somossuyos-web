@@ -9,38 +9,66 @@ import { formatDates } from '@/src/utils/formatDates';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { HomeExperience } from '@/src/Components/Homepage/Experiences/Experencies';
+import { getCaminoSantiagoUpcomingListItem } from '@/src/lib/caminoDeSantiago/upcomingEventListing';
+import { caminoDeSantiagoContent } from '@/src/lib/caminoDeSantiago/content';
 
 export const getStaticProps: GetStaticProps = async () => {
 
   const rawData = await experiencesRepository.getHomeNextExperience();
   const [nextExperienceData] = rawData.data ?? [];
-  const nextExperience = {
-    id: nextExperienceData?.id ?? 0,
-    slug: nextExperienceData?.attributes?.slug ?? '',
-    month: nextExperienceData?.id
-      ? experienceMonthLabel(nextExperienceData.id, nextExperienceData.attributes?.Fecha)
-      : '',
-    type: nextExperienceData?.attributes?.Tipo ?? '',
-    header: {
-      firstPart: nextExperienceData?.attributes?.Encabezado?.Titulos?.[0]?.contenido ?? '',
-      secondPart: nextExperienceData?.attributes?.Encabezado?.Titulos?.[1]?.contenido ?? ''
-    }
-  };
+  const caminoListing = getCaminoSantiagoUpcomingListItem();
+  const nextExperience = nextExperienceData
+    ? {
+        id: nextExperienceData.id,
+        slug: nextExperienceData.attributes?.slug ?? '',
+        month: experienceMonthLabel(nextExperienceData.id, nextExperienceData.attributes?.Fecha),
+        type: nextExperienceData.attributes?.Tipo ?? '',
+        header: {
+          firstPart: nextExperienceData.attributes?.Encabezado?.Titulos?.[0]?.contenido ?? '',
+          secondPart: nextExperienceData.attributes?.Encabezado?.Titulos?.[1]?.contenido ?? '',
+        },
+      }
+    : {
+        id: 20270605,
+        slug: caminoListing.slug,
+        month: caminoListing.month,
+        type: caminoListing.type ?? 'Presencial',
+        header: {
+          firstPart: 'PEREGRINACIÓN',
+          secondPart: 'CAMINO DE SANTIAGO + FÁTIMA',
+        },
+      };
 
   const nextExperiencesResponse = await experiencesRepository.getHomeExperiences();
-  const experiences = nextExperiencesResponse.data?.map((experience) => {
-    const month = experienceMonthLabel(experience.id, experience.attributes.Fecha);
-    return {
-      id: experience.id,
-      thumbnail: experience.attributes.Miniatura?.data?.attributes?.url ?? null,
-      month,
-      link: `/eventos/${experience.id}`,
-      title: experience.attributes.Titulo,
-      isDateSet: experience.attributes.Fecha !== null,
-      canInscribe: experience.attributes.habilitar_inscripcion ?? false,
-      soldOut: experience.attributes.vendido ?? false,
-    };
-  }) ?? [];
+  const experiencesFromCms =
+    nextExperiencesResponse.data?.map((experience) => {
+      const month = experienceMonthLabel(experience.id, experience.attributes.Fecha);
+      return {
+        id: experience.id,
+        thumbnail: experience.attributes.Miniatura?.data?.attributes?.url ?? null,
+        month,
+        path:
+          experience.attributes.slug === 'camino-de-santiago'
+            ? '/camino-de-santiago'
+            : `/eventos/${experience.attributes.slug || experience.id}`,
+        title: experience.attributes.Titulo,
+        isDateSet: experience.attributes.Fecha !== null,
+        canInscribe: experience.attributes.habilitar_inscripcion ?? false,
+        soldOut: experience.attributes.vendido ?? false,
+      };
+    }) ?? [];
+
+  const caminoHomeCard: HomeExperience = {
+    id: 20270605,
+    thumbnail: caminoDeSantiagoContent.hero.imageUrl,
+    month: caminoListing.month,
+    path: caminoListing.path,
+    title: caminoListing.title,
+    isDateSet: true,
+    canInscribe: caminoListing.canInscribe,
+    soldOut: false,
+  };
+  const experiences = [caminoHomeCard, ...experiencesFromCms.filter((e) => e.id !== 20270605)];
 
 
   const eventsResponse = await eventsRepository.getHomeNextEvent() as NextEventsDTO;

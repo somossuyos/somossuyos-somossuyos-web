@@ -2,6 +2,7 @@ import ExperiencesComponent from '@/src/Components/Experiences/ExperiencesCompon
 import { experiencesDataTransform } from '@/src/infrastructure/dataTransformers/ExperiencesDataTransformer';
 import { InscriptionCountDTO } from '@/src/infrastructure/DTOs/Experiences/InscriptionCountDTO';
 import { experiencesRepository } from '@/src/infrastructure/repositories/experience.repository';
+import { mergeCaminoIntoUpcomingExperiences } from '@/src/lib/caminoDeSantiago/upcomingEventListing';
 import { experienceMonthLabel } from '@/src/utils/experienceDisplayDates';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
@@ -11,11 +12,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const experiencesData = experiencesDataTransform(rawData);
   const inscriptionCountData = await experiencesRepository.getInscriptionsCount() as InscriptionCountDTO[];
 
-  if(!experiencesData){
-    return { notFound: true };
-  }
-
-  const experiences = experiencesData?.map((experience) => {
+  const experiences = (experiencesData ?? []).map((experience) => {
     const month = experienceMonthLabel(experience.id, experience.date);
     const inscriptionCount = inscriptionCountData.find((inscription) => inscription.data.id === experience.id)?.data.count ?? 0;
     const inscriptionLimit = experience.maxRegistrants ?? 0;
@@ -33,12 +30,12 @@ export const getServerSideProps: GetServerSideProps = async () => {
       soldOut: isFreeCategory ? isSoldFlag : (isSoldOutByLimit || isSoldFlag),
       type: experience.type || '',
     };
-  }) ?? [];
+  });
 
   return {
     props: {
-      experiences
-    }
+      experiences: mergeCaminoIntoUpcomingExperiences(experiences),
+    },
   };
 };
 

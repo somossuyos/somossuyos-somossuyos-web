@@ -67,7 +67,7 @@ const NextExperience = ({ id, slug, month, type, header }: NextExperienceProps) 
         </div>
         <Link
           className='xl:text-[30px] font-stretch-pro py-2 xl:py-4 bg-pale-skin w-fit rounded-l-full text-black pl-5 xl:pl-10 pr-[50px] xl:pr-[200px] 2xl:pr-[400px] self-end sm:self-auto -translate-y-1/2 sm:transform-none block'
-          href={`/eventos/${slug}`}
+          href={slug === 'camino-de-santiago' ? '/camino-de-santiago' : `/eventos/${slug}`}
         >
           Ver más
         </Link>
