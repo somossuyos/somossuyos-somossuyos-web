@@ -15,10 +15,13 @@ const CaminoPaymentSection = () => {
         </li>
       </ul>
       <div className="space-y-3 max-w-3xl text-sm sm:text-base leading-relaxed">
-        <p>El pago se recibe de acuerdo con el valor vigente en casas de cambio al momento de realizar la transacción.</p>
         <p>*** Cupos limitados.</p>
         <p>No te quedes sin vivir esta maravillosa experiencia espiritual con nosotros.</p>
         <p>Diligencia el formulario, únete al grupo de whatspp y recibirás toda la información.</p>
+        <p>
+          El pago se recibe en pesos de acuerdo con el valor en euros vigente en casas de cambio, al momento de
+          realizar la transacción.
+        </p>
       </div>
     </section>
   );

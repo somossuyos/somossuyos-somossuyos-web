@@ -1,5 +1,5 @@
 const MIN_AGE = 18;
-const MAX_AGE = 45;
+const MAX_AGE = 60;
 
 export function computeAgeFromBirthDate(birthDateIso: string, asOf: Date = new Date()): number | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(birthDateIso.trim());

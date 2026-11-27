@@ -60,3 +60,14 @@ export function getCaminoWhatsAppActionUrl(): string {
 export function getDefaultSiteWhatsAppUrl(): string {
   return 'https://wa.me/573223885754?text=Hola%2C%20me%20gustar%C3%ADa%20recibir%20informaci%C3%B3n%20sobre%20Somos%20Suyos.%20Gracias';
 }
+
+export const CAMINO_PAYMENT_REQUEST_WHATSAPP_MESSAGE =
+  'Hola! 😊 ¡Qué alegría que te sumes a esta gran aventura espiritual!🙏✨ Te enviaremos  tu enlace de pago para reservar tu cupo y comenzar a hacer realidad esta experiencia de Camino y fe.  Cuéntanos cómo deseas realizar tu pago';
+
+/** Chat Somos Suyos con mensaje prellenado para solicitar enlace de pago Camino. */
+export function getCaminoPaymentRequestWhatsAppUrl(): string {
+  const number =
+    process.env.NEXT_PUBLIC_CAMINO_PAYMENT_WHATSAPP_NUMBER?.replace(/\D/g, '') ||
+    DEFAULT_SOS_WHATSAPP_NUMBER;
+  return `https://wa.me/${number}?text=${encodeURIComponent(CAMINO_PAYMENT_REQUEST_WHATSAPP_MESSAGE)}`;
+}

@@ -27,7 +27,8 @@ test('computeAgeFromBirthDate', () => {
   assert.equal(age, 26);
   assert.equal(isAgeInAllowedRange(26), true);
   assert.equal(isAgeInAllowedRange(17), false);
-  assert.equal(isAgeInAllowedRange(46), false);
+  assert.equal(isAgeInAllowedRange(46), true);
+  assert.equal(isAgeInAllowedRange(61), false);
 });
 
 test('validateCaminoInscriptionPayload accepts valid data', () => {

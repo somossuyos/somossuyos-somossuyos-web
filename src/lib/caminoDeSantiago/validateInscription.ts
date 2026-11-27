@@ -91,7 +91,7 @@ export function validateCaminoInscriptionPayload(
     return {
       ok: false,
       code: 'edad',
-      message: `La inscripcion aplica para personas de 18 a 45 anos (tu edad calculada: ${edad}).`,
+      message: `La inscripcion aplica para personas de 18 a 60 anos (tu edad calculada: ${edad}).`,
     };
   }
 

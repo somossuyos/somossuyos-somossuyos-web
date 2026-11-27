@@ -53,7 +53,7 @@ export const useCaminoInscriptionForm = () => {
   const edadHint = useMemo(() => {
     if (edad === null) return '';
     if (!isAgeInAllowedRange(edad)) {
-      return `Edad calculada: ${edad} anos. Solo 18 a 45 anos.`;
+      return `Edad calculada: ${edad} anos. Solo 18 a 60 anos.`;
     }
     return `Edad calculada: ${edad} anos`;
   }, [edad]);

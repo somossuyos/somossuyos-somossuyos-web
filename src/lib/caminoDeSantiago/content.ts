@@ -53,7 +53,7 @@ export const caminoDeSantiagoContent = {
   inscription: {
     title: 'FORMULARIO DE INSCRIPCION — CAMINO DE SANTIAGO',
     subtitle: 'Inscripcion de personas interesadas en participar en la experiencia Camino de Santiago, Espana.',
-    ageNotice: 'Aplica para personas de 18 a 45 anos (edad calculada desde la fecha de nacimiento).',
+    ageNotice: 'Aplica para personas de 18 a 60 anos (edad calculada desde la fecha de nacimiento).',
     /** URL oficial aprobada vía NEXT_PUBLIC_CAMINO_PRIVACY_POLICY_URL; vacío = enlace deshabilitado hasta publicar política */
     privacyPolicyHref: '',
     successTitle: '¡Tu inscripcion fue recibida!',
@@ -64,6 +64,7 @@ export const caminoDeSantiagoContent = {
     stepsIntro:
       'Para vivir esta experiencia con Somos Suyos, primero únete a nuestra comunidad de WhatsApp. Ahí compartimos el formulario, el webinar informativo y el enlace de pago cuando esté disponible.',
     whatsappGroupLabel: 'Únete al grupo',
+    paymentRequestLabel: 'QUIERO HACER MI PAGO',
     whatsappChatLabel: 'Únete al grupo',
     paymentLabel: 'Ir al pago del viaje',
     paymentPendingNote: 'Reservas y formas de pago en esta misma página.',

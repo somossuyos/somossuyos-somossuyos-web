@@ -4,7 +4,10 @@ import { isCaminoInscriptionsEnabled } from '@/src/lib/caminoDeSantiago/featureF
 import CaminoInscriptionForm from './CaminoInscriptionForm';
 import CaminoInscriptionsComingSoon from './CaminoInscriptionsComingSoon';
 import CaminoPaymentSection from './CaminoPaymentSection';
-import { getCaminoWhatsAppActionUrl } from '@/src/lib/caminoDeSantiago/whatsappLinks';
+import {
+  getCaminoPaymentRequestWhatsAppUrl,
+  getCaminoWhatsAppActionUrl,
+} from '@/src/lib/caminoDeSantiago/whatsappLinks';
 
 const { hero, inscription, community } = caminoDeSantiagoContent;
 
@@ -86,7 +89,7 @@ const CaminoDeSantiagoComponent = () => {
           <li>Audios del retiro guiado y acceso a las grabaciones.</li>
           <li>Acompañamiento espiritual por parte de SOMOS SUYOS: (MARÍA PAULA ALDANA Y EL PADRE LUIS ANGEL ESPINOSA LC)</li>
           <li>Eucaristía y acompañamiento Sacerdotal (Confesiones).</li>
-          <li>Edad: 18 a 45 años.</li>
+          <li>Edad: 18 a 60 años.</li>
         </ul>
         <h2 className="font-stretch-pro text-pale-skin text-2xl mb-4">NO INCLUYE:</h2>
         <ul className="list-disc pl-5 space-y-2 mb-8">
@@ -121,14 +124,24 @@ const CaminoDeSantiagoComponent = () => {
       </section>
 
       <section id="comunidad-whatsapp" className="pb-20 px-4 sm:px-[8%] xl:px-[120px]">
-        <a
-          href={getCaminoWhatsAppActionUrl()}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-[#25D366] text-white font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity inline-block"
-        >
-          {community.whatsappGroupLabel}
-        </a>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+          <a
+            href={getCaminoWhatsAppActionUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#25D366] text-white font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity text-center"
+          >
+            {community.whatsappGroupLabel}
+          </a>
+          <a
+            href={getCaminoPaymentRequestWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-pale-skin text-black font-bold px-10 py-3 rounded-full text-sm sm:text-base hover:opacity-90 transition-opacity text-center"
+          >
+            {community.paymentRequestLabel}
+          </a>
+        </div>
       </section>
     </div>
   );
