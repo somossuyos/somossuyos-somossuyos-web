@@ -39,6 +39,7 @@ const CaminoInscriptionForm = () => {
       className="grid sm:grid-cols-2 gap-4 w-full max-w-3xl"
       onSubmit={handleSubmit}
       noValidate
+      autoComplete="off"
     >
       <SectionTitle>Seccion A — Datos personales</SectionTitle>
 
@@ -60,7 +61,7 @@ const CaminoInscriptionForm = () => {
 
       <div className="flex flex-col">
         <label htmlFor="tipoDocumento" className="text-pale-skin text-[14px] mb-2">
-          Tipo de documento *
+          Tipo de identificacion (CC, pasaporte, etc.) *
         </label>
         <select
           id="tipoDocumento"
@@ -83,7 +84,7 @@ const CaminoInscriptionForm = () => {
 
       <div className="flex flex-col">
         <label htmlFor="numeroDocumento" className="text-pale-skin text-[14px] mb-2">
-          Numero de documento *
+          Numero de documento (solo el numero, sin fotos ni archivos) *
         </label>
         <input
           id="numeroDocumento"
@@ -91,6 +92,9 @@ const CaminoInscriptionForm = () => {
           type="text"
           inputMode="text"
           autoComplete="off"
+          data-lpignore="true"
+          data-1p-ignore
+          data-form-type="other"
           required
           value={fields.numeroDocumento}
           onChange={handleChange}
@@ -269,9 +273,9 @@ const CaminoInscriptionForm = () => {
         />
       </div>
 
-      <div className="hidden" aria-hidden="true">
-        <label htmlFor="website">Website</label>
-        <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+      <div className="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
+        <label htmlFor="camino_hp_field">No completar</label>
+        <input id="camino_hp_field" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
       {errorMessage && (

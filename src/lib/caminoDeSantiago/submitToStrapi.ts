@@ -4,7 +4,12 @@ const STRAPI_COLLECTION = 'camino-santiago-inscripciones';
 
 export type StrapiSubmitResult =
   | { ok: true; id?: number }
-  | { ok: false; reason: 'not_configured' | 'strapi_error' | 'collection_missing'; status?: number };
+  | {
+      ok: false;
+      reason: 'not_configured' | 'strapi_error' | 'collection_missing';
+      status?: number;
+      detail?: string;
+    };
 
 function mapToStrapi(data: CaminoInscriptionClientPayload, edad: number): CaminoInscriptionStrapiData {
   const now = new Date().toISOString();
@@ -70,7 +75,7 @@ export async function submitCaminoInscriptionToStrapi(
         /* ignore */
       }
     }
-    return { ok: false, reason: 'strapi_error', status: response.status };
+    return { ok: false, reason: 'strapi_error', status: response.status, detail };
   }
 
   try {

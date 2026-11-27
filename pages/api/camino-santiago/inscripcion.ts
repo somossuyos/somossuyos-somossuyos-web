@@ -44,11 +44,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         message: 'Inscripciones temporalmente no disponibles. Intenta mas tarde.',
       });
     }
-    console.error('[camino-inscripcion] Strapi error', { status: strapi.status });
+    console.error('[camino-inscripcion] Strapi error', { status: strapi.status, detail: strapi.detail });
+    const detail = strapi.detail ?? '';
+    const edadServerMismatch =
+      validation.edad > 45 &&
+      (detail.length === 0 || /edad|maximum|max|45|greater/i.test(detail));
+    const message = edadServerMismatch
+      ? 'El servidor aun esta actualizando el rango de edad (18 a 60). Si tu edad es mayor a 45 anos, intenta en unas horas o escribenos por WhatsApp con tus datos.'
+      : 'No pudimos guardar tu inscripcion. Revisa fecha de nacimiento (18 a 60 anos) y telefono. Si sigue fallando, contactanos por WhatsApp.';
     return res.status(502).json({
       ok: false,
-      code: 'strapi_error',
-      message: 'No pudimos guardar tu inscripcion. Intenta de nuevo.',
+      code: edadServerMismatch ? 'edad_servidor' : 'strapi_error',
+      message,
     });
   }
 
