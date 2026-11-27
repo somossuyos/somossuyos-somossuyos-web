@@ -4,7 +4,7 @@ const DEFAULT_SOS_WHATSAPP_NUMBER = '573223885754';
 
 /** Invitación oficial grupo Peregrinación Camino de Santiago y Fátima SOS (público). */
 export const CAMINO_WHATSAPP_GROUP_URL_DEFAULT =
-  'https://chat.whatsapp.com/LZtFDpH4ype95N0tt0DJ6k';
+  'https://chat.whatsapp.com/LZtFDpH4ype95N0tt0DJ6k?s=cl&p=a&iam=2';
 
 /** Rutas donde el botón flotante usa la configuración Camino. */
 export function isCaminoWhatsAppContext(pathname: string): boolean {
@@ -61,10 +61,14 @@ export function getDefaultSiteWhatsAppUrl(): string {
   return 'https://wa.me/573223885754?text=Hola%2C%20me%20gustar%C3%ADa%20recibir%20informaci%C3%B3n%20sobre%20Somos%20Suyos.%20Gracias';
 }
 
-/** Chat Somos Suyos para solicitar pago Camino (sin mensaje prellenado). */
+/** Mensaje al chat oficial Somos Suyos (reserva / pago), no al grupo del Camino. */
+export const CAMINO_RESERVATION_WHATSAPP_MESSAGE =
+  'Hola, quiero reservar mi cupo para el Camino de Santiago';
+
+/** Chat Somos Suyos (573223885754) con texto de reserva — CTA «QUIERO HACER MI PAGO». */
 export function getCaminoPaymentRequestWhatsAppUrl(): string {
   const number =
     process.env.NEXT_PUBLIC_CAMINO_PAYMENT_WHATSAPP_NUMBER?.replace(/\D/g, '') ||
     DEFAULT_SOS_WHATSAPP_NUMBER;
-  return `https://wa.me/${number}`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(CAMINO_RESERVATION_WHATSAPP_MESSAGE)}`;
 }
