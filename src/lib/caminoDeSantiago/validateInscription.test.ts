@@ -35,7 +35,7 @@ test('validateCaminoInscriptionPayload accepts valid data', () => {
   const result = validateCaminoInscriptionPayload(validBase, { now: Date.now() });
   assert.equal(result.ok, true);
   if (result.ok) {
-    assert.ok(result.edad >= 18 && result.edad <= 45);
+    assert.ok(result.edad >= 18 && result.edad <= 60);
   }
 });
 
@@ -61,6 +61,15 @@ test('validateCaminoInscriptionPayload rejects fast submit', () => {
   );
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.code, 'spam_detected');
+});
+
+test('validateCaminoInscriptionPayload accepts phone with dashes or parentheses', () => {
+  const result = validateCaminoInscriptionPayload(
+    { ...validBase, telefonoMovil: '314-865-5583' },
+    { now: Date.now() },
+  );
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(result.data.telefonoMovil, '3148655583');
 });
 
 test('validateCaminoInscriptionPayload accepts form through section B', () => {

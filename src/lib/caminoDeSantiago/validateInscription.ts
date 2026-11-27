@@ -35,6 +35,15 @@ const NAME_RE = /^[a-zA-ZáéíóúñÑüÜ\s'.-]{3,120}$/;
 const DOC_NUM_RE = /^[a-zA-Z0-9.-]{4,24}$/;
 const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PHONE_RE = /^\+?[0-9\s]{8,18}$/;
+
+/** Acepta formatos habituales (+57, guiones, paréntesis) y normaliza a dígitos con + opcional al inicio. */
+function normalizePhoneInput(raw: string): string {
+  const trimmed = raw.trim();
+  const digitsOnly = trimmed.replace(/\D/g, '');
+  if (digitsOnly.length === 0) return trimmed;
+  if (trimmed.startsWith('+')) return `+${digitsOnly}`;
+  return digitsOnly;
+}
 const TEXT_RE = /^[a-zA-ZáéíóúñÑ0-9\s'.-]{2,80}$/;
 const MIN_FORM_MS = 2500;
 
@@ -130,7 +139,7 @@ export function validateCaminoInscriptionPayload(
     return { ok: false, code: 'correo', message: 'Correo electronico invalido.' };
   }
 
-  const telefonoMovil = trimStr(body.telefonoMovil).replace(/\s+/g, ' ');
+  const telefonoMovil = normalizePhoneInput(trimStr(body.telefonoMovil)).replace(/\s+/g, ' ');
   if (!PHONE_RE.test(telefonoMovil)) {
     return {
       ok: false,
@@ -139,7 +148,7 @@ export function validateCaminoInscriptionPayload(
     };
   }
 
-  const telefonoAlternativoRaw = trimStr(body.telefonoAlternativo);
+  const telefonoAlternativoRaw = normalizePhoneInput(trimStr(body.telefonoAlternativo));
   let telefonoAlternativo: string | undefined;
   if (telefonoAlternativoRaw.length > 0) {
     if (!PHONE_RE.test(telefonoAlternativoRaw)) {

@@ -28,7 +28,7 @@ const initialState: CaminoFormState = {
   sexo: '',
   nacionalidad: 'Colombia',
   ciudadResidencia: '',
-  paisResidencia: 'Colombia',
+  paisResidencia: 'COLOMBIA',
   profesion: '',
   estadoCivil: '',
   correo: '',

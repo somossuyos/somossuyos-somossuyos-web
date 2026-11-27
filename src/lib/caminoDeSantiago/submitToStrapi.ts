@@ -57,6 +57,19 @@ export async function submitCaminoInscriptionToStrapi(
   }
 
   if (!response.ok) {
+    let detail = '';
+    try {
+      const errBody = (await response.json()) as { error?: { message?: string; details?: unknown } };
+      detail = errBody.error?.message ?? JSON.stringify(errBody).slice(0, 500);
+      if (detail) console.error('[camino-inscripcion] Strapi response', { status: response.status, detail });
+    } catch {
+      try {
+        detail = (await response.text()).slice(0, 500);
+        console.error('[camino-inscripcion] Strapi response', { status: response.status, detail });
+      } catch {
+        /* ignore */
+      }
+    }
     return { ok: false, reason: 'strapi_error', status: response.status };
   }
 
