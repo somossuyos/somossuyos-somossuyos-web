@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { computeAgeFromBirthDate, isAgeInAllowedRange } from '@/src/lib/caminoDeSantiago/age';
 import type { CaminoInscriptionClientPayload } from '@/src/lib/caminoDeSantiago/inscriptionTypes';
+import { resolveCaminoFormFieldName } from '@/src/lib/caminoDeSantiago/formDomFieldNames';
 
 export type CaminoFormState = {
   nombreCompleto: string;
@@ -61,20 +62,24 @@ export const useCaminoInscriptionForm = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
-    const { name, value, type } = e.target;
+    const fieldKey = resolveCaminoFormFieldName(e.target.name);
+    if (!fieldKey) return;
+    const { value, type } = e.target;
     const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
     setFields((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? Boolean(checked) : value,
+      [fieldKey]: type === 'checkbox' ? Boolean(checked) : value,
     }));
     setErrorMessage('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (loading || completed) return;
     setLoading(true);
     setErrorMessage('');
+
+    const hp = (e.currentTarget.elements.namedItem('scs_cam_hp') as HTMLInputElement | null)?.value?.trim() ?? '';
 
     const payload: CaminoInscriptionClientPayload & { website: string; formStartedAt: number } = {
       ...fields,
@@ -84,7 +89,7 @@ export const useCaminoInscriptionForm = () => {
       estadoCivil: fields.estadoCivil as CaminoInscriptionClientPayload['estadoCivil'],
       telefonoAlternativo: fields.telefonoAlternativo || undefined,
       aceptoDatos: fields.aceptoDatos,
-      website: '',
+      website: hp,
       formStartedAt: formStartedAt.current,
     };
 

@@ -7,6 +7,17 @@ import {
 } from '@/src/lib/caminoDeSantiago/inscriptionTypes';
 import { caminoDeSantiagoContent } from '@/src/lib/caminoDeSantiago/content';
 import { countryNames } from '@/src/utils/countryNames';
+import {
+  CAMINO_FORM_DOM_NAMES,
+  caminoSensitiveInputProps,
+} from '@/src/lib/caminoDeSantiago/formDomFieldNames';
+
+const caminoAutofillUnlock = {
+  readOnly: true,
+  onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.readOnly = false;
+  },
+} as const;
 
 const inputClass = (invalid: boolean) =>
   `${invalid ? 'border-red-500' : 'border-transparent'} border-2 outline-none px-3 py-2 text-[14px] rounded-[10px] text-black bg-white w-full`;
@@ -40,19 +51,21 @@ const CaminoInscriptionForm = () => {
       onSubmit={handleSubmit}
       noValidate
       autoComplete="off"
+      data-lpignore="true"
     >
       <SectionTitle>Seccion A — Datos personales</SectionTitle>
 
       <div className="sm:col-span-2 flex flex-col">
-        <label htmlFor="nombreCompleto" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_nombre_completo" className="text-pale-skin text-[14px] mb-2">
           Nombre completo *
         </label>
         <input
-          id="nombreCompleto"
-          name="nombreCompleto"
+          id="scs_cam_nombre_completo"
+          name={CAMINO_FORM_DOM_NAMES.nombreCompleto}
           type="text"
-          autoComplete="name"
           required
+          {...caminoSensitiveInputProps}
+          {...caminoAutofillUnlock}
           value={fields.nombreCompleto}
           onChange={handleChange}
           className={inputClass(false)}
@@ -60,12 +73,13 @@ const CaminoInscriptionForm = () => {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="tipoDocumento" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_tipo_documento" className="text-pale-skin text-[14px] mb-2">
           Tipo de identificacion (CC, pasaporte, etc.) *
         </label>
         <select
-          id="tipoDocumento"
-          name="tipoDocumento"
+          id="scs_cam_tipo_documento"
+          name={CAMINO_FORM_DOM_NAMES.tipoDocumento}
+          autoComplete="off"
           required
           value={fields.tipoDocumento}
           onChange={handleChange}
@@ -83,19 +97,17 @@ const CaminoInscriptionForm = () => {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="numeroDocumento" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_numero_documento" className="text-pale-skin text-[14px] mb-2">
           Numero de documento (solo el numero, sin fotos ni archivos) *
         </label>
         <input
-          id="numeroDocumento"
-          name="numeroDocumento"
+          id="scs_cam_numero_documento"
+          name={CAMINO_FORM_DOM_NAMES.numeroDocumento}
           type="text"
           inputMode="text"
-          autoComplete="off"
-          data-lpignore="true"
-          data-1p-ignore
-          data-form-type="other"
           required
+          {...caminoSensitiveInputProps}
+          {...caminoAutofillUnlock}
           value={fields.numeroDocumento}
           onChange={handleChange}
           className={inputClass(false)}
@@ -103,14 +115,15 @@ const CaminoInscriptionForm = () => {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="fechaNacimiento" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_fecha_nacimiento" className="text-pale-skin text-[14px] mb-2">
           Fecha de nacimiento *
         </label>
         <input
-          id="fechaNacimiento"
-          name="fechaNacimiento"
+          id="scs_cam_fecha_nacimiento"
+          name={CAMINO_FORM_DOM_NAMES.fechaNacimiento}
           type="date"
           required
+          autoComplete="off"
           value={fields.fechaNacimiento}
           onChange={handleChange}
           className={inputClass(false)}
@@ -121,10 +134,18 @@ const CaminoInscriptionForm = () => {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="sexo" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_sexo" className="text-pale-skin text-[14px] mb-2">
           Sexo *
         </label>
-        <select id="sexo" name="sexo" required value={fields.sexo} onChange={handleChange} className={inputClass(false)}>
+        <select
+          id="scs_cam_sexo"
+          name={CAMINO_FORM_DOM_NAMES.sexo}
+          required
+          autoComplete="off"
+          value={fields.sexo}
+          onChange={handleChange}
+          className={inputClass(false)}
+        >
           <option value="" disabled>
             Seleccione
           </option>
@@ -137,13 +158,14 @@ const CaminoInscriptionForm = () => {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="nacionalidad" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_nacionalidad" className="text-pale-skin text-[14px] mb-2">
           Nacionalidad *
         </label>
         <input
-          id="nacionalidad"
-          name="nacionalidad"
+          id="scs_cam_nacionalidad"
+          name={CAMINO_FORM_DOM_NAMES.nacionalidad}
           list="camino-paises"
+          autoComplete="off"
           required
           value={fields.nacionalidad}
           onChange={handleChange}
@@ -152,13 +174,14 @@ const CaminoInscriptionForm = () => {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="ciudadResidencia" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_ciudad_residencia" className="text-pale-skin text-[14px] mb-2">
           Ciudad de residencia *
         </label>
         <input
-          id="ciudadResidencia"
-          name="ciudadResidencia"
+          id="scs_cam_ciudad_residencia"
+          name={CAMINO_FORM_DOM_NAMES.ciudadResidencia}
           type="text"
+          autoComplete="off"
           required
           value={fields.ciudadResidencia}
           onChange={handleChange}
@@ -167,12 +190,13 @@ const CaminoInscriptionForm = () => {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="paisResidencia" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_pais_residencia" className="text-pale-skin text-[14px] mb-2">
           Pais de residencia *
         </label>
         <select
-          id="paisResidencia"
-          name="paisResidencia"
+          id="scs_cam_pais_residencia"
+          name={CAMINO_FORM_DOM_NAMES.paisResidencia}
+          autoComplete="off"
           required
           value={fields.paisResidencia}
           onChange={handleChange}
@@ -187,13 +211,14 @@ const CaminoInscriptionForm = () => {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="profesion" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_profesion" className="text-pale-skin text-[14px] mb-2">
           Profesion u ocupacion *
         </label>
         <input
-          id="profesion"
-          name="profesion"
+          id="scs_cam_profesion"
+          name={CAMINO_FORM_DOM_NAMES.profesion}
           type="text"
+          autoComplete="off"
           required
           value={fields.profesion}
           onChange={handleChange}
@@ -202,12 +227,13 @@ const CaminoInscriptionForm = () => {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="estadoCivil" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_estado_civil" className="text-pale-skin text-[14px] mb-2">
           Estado civil *
         </label>
         <select
-          id="estadoCivil"
-          name="estadoCivil"
+          id="scs_cam_estado_civil"
+          name={CAMINO_FORM_DOM_NAMES.estadoCivil}
+          autoComplete="off"
           required
           value={fields.estadoCivil}
           onChange={handleChange}
@@ -227,55 +253,65 @@ const CaminoInscriptionForm = () => {
       <SectionTitle>Seccion B — Informacion de contacto</SectionTitle>
 
       <div className="sm:col-span-2 flex flex-col">
-        <label htmlFor="correo" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_correo" className="text-pale-skin text-[14px] mb-2">
           Correo electronico principal *
         </label>
         <input
-          id="correo"
-          name="correo"
-          type="email"
-          autoComplete="email"
+          id="scs_cam_correo"
+          name={CAMINO_FORM_DOM_NAMES.correo}
+          type="text"
+          inputMode="email"
           required
           value={fields.correo}
           onChange={handleChange}
           className={inputClass(false)}
+          {...caminoSensitiveInputProps}
+          {...caminoAutofillUnlock}
         />
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="telefonoMovil" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_telefono_movil" className="text-pale-skin text-[14px] mb-2">
           Telefono movil (WhatsApp) *
         </label>
+        <p className="text-white/50 text-xs mb-2">
+          Escribe tu propio numero. Si el navegador sugiere otro telefono, borralo y escribe el tuyo.
+        </p>
         <input
-          id="telefonoMovil"
-          name="telefonoMovil"
-          type="tel"
+          id="scs_cam_telefono_movil"
+          name={CAMINO_FORM_DOM_NAMES.telefonoMovil}
+          type="text"
+          inputMode="tel"
           placeholder="+57 3001234567"
-          autoComplete="tel"
           required
           value={fields.telefonoMovil}
           onChange={handleChange}
           className={inputClass(false)}
+          {...caminoSensitiveInputProps}
+          {...caminoAutofillUnlock}
         />
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="telefonoAlternativo" className="text-pale-skin text-[14px] mb-2">
+        <label htmlFor="scs_cam_telefono_alternativo" className="text-pale-skin text-[14px] mb-2">
           Telefono alternativo
         </label>
         <input
-          id="telefonoAlternativo"
-          name="telefonoAlternativo"
-          type="tel"
+          id="scs_cam_telefono_alternativo"
+          name={CAMINO_FORM_DOM_NAMES.telefonoAlternativo}
+          type="text"
+          inputMode="tel"
           value={fields.telefonoAlternativo}
           onChange={handleChange}
           className={inputClass(false)}
+          {...caminoSensitiveInputProps}
+          {...caminoAutofillUnlock}
         />
       </div>
 
       <div className="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
         <label htmlFor="camino_hp_field">No completar</label>
-        <input id="camino_hp_field" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        <input id="camino_hp_field" name="scs_cam_hp" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
       {errorMessage && (
