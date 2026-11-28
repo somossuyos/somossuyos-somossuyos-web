@@ -139,6 +139,15 @@ export async function processWompiTransactionUpdate(
     return result;
   }
 
+  if (isCaminoBiblicoOrderReference(reference)) {
+    const fulfillment = digitalFulfillmentFromWompiTransaction(trx, trxId || reference);
+    if (fulfillment) {
+      const r = await sendCaminoBiblicoFulfillmentEmail(fulfillment);
+      result.novenaEmailSent = r.sent;
+    }
+    return result;
+  }
+
   if (shouldSendNovenaDigitalFulfillment(reference, order)) {
     const fulfillment = digitalFulfillmentFromWompiTransaction(trx, trxId || reference);
     if (fulfillment) {
