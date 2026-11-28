@@ -20,7 +20,8 @@ const formatCop = (n: number) =>
 
 const CaminoBiblicoProductPage = () => {
   const router = useRouter();
-  const { hero, intro, plusTitle, plusIntro, plusItems, pricing } = caminoBiblicoContent;
+  const { hero, intro, plusTitle, plusIntro, plusItems, purchaseSectionTitle, pricing } =
+    caminoBiblicoContent;
   const [names, setNames] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -120,7 +121,7 @@ const CaminoBiblicoProductPage = () => {
         </div>
 
         <section id="comprar" className="scroll-mt-28 border-t border-white/10 pt-12 font-futura">
-          <h2 className="font-stretch-pro text-2xl text-pale-skin mb-8">BOTONES</h2>
+          <h2 className="font-stretch-pro text-2xl text-pale-skin mb-8">{purchaseSectionTitle}</h2>
 
           <PricingOption title={`1. ${pricing.wompiLabel}`} amount={pricing.wompiAmount}>
             <p className="text-white/70 text-sm mb-4">

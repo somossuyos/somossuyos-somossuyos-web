@@ -23,6 +23,7 @@ export const caminoBiblicoContent = {
     'Oraciones guía',
     'Espacio para tu bullet journal diario',
   ],
+  purchaseSectionTitle: 'Adquiere tu e-book aquí',
   pricing: {
     wompiLabel: 'Colombia — pago en línea (Wompi)',
     wompiAmount: '$25.000 COP',
